@@ -1,17 +1,20 @@
 package main
 
 import (
-	"githutb.com/phpgoc/zxqpro/server/routes"
 	"net/http"
+
+	"github.com/phpgoc/zxqpro/middle_ware"
+	"github.com/phpgoc/zxqpro/routes"
 
 	"github.com/gobuffalo/packr/v2"
 	"github.com/patrickmn/go-cache"
-	"githutb.com/phpgoc/zxqpro/server/interfaces"
-	"githutb.com/phpgoc/zxqpro/server/utils"
+	"github.com/phpgoc/zxqpro/interfaces"
+	"github.com/phpgoc/zxqpro/utils"
 )
 
 func main() {
 	router := routes.ApiRoutes()
+	router.Use(middle_ware.ValidationMiddleware())
 	err := utils.InitLog()
 	if err != nil {
 		return

@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"githutb.com/phpgoc/zxqpro/server/orm_model"
+	"github.com/phpgoc/zxqpro/orm_model"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )

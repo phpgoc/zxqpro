@@ -1,4 +1,4 @@
-module githutb.com/phpgoc/zxqpro/server
+module github.com/phpgoc/zxqpro
 
 go 1.24.1
 

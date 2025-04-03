@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/patrickmn/go-cache"
-	"githutb.com/phpgoc/zxqpro/server/impl"
+	"github.com/phpgoc/zxqpro/impl"
 )
 
 type CacheInterface interface {

@@ -1,7 +1,27 @@
+definitions:
+  request.Register:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - name
+    - password
+    type: object
+  response.CommonResponseWithoutData:
+    properties:
+      Code:
+        type: integer
+      message:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
-  /api/hello_world:
+  /hello_world:
     get:
       consumes:
       - application/json
@@ -16,4 +36,26 @@ paths:
       summary: hello example
       tags:
       - example
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      description: do hello
+      parameters:
+      - description: UserRegister
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/request.Register'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/response.CommonResponseWithoutData'
+      summary: user register
+      tags:
+      - User
 swagger: "2.0"

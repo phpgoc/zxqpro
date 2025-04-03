@@ -9,3 +9,8 @@ go install mvdan.cc/gofumpt
 ```shell
 go install github.com/swaggo/swag/cmd/swag@latest
 ```
+
+## gin swagger 生成文档
+```shell
+swag init -g cmd/server/main.go -d  server -o server/docs 
+```
