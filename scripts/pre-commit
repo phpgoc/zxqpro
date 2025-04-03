@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# 获取所有已添加到暂存区的 Go 文件
+staged_go_files=$(git diff --cached --name-only -- '*.go')
+
+if [ -n "$staged_go_files" ]; then
+    # 使用 gofumpt 格式化这些文件
+    for file in $staged_go_files; do
+        gofumpt -w "$file"
+        # 将格式化后的文件重新添加到暂存区
+        git add "$file"
+    done
+fi
+
+exit 0    
