@@ -3,7 +3,10 @@ package main
 import (
 	"net/http"
 
-	"github.com/phpgoc/zxqpro/middle_ware"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
+	"github.com/phpgoc/zxqpro/request"
+
 	"github.com/phpgoc/zxqpro/routes"
 
 	"github.com/gobuffalo/packr/v2"
@@ -14,7 +17,6 @@ import (
 
 func main() {
 	router := routes.ApiRoutes()
-	router.Use(middle_ware.ValidationMiddleware())
 	err := utils.InitLog()
 	if err != nil {
 		return
@@ -23,6 +25,13 @@ func main() {
 	utils.InitDb()
 	box := packr.New("static", "../static")
 	router.StaticFS("/static", http.FileSystem(box))
+	router.With()
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		err := v.RegisterValidation("complexPassword", request.ComplexPasswordValidator)
+		if err != nil {
+			panic(err)
+		}
+	}
 	interfaces.Cache.Set("key", "value123", cache.DefaultExpiration)
 	value, _ := interfaces.Cache.Get("key")
 	utils.LogInfo(value.(string))

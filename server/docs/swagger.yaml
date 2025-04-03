@@ -6,6 +6,7 @@ definitions:
       name:
         type: string
       password:
+        minLength: 8
         type: string
     required:
     - name
@@ -13,7 +14,7 @@ definitions:
     type: object
   response.CommonResponseWithoutData:
     properties:
-      Code:
+      code:
         type: integer
       message:
         type: string

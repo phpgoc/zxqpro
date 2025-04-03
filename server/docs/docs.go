@@ -88,14 +88,15 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 8
                 }
             }
         },
         "response.CommonResponseWithoutData": {
             "type": "object",
             "properties": {
-                "Code": {
+                "code": {
                     "type": "integer"
                 },
                 "message": {
