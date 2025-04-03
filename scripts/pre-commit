@@ -12,4 +12,8 @@ if [ -n "$staged_go_files" ]; then
     done
 fi
 
+
+swag init -g server/cmd/server/main.go -o server/docs
+git add server/docs
+
 exit 0    
