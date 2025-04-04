@@ -1,4 +1,16 @@
 definitions:
+  request.Login:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+      use_mobile:
+        type: boolean
+    required:
+    - name
+    - password
+    type: object
   request.Register:
     properties:
       email:
@@ -37,6 +49,28 @@ paths:
       summary: hello example
       tags:
       - example
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: user login
+      parameters:
+      - description: UserRegister
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/request.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/response.CommonResponseWithoutData'
+      summary: user login
+      tags:
+      - User
   /user/register:
     post:
       consumes:

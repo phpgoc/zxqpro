@@ -5,3 +5,9 @@ type Register struct {
 	Password string `json:"password" binding:"required,min=8,complexPassword"`
 	Email    string `json:"email" binding:"omitempty,email"`
 }
+
+type Login struct {
+	Name      string `json:"name" binding:"required"`
+	Password  string `json:"password" binding:"required"`
+	UseMobile bool   `json:"use_mobile" binding:"omitempty"`
+}
