@@ -37,7 +37,7 @@ import (
 // @Router /user/login [post]
 func UserLogin(c *gin.Context) {
 	var req request.UserLogin
-	if success := utils.Validate(c, &req); !success {
+	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
 	user := entity.User{Name: req.Name}
@@ -124,7 +124,7 @@ func UserInfo(c *gin.Context) {
 // @Router /user/update [post]
 func UserUpdate(c *gin.Context) {
 	var req request.UserUpdate
-	if success := utils.Validate(c, &req); !success {
+	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
 	userId := middleware.GetUserIdFromAuthMiddleware(c)
@@ -154,7 +154,7 @@ func UserUpdate(c *gin.Context) {
 // @Router /user/update_password [post]
 func UserUpdatePassword(c *gin.Context) {
 	var req request.UserUpdatePassword
-	if success := utils.Validate(c, &req); !success {
+	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
 	userId := middleware.GetUserIdFromAuthMiddleware(c)

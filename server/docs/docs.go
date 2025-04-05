@@ -31,7 +31,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "AdminRegister",
-                        "name": "user",
+                        "name": "AdminRegister",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -44,6 +44,81 @@ const docTemplate = `{
                         "description": "成功响应",
                         "schema": {
                             "$ref": "#/definitions/response.CommonResponseWithoutData"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/update_password": {
+            "post": {
+                "description": "admin update_password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "admin update_password",
+                "parameters": [
+                    {
+                        "description": "AdminUpdatePassword",
+                        "name": "AdminUpdatePassword",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AdminUpdatePassword"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponseWithoutData"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/user_list": {
+            "get": {
+                "description": "admin user_list",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "admin user_list",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "minimum": 5,
+                        "type": "integer",
+                        "default": 10,
+                        "name": "page_size",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
                         }
                     }
                 }
@@ -241,11 +316,24 @@ const docTemplate = `{
                 "password"
             ],
             "properties": {
-                "email": {
-                    "type": "string"
-                },
                 "name": {
                     "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                }
+            }
+        },
+        "request.AdminUpdatePassword": {
+            "type": "object",
+            "required": [
+                "id",
+                "password"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
                 },
                 "password": {
                     "type": "string",
@@ -261,10 +349,12 @@ const docTemplate = `{
             ],
             "properties": {
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "default": "admin"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "default": "Aa123456"
                 },
                 "use_mobile": {
                     "type": "boolean"

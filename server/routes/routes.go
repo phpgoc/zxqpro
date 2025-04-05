@@ -19,6 +19,8 @@ func ApiRoutes() *gin.Engine {
 	admin := api.Group("/admin")
 	admin.Use(middleware.AuthAdmin())
 	admin.POST("/register", AdminRegister)
+	admin.GET("/user_list", AdminUserList)
+	admin.POST("update_password", AdminUpdatePassword)
 
 	api.GET("/hello_world", HelloWorld)
 	api.POST("/user/login", UserLogin)

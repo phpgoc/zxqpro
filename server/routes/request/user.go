@@ -1,8 +1,8 @@
 package request
 
 type UserLogin struct {
-	Name      string `json:"name" binding:"required"`
-	Password  string `json:"password" binding:"required"`
+	Name      string `json:"name" binding:"required" default:"admin"`
+	Password  string `json:"password" binding:"required" default:"Aa123456"`
 	UseMobile bool   `json:"use_mobile" binding:"omitempty"`
 }
 

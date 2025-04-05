@@ -7,3 +7,8 @@ type User struct {
 	Email    string `json:"email"`
 	Avatar   byte   `json:"avatar"`
 }
+
+type UserList struct {
+	Total int64  `json:"total"`
+	Users []User `json:"users"`
+}
