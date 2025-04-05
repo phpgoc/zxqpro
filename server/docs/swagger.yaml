@@ -1,4 +1,17 @@
 definitions:
+  request.AdminCreateProject:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      owner_id:
+        type: integer
+    required:
+    - description
+    - name
+    - owner_id
+    type: object
   request.AdminRegister:
     properties:
       name:
@@ -96,6 +109,28 @@ definitions:
 info:
   contact: {}
 paths:
+  /admin/create_project:
+    post:
+      consumes:
+      - application/json
+      description: admin create_project
+      parameters:
+      - description: AdminCreateProject
+        in: body
+        name: AdminCreateProject
+        required: true
+        schema:
+          $ref: '#/definitions/request.AdminCreateProject'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/response.CommonResponseWithoutData'
+      summary: admin create_project
+      tags:
+      - Admin
   /admin/register:
     post:
       consumes:

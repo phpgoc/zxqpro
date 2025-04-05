@@ -21,8 +21,8 @@ func ApiRoutes() *gin.Engine {
 	admin.POST("/register", AdminRegister)
 	admin.GET("/user_list", AdminUserList)
 	admin.POST("update_password", AdminUpdatePassword)
+	admin.POST("create_project", AdminCreateProject)
 
-	api.GET("/hello_world", HelloWorld)
 	api.POST("/user/login", UserLogin)
 	api.POST("/user/logout", UserLogout)
 	api.GET("/user/info", UserInfo)

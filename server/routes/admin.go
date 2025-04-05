@@ -90,3 +90,38 @@ func AdminUpdatePassword(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
+
+// AdminCreateProject  godoc
+// @Summary admin create_project
+// @Schemes
+// @Description admin create_project
+// @Tags Admin
+// @Accept json
+// @Produce json
+// @Param AdminCreateProject body request.AdminCreateProject true "AdminCreateProject"
+// @Success 200 {object} response.CommonResponseWithoutData "成功响应"
+// @Router /admin/create_project [post]
+func AdminCreateProject(c *gin.Context) {
+	var req request.AdminCreateProject
+	if success := utils.ValidateJson(c, &req); !success {
+		return
+	}
+	// 判断id是否存在 没删除的
+	var user entity.User
+	result := dao.Db.Where("id = ?", req.OwnerID).Where("deleted_at IS NULL").First(&user)
+	if result.Error != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, result.Error.Error()))
+		return
+	}
+
+	project := entity.Project{
+		Name:        req.Name,
+		OwnerID:     req.OwnerID,
+		Description: req.Description,
+	}
+	if err := dao.Db.Create(&project).Error; err != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
+}

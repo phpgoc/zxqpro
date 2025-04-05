@@ -9,3 +9,9 @@ type AdminUpdatePassword struct {
 	ID       uint   `json:"id" binding:"required"`
 	Password string `json:"password" binding:"required,min=8,complexPassword"`
 }
+
+type AdminCreateProject struct {
+	Name        string `json:"name" binding:"required"`
+	OwnerID     uint   `json:"owner_id" binding:"required"`
+	Description string `json:"description" binding:"required"`
+}

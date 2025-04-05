@@ -15,6 +15,40 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/create_project": {
+            "post": {
+                "description": "admin create_project",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "admin create_project",
+                "parameters": [
+                    {
+                        "description": "AdminCreateProject",
+                        "name": "AdminCreateProject",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AdminCreateProject"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponseWithoutData"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/register": {
             "post": {
                 "description": "admin register",
@@ -309,6 +343,25 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "request.AdminCreateProject": {
+            "type": "object",
+            "required": [
+                "description",
+                "name",
+                "owner_id"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.AdminRegister": {
             "type": "object",
             "required": [
