@@ -3,9 +3,11 @@ package main
 import (
 	"net/http"
 
+	"github.com/phpgoc/zxqpro/model/dao"
+
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
-	"github.com/phpgoc/zxqpro/request"
+	"github.com/phpgoc/zxqpro/routes/request"
 
 	"github.com/phpgoc/zxqpro/routes"
 
@@ -20,7 +22,7 @@ func main() {
 		return
 	}
 
-	utils.InitDb()
+	dao.InitDb()
 	box := packr.New("static", "../../../static")
 	router.StaticFS("/static", http.FileSystem(box))
 

@@ -15,6 +15,40 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/register": {
+            "post": {
+                "description": "admin register",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "admin register",
+                "parameters": [
+                    {
+                        "description": "AdminRegister",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AdminRegister"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponseWithoutData"
+                        }
+                    }
+                }
+            }
+        },
         "/hello_world": {
             "get": {
                 "description": "do hello",
@@ -62,7 +96,7 @@ const docTemplate = `{
                                 {
                                     "type": "object",
                                     "properties": {
-                                        "Data": {
+                                        "data": {
                                             "$ref": "#/definitions/response.User"
                                         }
                                     }
@@ -93,7 +127,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.Login"
+                            "$ref": "#/definitions/request.UserLogin"
                         }
                     }
                 ],
@@ -107,9 +141,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/register": {
+        "/user/logout": {
             "post": {
-                "description": "user register",
+                "description": "user logout",
                 "consumes": [
                     "application/json"
                 ],
@@ -119,18 +153,7 @@ const docTemplate = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "user register",
-                "parameters": [
-                    {
-                        "description": "UserRegister",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.Register"
-                        }
-                    }
-                ],
+                "summary": "user logout",
                 "responses": {
                     "200": {
                         "description": "成功响应",
@@ -161,7 +184,41 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.UpdateUser"
+                            "$ref": "#/definitions/request.UserUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponseWithoutData"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/update_password": {
+            "post": {
+                "description": "user update_password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "user update_password",
+                "parameters": [
+                    {
+                        "description": "UserUpdatePassword",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UserUpdatePassword"
                         }
                     }
                 ],
@@ -177,25 +234,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "request.Login": {
-            "type": "object",
-            "required": [
-                "name",
-                "password"
-            ],
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "use_mobile": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "request.Register": {
+        "request.AdminRegister": {
             "type": "object",
             "required": [
                 "name",
@@ -214,12 +253,29 @@ const docTemplate = `{
                 }
             }
         },
-        "request.UpdateUser": {
+        "request.UserLogin": {
+            "type": "object",
+            "required": [
+                "name",
+                "password"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "use_mobile": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "request.UserUpdate": {
             "type": "object",
             "required": [
                 "avatar",
                 "email",
-                "name",
                 "user_name"
             ],
             "properties": {
@@ -231,10 +287,28 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "name": {
-                    "type": "string"
-                },
                 "user_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UserUpdatePassword": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "new_password2",
+                "old_password"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string",
+                    "minLength": 8
+                },
+                "new_password2": {
+                    "type": "string",
+                    "minLength": 8
+                },
+                "old_password": {
                     "type": "string"
                 }
             }

@@ -3,7 +3,7 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/phpgoc/zxqpro/docs"
-	"github.com/phpgoc/zxqpro/middleware"
+	"github.com/phpgoc/zxqpro/routes/middleware"
 )
 
 import (
@@ -16,13 +16,16 @@ func ApiRoutes() *gin.Engine {
 	api := router.Group("/api")
 	api.Use(middleware.AuthLogin())
 	docs.SwaggerInfo.BasePath = "/api"
+	admin := api.Group("/admin")
+	admin.Use(middleware.AuthAdmin())
+	admin.POST("/register", AdminRegister)
+
 	api.GET("/hello_world", HelloWorld)
-	api.POST("/user/register", UserRegister)
 	api.POST("/user/login", UserLogin)
-	// api.POST("/user/logout", UserLogout)
+	api.POST("/user/logout", UserLogout)
 	api.GET("/user/info", UserInfo)
 	api.POST("/user/update", UserUpdate)
-	// api.POST("/user/update_password", UserUpdatePassword)
+	api.POST("/user/update_password", UserUpdatePassword)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	return router
