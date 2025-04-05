@@ -19,6 +19,10 @@ func ApiRoutes() *gin.Engine {
 	api.GET("/hello_world", HelloWorld)
 	api.POST("/user/register", UserRegister)
 	api.POST("/user/login", UserLogin)
+	// api.POST("/user/logout", UserLogout)
+	api.GET("/user/info", UserInfo)
+	api.POST("/user/update", UserUpdate)
+	// api.POST("/user/update_password", UserUpdatePassword)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	return router

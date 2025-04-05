@@ -1,13 +1,13 @@
 package response
 
-type CommonResponse[T any] struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-	Data    T      `json:"data"`
+type CommonResponse struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
 }
 
-func CreateResponse[T any](code int, message string, data T) CommonResponse[T] {
-	return CommonResponse[T]{
+func CreateResponse(code int, message string, data interface{}) CommonResponse {
+	return CommonResponse{
 		Code:    code,
 		Message: message,
 		Data:    data,

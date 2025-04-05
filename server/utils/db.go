@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/phpgoc/zxqpro/orm_model"
+	"github.com/phpgoc/zxqpro/model/entity"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -16,5 +16,5 @@ func InitDb() {
 	}
 
 	// Migrate the schema
-	_ = Db.AutoMigrate(&orm_model.User{})
+	_ = Db.AutoMigrate(&entity.User{})
 }

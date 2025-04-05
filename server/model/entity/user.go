@@ -1,6 +1,8 @@
-package orm_model
+package entity
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type User struct {
 	gorm.Model
@@ -8,5 +10,5 @@ type User struct {
 	UserName string `json:"user_name"`
 	Password string `gorm:"not null" json:"password"`
 	Email    string `gorm:"unique" json:"email"`
-	Avatar   byte   `gorm:"size:255;efault:0" json:"avatar"`
+	Avatar   byte   `gorm:"size:255;default:0" json:"avatar"`
 }

@@ -14,6 +14,7 @@ const (
 	UnauthorizedMsg     = "Unauthorized"
 	InternalErrorStatus = 500
 	InternalErrorMsg    = "Internal Server Error"
+	userIdInContextKey  = "user_id"
 )
 
 func AuthLogin() gin.HandlerFunc {
@@ -65,8 +66,14 @@ func AuthLogin() gin.HandlerFunc {
 				return
 			}
 		}
-
+		c.Set(userIdInContextKey, cookieData.ID)
 		// 验证通过，继续处理请求
 		c.Next()
 	}
+}
+
+func GetUserIdFromAuthMiddleware(c *gin.Context) uint {
+	// 不需要处理异常，一定有
+	userId, _ := c.Get(userIdInContextKey)
+	return userId.(uint)
 }

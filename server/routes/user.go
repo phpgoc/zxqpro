@@ -8,11 +8,14 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/phpgoc/zxqpro/middleware"
+	"github.com/phpgoc/zxqpro/model/dao"
+	"github.com/phpgoc/zxqpro/model/entity"
+
 	"github.com/patrickmn/go-cache"
 	"github.com/phpgoc/zxqpro/interfaces"
 	"github.com/phpgoc/zxqpro/pro_types"
 
-	"github.com/phpgoc/zxqpro/orm_model"
 	"github.com/phpgoc/zxqpro/utils"
 
 	"github.com/gin-gonic/gin"
@@ -25,7 +28,7 @@ import (
 // UserRegister  godoc
 // @Summary user register
 // @Schemes
-// @Description do hello
+// @Description user register
 // @Tags User
 // @Accept json
 // @Produce json
@@ -37,7 +40,7 @@ func UserRegister(g *gin.Context) {
 	if success := utils.Validate(g, &req); !success {
 		return
 	}
-	user := orm_model.User{Name: req.Name, Password: req.Password, Email: req.Email}
+	user := entity.User{Name: req.Name, Password: req.Password, Email: req.Email}
 	result := utils.Db.Create(&user)
 
 	if result.RowsAffected == 1 {
@@ -64,7 +67,7 @@ func UserLogin(c *gin.Context) {
 	if success := utils.Validate(c, &req); !success {
 		return
 	}
-	user := orm_model.User{Name: req.Name}
+	user := entity.User{Name: req.Name}
 	result := utils.Db.Where(user).First(&user)
 	if result.Error != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "用户不存在 或密码错误"))
@@ -93,6 +96,64 @@ func UserLogin(c *gin.Context) {
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
 
+// UserInfo  godoc
+// @Summary user info
+// @Schemes
+// @Description user info
+// @Tags User
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.CommonResponse{Data=response.User} "成功响应"
+// @Router /user/info [get]
+func UserInfo(c *gin.Context) {
+	userId := middleware.GetUserIdFromAuthMiddleware(c)
+	utils.LogInfo(fmt.Sprintf("%d", userId))
+	user, err := dao.GetUserById(userId)
+	if err != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
+		return
+	}
+	responseStruct := response.User{
+		ID:       user.ID,
+		Name:     user.Name,
+		UserName: user.UserName,
+		Email:    user.Email,
+		Avatar:   user.Avatar,
+	}
+	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", responseStruct))
+}
+
+// UserUpdate  godoc
+// @Summary user update
+// @Schemes
+// @Description user update1
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param user body request.UpdateUser true "UserUpdate"
+// @Success 200 {object} response.CommonResponseWithoutData "成功响应"
+// @Router /user/update [post]
+func UserUpdate(c *gin.Context) {
+	var req request.UpdateUser
+	if success := utils.Validate(c, &req); !success {
+		return
+	}
+	userId := middleware.GetUserIdFromAuthMiddleware(c)
+	user := entity.User{
+		Name:     req.Name,
+		Email:    req.Email,
+		UserName: req.UserName,
+		Avatar:   req.Avatar,
+	}
+
+	result := utils.Db.Model(entity.User{}).Where("id = ?", userId).Updates(&user)
+	if result.RowsAffected == 1 {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
+	} else {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, result.Error.Error()))
+	}
+}
+
 func md5Password(password string, id uint) string {
 	combined := fmt.Sprintf("%s%d", password, id)
 	// 计算 MD5 哈希值
@@ -101,7 +162,7 @@ func md5Password(password string, id uint) string {
 	return hex.EncodeToString(hash[:])
 }
 
-func generateCookie(user orm_model.User) string {
+func generateCookie(user entity.User) string {
 	// 生成 cookie 使用id， 当前时间戳，和一个随机8位字符串生成
 	combined := fmt.Sprintf("%s%d%s", user.ID, time.Now().Unix(), utils.RandomString(8))
 	hash := sha1.Sum([]byte(combined))
