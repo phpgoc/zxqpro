@@ -129,7 +129,7 @@ func UserUpdate(c *gin.Context) {
 	}
 	userId := middleware.GetUserIdFromAuthMiddleware(c)
 	user := entity.User{
-		Email:    req.Email,
+		Email:    &req.Email,
 		UserName: req.UserName,
 		Avatar:   req.Avatar,
 	}
