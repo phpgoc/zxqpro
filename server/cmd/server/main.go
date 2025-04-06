@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 
+	"github.com/gin-contrib/cors"
+
 	"github.com/gin-gonic/gin"
 
 	"github.com/phpgoc/zxqpro/model/dao"
@@ -34,19 +36,15 @@ func main() {
 			panic(err)
 		}
 	}
-	// 如果不是release版本，开启跨域
+
 	if gin.Mode() != gin.ReleaseMode {
-		router.Use(gin.Logger())
-		router.Use(gin.Recovery())
-		router.Use(func(c *gin.Context) {
-			c.Header("Access-Control-Allow-Origin", "*")
-			c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
-			c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-			if c.Request.Method == http.MethodOptions {
-				c.AbortWithStatus(http.StatusNoContent)
-				return
-			}
-		})
+		// 非 Release 模式下，启用 CORS 中间件，允许所有来源访问
+		config := cors.DefaultConfig()
+		config.AllowOrigins = []string{"*"}
+		config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+		config.AllowHeaders = []string{"Content-Type", "Authorization"}
+		config.AllowCredentials = true
+		router.Use(cors.New(config))
 	}
 	_ = router.Run()
 }
