@@ -1,7 +1,10 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
+
+	"github.com/phpgoc/zxqpro/routes/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/phpgoc/zxqpro/model/dao"
@@ -124,4 +127,17 @@ func AdminCreateProject(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
+}
+
+// AdminResetRateLimit  godoc
+// @Summary admin reset_rate_limit
+// @Schemes
+// @Description admin reset_rate_limit
+// @Tags Admin
+// @Produce json
+// @Success 200 {object} response.CommonResponseWithoutData "成功响应"
+// @Router /admin/reset_rate_limit [post]
+func AdminResetRateLimit(c *gin.Context) {
+	sum := middleware.CleanAllMap()
+	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, fmt.Sprintf("ok,cleaned %d ", sum)))
 }

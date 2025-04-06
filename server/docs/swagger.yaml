@@ -153,6 +153,19 @@ paths:
       summary: admin register
       tags:
       - Admin
+  /admin/reset_rate_limit:
+    post:
+      description: admin reset_rate_limit
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/response.CommonResponseWithoutData'
+      summary: admin reset_rate_limit
+      tags:
+      - Admin
   /admin/update_password:
     post:
       consumes:
@@ -203,21 +216,6 @@ paths:
       summary: admin user_list
       tags:
       - Admin
-  /hello_world:
-    get:
-      consumes:
-      - application/json
-      description: do hello
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: hello example
-      tags:
-      - example
   /user/info:
     get:
       consumes:

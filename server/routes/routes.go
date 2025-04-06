@@ -15,6 +15,7 @@ func ApiRoutes() *gin.Engine {
 	router := gin.Default()
 	api := router.Group("/api")
 	api.Use(middleware.AuthLogin())
+	api.Use(middleware.RateLimit(1000))
 	docs.SwaggerInfo.BasePath = "/api"
 	admin := api.Group("/admin")
 	admin.Use(middleware.AuthAdmin())
@@ -22,8 +23,10 @@ func ApiRoutes() *gin.Engine {
 	admin.GET("/user_list", AdminUserList)
 	admin.POST("update_password", AdminUpdatePassword)
 	admin.POST("create_project", AdminCreateProject)
+	admin.POST("/reset_rate_limit", AdminResetRateLimit)
 
-	api.POST("/user/login", UserLogin)
+	api.POST("/user/login", middleware.RateLimit(20), UserLogin)
+
 	api.POST("/user/logout", UserLogout)
 	api.GET("/user/info", UserInfo)
 	api.POST("/user/update", UserUpdate)

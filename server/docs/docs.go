@@ -83,6 +83,26 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/reset_rate_limit": {
+            "post": {
+                "description": "admin reset_rate_limit",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "admin reset_rate_limit",
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponseWithoutData"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/update_password": {
             "post": {
                 "description": "admin update_password",
@@ -153,29 +173,6 @@ const docTemplate = `{
                         "description": "成功响应",
                         "schema": {
                             "$ref": "#/definitions/response.CommonResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/hello_world": {
-            "get": {
-                "description": "do hello",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "example"
-                ],
-                "summary": "hello example",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
                         }
                     }
                 }
