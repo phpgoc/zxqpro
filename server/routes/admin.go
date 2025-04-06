@@ -39,32 +39,6 @@ func AdminRegister(g *gin.Context) {
 	g.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
 
-// AdminUserList  godoc
-// @Summary admin user_list
-// @Schemes
-// @Description admin user_list
-// @Tags Admin
-// @Accept */*
-// @Produce json
-// @Param page query request.Page true "AdminUserList"
-// @Success 200 {object} response.CommonResponse[data=response.UserList] "成功响应"
-// @Router /admin/user_list [get]
-func AdminUserList(g *gin.Context) {
-	var req request.Page
-	if success := utils.ValidateQuery(g, &req); !success {
-		return
-	}
-	var total int64
-	dao.Db.Model(&entity.User{}).Count(&total)
-	total = total - 1
-	var responseUsers []response.User
-	dao.Db.Model(entity.User{}).Where("deleted_at IS NULL").Where("id != ?", 1).Offset((req.Page - 1) * req.PageSize).Limit(req.PageSize).Select("id, name, user_name, email, avatar").Find(&responseUsers)
-	g.JSON(http.StatusOK, response.CreateResponse(0, "ok", response.UserList{
-		Total: total,
-		Users: responseUsers,
-	}))
-}
-
 // AdminUpdatePassword  godoc
 // @Summary admin update_password
 // @Schemes
@@ -126,6 +100,7 @@ func AdminCreateProject(c *gin.Context) {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
+	_ = dao.CreateRole(project.OwnerID, project.ID, entity.RoleTypeOwner)
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
 

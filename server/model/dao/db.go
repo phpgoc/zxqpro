@@ -22,6 +22,7 @@ func InitDb() {
 	// Migrate the schema
 	_ = Db.AutoMigrate(&entity.User{})
 	_ = Db.AutoMigrate(&entity.Project{})
+	_ = Db.AutoMigrate(&entity.Role{})
 	// 如果数据库没有数据就插入一条数据
 	var count int64
 	Db.Model(entity.User{}).Count(&count)

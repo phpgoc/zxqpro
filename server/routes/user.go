@@ -176,6 +176,32 @@ func UserUpdatePassword(c *gin.Context) {
 	}
 }
 
+// UserList  godoc
+// @Summary user list
+// @Schemes
+// @Description user list
+// @Tags User
+// @Accept */*
+// @Produce json
+// @Param page query request.Page true "UserList"
+// @Success 200 {object} response.CommonResponse[data=response.UserList] "成功响应"
+// @Router /user/list [get]
+func UserList(g *gin.Context) {
+	var req request.Page
+	if success := utils.ValidateQuery(g, &req); !success {
+		return
+	}
+	var total int64
+	dao.Db.Model(&entity.User{}).Count(&total)
+	total = total - 1
+	var responseUsers []response.User
+	dao.Db.Model(entity.User{}).Where("deleted_at IS NULL").Where("id != ?", 1).Offset((req.Page - 1) * req.PageSize).Limit(req.PageSize).Select("id, name, user_name, email, avatar").Find(&responseUsers)
+	g.JSON(http.StatusOK, response.CreateResponse(0, "ok", response.UserList{
+		Total: total,
+		Users: responseUsers,
+	}))
+}
+
 func generateCookie(user entity.User) string {
 	// 生成 cookie 使用id， 当前时间戳，和一个随机8位字符串生成
 	combined := fmt.Sprintf("%s%d%s", user.ID, time.Now().Unix(), utils.RandomString(8))

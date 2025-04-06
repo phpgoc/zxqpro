@@ -1,4 +1,16 @@
 definitions:
+  entity.RoleType:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    type: integer
+    x-enum-varnames:
+    - Admin
+    - Producter
+    - Developer
+    - Tester
   request.AdminCreateProject:
     properties:
       description:
@@ -33,6 +45,22 @@ definitions:
     required:
     - id
     - password
+    type: object
+  request.ProjectDeleteRole:
+    properties:
+      project_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  request.ProjectUpsertRole:
+    properties:
+      project_id:
+        type: integer
+      role_type:
+        $ref: '#/definitions/entity.RoleType'
+      user_id:
+        type: integer
     type: object
   request.UserLogin:
     properties:
@@ -92,6 +120,22 @@ definitions:
         type: integer
       message:
         type: string
+    type: object
+  response.Project:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      role_type:
+        $ref: '#/definitions/entity.RoleType'
+    type: object
+  response.ProjectList:
+    properties:
+      projects:
+        items:
+          $ref: '#/definitions/response.Project'
+        type: array
     type: object
   response.User:
     properties:
@@ -188,11 +232,110 @@ paths:
       summary: admin update_password
       tags:
       - Admin
-  /admin/user_list:
+  /project/create_role:
+    post:
+      consumes:
+      - application/json
+      description: project create role
+      parameters:
+      - description: AdminRegister
+        in: body
+        name: ProjectUpsertRole
+        required: true
+        schema:
+          $ref: '#/definitions/request.ProjectUpsertRole'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/response.CommonResponseWithoutData'
+      summary: project create role
+      tags:
+      - Project
+  /project/delete_role:
+    post:
+      consumes:
+      - application/json
+      description: project delete role
+      parameters:
+      - description: ProjectDeleteRole
+        in: body
+        name: ProjectDeleteRole
+        required: true
+        schema:
+          $ref: '#/definitions/request.ProjectDeleteRole'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/response.CommonResponseWithoutData'
+      summary: project delete role
+      tags:
+      - Project
+  /project/list:
+    get:
+      description: project list
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/response.ProjectList'
+      summary: project list
+      tags:
+      - Project
+  /project/update_role:
+    post:
+      consumes:
+      - application/json
+      description: project update role
+      parameters:
+      - description: AdminRegister
+        in: body
+        name: ProjectUpsertRole
+        required: true
+        schema:
+          $ref: '#/definitions/request.ProjectUpsertRole'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/response.CommonResponseWithoutData'
+      summary: project update role
+      tags:
+      - Project
+  /user/info:
+    get:
+      consumes:
+      - application/json
+      description: user info
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.CommonResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.User'
+              type: object
+      summary: user info
+      tags:
+      - User
+  /user/list:
     get:
       consumes:
       - '*/*'
-      description: admin user_list
+      description: user list
       parameters:
       - default: 1
         in: query
@@ -213,27 +356,7 @@ paths:
           description: 成功响应
           schema:
             $ref: '#/definitions/response.CommonResponse'
-      summary: admin user_list
-      tags:
-      - Admin
-  /user/info:
-    get:
-      consumes:
-      - application/json
-      description: user info
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 成功响应
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.CommonResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/response.User'
-              type: object
-      summary: user info
+      summary: user list
       tags:
       - User
   /user/login:

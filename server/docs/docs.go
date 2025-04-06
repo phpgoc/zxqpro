@@ -137,42 +137,123 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/user_list": {
-            "get": {
-                "description": "admin user_list",
+        "/project/create_role": {
+            "post": {
+                "description": "project create role",
                 "consumes": [
-                    "*/*"
+                    "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Admin"
+                    "Project"
                 ],
-                "summary": "admin user_list",
+                "summary": "project create role",
                 "parameters": [
                     {
-                        "minimum": 1,
-                        "type": "integer",
-                        "default": 1,
-                        "name": "page",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "minimum": 5,
-                        "type": "integer",
-                        "default": 10,
-                        "name": "page_size",
-                        "in": "query",
-                        "required": true
+                        "description": "AdminRegister",
+                        "name": "ProjectUpsertRole",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ProjectUpsertRole"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "成功响应",
                         "schema": {
-                            "$ref": "#/definitions/response.CommonResponse"
+                            "$ref": "#/definitions/response.CommonResponseWithoutData"
+                        }
+                    }
+                }
+            }
+        },
+        "/project/delete_role": {
+            "post": {
+                "description": "project delete role",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "project delete role",
+                "parameters": [
+                    {
+                        "description": "ProjectDeleteRole",
+                        "name": "ProjectDeleteRole",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ProjectDeleteRole"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponseWithoutData"
+                        }
+                    }
+                }
+            }
+        },
+        "/project/list": {
+            "get": {
+                "description": "project list",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "project list",
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProjectList"
+                        }
+                    }
+                }
+            }
+        },
+        "/project/update_role": {
+            "post": {
+                "description": "project update role",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "project update role",
+                "parameters": [
+                    {
+                        "description": "AdminRegister",
+                        "name": "ProjectUpsertRole",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ProjectUpsertRole"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponseWithoutData"
                         }
                     }
                 }
@@ -208,6 +289,47 @@ const docTemplate = `{
                                     }
                                 }
                             ]
+                        }
+                    }
+                }
+            }
+        },
+        "/user/list": {
+            "get": {
+                "description": "user list",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "user list",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "minimum": 5,
+                        "type": "integer",
+                        "default": 10,
+                        "name": "page_size",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
                         }
                     }
                 }
@@ -340,6 +462,21 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "entity.RoleType": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "x-enum-varnames": [
+                "Admin",
+                "Producter",
+                "Developer",
+                "Tester"
+            ]
+        },
         "request.AdminCreateProject": {
             "type": "object",
             "required": [
@@ -388,6 +525,31 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "minLength": 8
+                }
+            }
+        },
+        "request.ProjectDeleteRole": {
+            "type": "object",
+            "properties": {
+                "project_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.ProjectUpsertRole": {
+            "type": "object",
+            "properties": {
+                "project_id": {
+                    "type": "integer"
+                },
+                "role_type": {
+                    "$ref": "#/definitions/entity.RoleType"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -473,6 +635,31 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "response.Project": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role_type": {
+                    "$ref": "#/definitions/entity.RoleType"
+                }
+            }
+        },
+        "response.ProjectList": {
+            "type": "object",
+            "properties": {
+                "projects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Project"
+                    }
                 }
             }
         },
