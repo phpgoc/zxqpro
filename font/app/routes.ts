@@ -10,13 +10,19 @@ export default [
     index("./pages/index.tsx"),
 
     layout("./pages/layout.tsx", [
-        route("/project", "./pages/project/index.tsx"),
-        route("/task", "./pages/task/index.tsx"),
+            ...prefix("project",[
+                route("/", "./pages/project/index.tsx"),
+            ]),
+        ...prefix("task",[
+            route("/", "./pages/task/index.tsx"),
+        ]),
+        ...prefix("admin",[
+            route("/", "./pages/admin/index.tsx"),
+        ]),
+        ...prefix("setting",[
+            route("/", "./pages/setting/index.tsx"),
+        ]),
+
     ]),
 
-    // ...prefix("concerts", [
-    //     index("./concerts/home.tsx"),
-    //     route(":city", "./concerts/city.tsx"),
-    //     route("trending", "./concerts/trending.tsx"),
-    // ]),
 ] satisfies RouteConfig;

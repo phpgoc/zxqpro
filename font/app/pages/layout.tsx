@@ -1,15 +1,97 @@
-import { Outlet } from "react-router";
-export default function Layout({ children }: { children: React.ReactNode }) {
+import React from'react';
+import { Button, Layout, Menu } from 'antd';
+import { HomeOutlined, SettingOutlined, SettingFilled, UsergroupAddOutlined } from '@ant-design/icons';
+import { Outlet, useLocation, useNavigate } from "react-router";
+
+
+const { Header, Content } = Layout;
+
+const items = [
+    {
+        key: 'project',
+        label: 'Project',
+        icon: <HomeOutlined />,
+    },
+    {
+        key: 'task',
+        label: 'Task',
+        icon: <UsergroupAddOutlined />,
+    },
+    {
+        key: 'admin',
+        label: 'Admin',
+        icon: <SettingFilled />,
+    },
+    {
+        key:'setting',
+        label: 'Setting',
+        icon: <SettingOutlined />,
+    },
+];
+
+export default function ZxqLayout() {
+    const navigate = useNavigate();
+    const currentPath = useLocation().pathname;
+    const user = {
+        name: "John Doe",
+        avatar: "http://localhost:8080/static/avatar/1.webp",
+    };
     return (
-        <div className="flex flex-col h-screen">
-        <header className="bg-gray-800 text-white p-4">
-            <a href="/project" className="ml-4" >Project</a>
-            <a href="/task" className="ml-4">Task</a>
-        </header>
-        <main className="flex-grow p-4"><Outlet /></main>
-        <footer className="bg-gray-800 text-white p-4 text-center">
-            &copy; 2023 My Application
-        </footer>
-        </div>
+        <Layout>
+            <Header style={{
+                // 导航栏背景：渐变蓝色（从 #1890FF 到 #40a9ff）
+                background: 'linear-gradient(90deg, #1890FF 0%, #40a9ff 100%)',
+                // 增加阴影提升层次感
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.08)',
+                height: '56px', // 适当增加高度让导航更舒展
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '0 40px', // 左右内边距，让内容不贴边
+            }}>
+                <div style={{
+                    width: '50%', // 左边元素占据50%宽度
+                }}>
+                    <Menu
+                        mode="horizontal"
+                        items={items}
+                        selectedKeys={currentPath.includes('/project')? ['project'] :
+                            currentPath.includes('/task')? ['task'] :
+                                currentPath.includes('/admin')? ['admin'] :
+                                    currentPath.includes('/setting')? ['setting'] : []}
+                        onClick={(e) => {
+                            if (e.key === 'project') navigate('/project');
+                            else if (e.key === 'task') navigate('/task');
+                            else if (e.key === 'admin') navigate('/admin');
+                            else if (e.key ==='setting') navigate('/setting');
+                        }}
+                    />
+                </div>
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                }}>
+                    <img src={user.avatar} alt="User Avatar" width={40} height={40} style={{ borderRadius: 10 }} />
+                    <span style={{ marginLeft: 10 }}>{user.name}</span>
+                    <Button
+                        type="primary"
+                        size="middle"
+                        style={{
+                            backgroundColor: '#fff', // 按钮背景为白色
+                            color: '#1890FF', // 按钮文字为蓝色主色
+                            border: 'none',
+                            fontWeight: 600,
+                            padding: '8px 16px',
+                            borderRadius: 24, // 圆角更柔和
+                        }}
+                        onClick={() => console.log("Logout clicked")}
+                    > Logout </Button>
+                </div>
+            </Header>
+            <Content style={{ padding: '20px 24px 0' }}> {/* 顶部 20px 内边距 */}
+                <Outlet />
+            </Content>
+            {/* 其他页面内容 */}
+        </Layout>
     );
-}
+};
