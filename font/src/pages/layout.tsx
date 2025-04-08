@@ -1,8 +1,6 @@
-import React from'react';
 import { Button, Layout, Menu } from 'antd';
 import { HomeOutlined, SettingOutlined, SettingFilled, UsergroupAddOutlined } from '@ant-design/icons';
-import { Outlet, useLocation, useNavigate } from "react-router";
-
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const { Header, Content } = Layout;
 
@@ -38,6 +36,7 @@ export default function ZxqLayout() {
     };
     return (
         <Layout>
+
             <Header style={{
                 // 导航栏背景：渐变蓝色（从 #1890FF 到 #40a9ff）
                 background: 'linear-gradient(90deg, #1890FF 0%, #40a9ff 100%)',

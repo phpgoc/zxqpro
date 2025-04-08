@@ -111,3 +111,6 @@ go.work.sum
 server/zxqpro.db
 
 **/.DS_Store
+
+## 未来可能会不忽略，成为项目里的一部分，前端production打包文件
+dist

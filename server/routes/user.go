@@ -42,14 +42,18 @@ func UserLogin(c *gin.Context) {
 	}
 	user := entity.User{Name: req.Name}
 	result := dao.Db.Where(user).First(&user)
+
 	if result.Error != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "用户不存在 或密码错误"))
 		return
 	}
 	if user.Password != dao.Md5Password(req.Password, user.ID) {
+		utils.LogError("cookie: " + result.Error.Error())
+
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "用户不存在 或密码错误"))
 		return
 	}
+
 	cookie := generateCookie(user)
 	for {
 		_, have := interfaces.Cache.Get(cookie)
@@ -66,7 +70,8 @@ func UserLogin(c *gin.Context) {
 		interfaces.Cache.Set(cookie, cookieStruct, 30*time.Minute)
 	}
 
-	c.SetCookie(utils.CookieName, cookie, 0, "/", "localhost", false, true)
+	c.SetCookie(utils.CookieName, cookie, 0, "/", "", false, true)
+	utils.LogError("hello")
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
 
