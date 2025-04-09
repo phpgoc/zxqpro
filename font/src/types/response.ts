@@ -16,3 +16,17 @@ export type UserInfo = {
     email: string;
     avatar: number;
 }
+
+export type Project = {
+    id: number;
+    title: string;
+    description: string;
+    status: string;
+    created_at: Date;
+    updated_at: Date;
+}
+
+export type ProjectList = {
+    total: number;
+    list: Project[];
+}

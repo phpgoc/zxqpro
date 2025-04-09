@@ -1,16 +1,30 @@
 definitions:
-  entity.RoleType:
+  entity.ProjectStatus:
     enum:
-    - 0
     - 1
     - 2
     - 3
+    - 4
     type: integer
     x-enum-varnames:
-    - Admin
-    - Producter
-    - Developer
-    - Tester
+    - Draft
+    - Active
+    - Completed
+    - Archived
+  entity.RoleType:
+    enum:
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    type: integer
+    x-enum-varnames:
+    - RoleTypeOwner
+    - RoleTypeProducter
+    - RoleTypeDeveloper
+    - RoleTypeTester
+    - RoleTypeAdmin
   request.AdminCreateProject:
     properties:
       description:
@@ -127,15 +141,21 @@ definitions:
         type: integer
       name:
         type: string
+      owner_id:
+        type: integer
       role_type:
         $ref: '#/definitions/entity.RoleType'
+      status:
+        $ref: '#/definitions/entity.ProjectStatus'
     type: object
   response.ProjectList:
     properties:
-      projects:
+      list:
         items:
           $ref: '#/definitions/response.Project'
         type: array
+      total:
+        type: integer
     type: object
   response.User:
     properties:
@@ -278,7 +298,26 @@ paths:
       - Project
   /project/list:
     get:
+      consumes:
+      - '*/*'
       description: project list
+      parameters:
+      - default: 1
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        in: query
+        name: page_size
+        type: integer
+      - default: 0
+        in: query
+        name: role_type
+        type: integer
+      - default: 0
+        in: query
+        name: status
+        type: integer
       produces:
       - application/json
       responses:

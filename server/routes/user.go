@@ -69,7 +69,6 @@ func UserLogin(c *gin.Context) {
 	}
 
 	c.SetCookie(utils.CookieName, cookie, 0, "/", "", false, true)
-	utils.LogError("hello")
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
 

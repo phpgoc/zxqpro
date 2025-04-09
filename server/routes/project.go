@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -95,10 +96,18 @@ func ProjectUpdateRole(c *gin.Context) {
 // @Schemes
 // @Description project list
 // @Tags Project
+// @Accept */*
 // @Produce json
+// @Param ProjectList query request.ProjectList true "ProjectList"
 // @Success 200 {object} response.ProjectList "成功响应"
 // @Router /project/list [get]
 func ProjectList(c *gin.Context) {
+	var req request.ProjectList
+	if success := utils.ValidateQuery(c, &req); !success {
+		return
+	}
+	jsonData, _ := json.Marshal(req)
+	utils.LogError(string(jsonData))
 	userId := middleware.GetUserIdFromAuthMiddleware(c)
 
 	var result *gorm.DB
@@ -106,23 +115,43 @@ func ProjectList(c *gin.Context) {
 
 	if userId == 1 {
 		var projects []entity.Project
-		result = dao.Db.Find(&projects)
+		model := dao.Db.Model(entity.Project{})
+		if req.Status != 0 {
+			model = model.Where("status = ?", req.Status)
+		}
+
+		_ = model.Count(&responseProjectList.Total)
+		result = model.Offset((req.Page - 1) * req.PageSize).Limit(req.PageSize).Find(&projects)
 		for _, project := range projects {
-			responseProjectList.Projects = append(responseProjectList.Projects, response.Project{
+			responseProjectList.List = append(responseProjectList.List, response.Project{
 				ID:       project.ID,
 				Name:     project.Name,
 				RoleType: entity.RoleTypeAdmin,
+				OwnerID:  project.OwnerID,
+				Status:   project.Status,
 			})
 		}
 
 	} else {
 		var roles []entity.Role
-		result = dao.Db.Preload("Project").Where("user_id = ?", userId).Find(&roles)
+		model := dao.Db.Model(entity.Role{}).Joins("Role.Project").Where("user_id = ?", userId)
+		if req.Status != 0 {
+			model = model.Where("status = ?", req.Status)
+		}
+		if req.RoleType != 0 {
+			model = model.Where("role_type = ?", req.RoleType)
+		}
+		_ = model.Count(&responseProjectList.Total)
+		result = model.Offset((req.Page - 1) * req.PageSize).Limit(req.PageSize).Find(&roles)
+		//		result = dao.Db.Preload("Project").Where("user_id = ?", userId).Find(&roles)
+
 		for _, role := range roles {
-			responseProjectList.Projects = append(responseProjectList.Projects, response.Project{
+			responseProjectList.List = append(responseProjectList.List, response.Project{
 				ID:       role.Project.ID,
 				Name:     role.Project.Name,
 				RoleType: role.RoleType,
+				Status:   role.Project.Status,
+				OwnerID:  role.Project.OwnerID,
 			})
 		}
 	}

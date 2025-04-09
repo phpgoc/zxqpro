@@ -208,6 +208,9 @@ const docTemplate = `{
         "/project/list": {
             "get": {
                 "description": "project list",
+                "consumes": [
+                    "*/*"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -215,6 +218,32 @@ const docTemplate = `{
                     "Project"
                 ],
                 "summary": "project list",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "name": "role_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "成功响应",
@@ -462,19 +491,36 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "entity.ProjectStatus": {
+            "type": "integer",
+            "enum": [
+                1,
+                2,
+                3,
+                4
+            ],
+            "x-enum-varnames": [
+                "Draft",
+                "Active",
+                "Completed",
+                "Archived"
+            ]
+        },
         "entity.RoleType": {
             "type": "integer",
             "enum": [
-                0,
                 1,
                 2,
-                3
+                3,
+                4,
+                5
             ],
             "x-enum-varnames": [
-                "Admin",
-                "Producter",
-                "Developer",
-                "Tester"
+                "RoleTypeOwner",
+                "RoleTypeProducter",
+                "RoleTypeDeveloper",
+                "RoleTypeTester",
+                "RoleTypeAdmin"
             ]
         },
         "request.AdminCreateProject": {
@@ -647,19 +693,28 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "owner_id": {
+                    "type": "integer"
+                },
                 "role_type": {
                     "$ref": "#/definitions/entity.RoleType"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.ProjectStatus"
                 }
             }
         },
         "response.ProjectList": {
             "type": "object",
             "properties": {
-                "projects": {
+                "list": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/response.Project"
                     }
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },

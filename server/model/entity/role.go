@@ -8,7 +8,7 @@ import (
 type RoleType byte
 
 const (
-	RoleTypeOwner RoleType = iota
+	RoleTypeOwner RoleType = iota + 1
 	RoleTypeProducter
 	RoleTypeDeveloper
 	RoleTypeTester
@@ -22,6 +22,6 @@ type Role struct {
 	Project   Project `gorm:"foreignKey:ProjectID;references:ID"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	yo        sql.NullTime `gorm:"index"`
+	DeletedAt sql.NullTime `gorm:"index"`
 	RoleType  RoleType     `gorm:"type:tinyint;default:0"` // 0: Manager, 1: Developer, 2: Tester
 }
