@@ -48,8 +48,6 @@ func UserLogin(c *gin.Context) {
 		return
 	}
 	if user.Password != dao.Md5Password(req.Password, user.ID) {
-		utils.LogError("cookie: " + result.Error.Error())
-
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "用户不存在 或密码错误"))
 		return
 	}

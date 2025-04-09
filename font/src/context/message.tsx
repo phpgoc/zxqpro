@@ -8,5 +8,11 @@ interface MessageContextValue {
 }
 
 // 创建消息上下文
-const MessageContext = createContext<MessageContextValue | null>(null);
+const MessageContext = createContext<MessageContextValue | null>(
+    {
+        middleApi: {} as MessageInstance,
+        bottomRightApi: {} as MessageInstance,
+    }
+);
 export default MessageContext;
+

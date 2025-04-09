@@ -1,6 +1,10 @@
 import { Form, Input, Checkbox, Button, Space } from 'antd';
 import request from '../services/axios';
 import { type BaseResponseWithoutData} from "../types/response";
+import MessageContext        from "../context/message.tsx";
+import {useContext} from "react";
+import { useNavigate } from 'react-router-dom';
+
 
 interface LoginForm {
     name: string;
@@ -10,16 +14,31 @@ interface LoginForm {
 
 const LoginPage = () => {
     const [form] = Form.useForm<LoginForm>();
-
+    const navigate = useNavigate();
+    const {middleApi} = useContext(MessageContext)
 
     const submit = async (values: LoginForm) => {
         console.log('Received values of form: ', values);
          request.post<BaseResponseWithoutData>('user/login', JSON.stringify(values)).then((res) => {
                 if (res.data.code === 0) {
                    request.get("/user/info").then((info) => {
-                     localStorage.setItem('userInfo', JSON.stringify(info.data));
-                     window.location.href = '/project';
+                     localStorage.setItem('userInfo', JSON.stringify(info.data.data));
+                     middleApi.success({
+                        content: "登录成功",
+                        duration: 1,
+                        }).then(() => {
+                            let  redirectUrl = sessionStorage.getItem('redirectUrl')
+                            if (!redirectUrl) {
+                                redirectUrl = '/project'
+                            }
+                         navigate(redirectUrl);
+                         }
+                     )
                    })
+                }else {
+                     middleApi.error({
+                        content: res.data.message,
+                     })
                 }
            console.log('Response from server: ', res.data.code);
          })

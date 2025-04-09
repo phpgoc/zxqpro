@@ -1,6 +1,7 @@
 import { Button, Layout, Menu } from 'antd';
 import { HomeOutlined, SettingOutlined, SettingFilled, UsergroupAddOutlined } from '@ant-design/icons';
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import {UserInfo} from "../types/response.ts";
 
 const { Header, Content } = Layout;
 
@@ -30,10 +31,11 @@ const items = [
 export default function ZxqLayout() {
     const navigate = useNavigate();
     const currentPath = useLocation().pathname;
-    const user = {
-        name: "John Doe",
-        avatar: "http://localhost:8080/static/avatar/1.webp",
-    };
+    const user  = JSON.parse(localStorage.getItem('userInfo') ?? '{}') as UserInfo;
+    console.log(user);
+    const serverUrl = import.meta.env.VITE_SERVER_URL;
+    const avatarUrl = `${serverUrl}static/avatar/${user.avatar}.webp`;
+    console.log(avatarUrl);
     return (
         <Layout>
 
@@ -70,8 +72,8 @@ export default function ZxqLayout() {
                     display: 'flex',
                     alignItems: 'center',
                 }}>
-                    <img src={user.avatar} alt="User Avatar" width={40} height={40} style={{ borderRadius: 10 }} />
-                    <span style={{ marginLeft: 10 }}>{user.name}</span>
+                    <img src={avatarUrl} alt="User Avatar" width={40} height={40} style={{ borderRadius: 10 }} />
+                    <span style={{ marginLeft: 10 }}>{user.username}</span>
                     <Button
                         type="primary"
                         size="middle"
