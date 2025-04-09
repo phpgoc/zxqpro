@@ -3,7 +3,7 @@ export enum RoleType {
     PRODUCTER,
     DEVELOPER,
     TESTER,
-    ADMIN 
+    ADMIN
 }
 
 export const roleTypesMap = {
@@ -15,15 +15,16 @@ export const roleTypesMap = {
 }
 
 export enum ProjectStatus {
-    ACTIVE = 1,
-    INACTIVE,
+    INACTIVE=1,
+    ACTIVE ,
     COMPLETED,
     ARCHIVED,
 }
 
 export const projectStatusMap = {
-    [ProjectStatus.ACTIVE]: "Active",
     [ProjectStatus.INACTIVE]: "Inactive",
+    [ProjectStatus.ACTIVE]: "Active",
     [ProjectStatus.COMPLETED]: "Completed",
     [ProjectStatus.ARCHIVED]: "Archived",
 }
+

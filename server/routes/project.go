@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -106,8 +105,7 @@ func ProjectList(c *gin.Context) {
 	if success := utils.ValidateQuery(c, &req); !success {
 		return
 	}
-	jsonData, _ := json.Marshal(req)
-	utils.LogError(string(jsonData))
+
 	userId := middleware.GetUserIdFromAuthMiddleware(c)
 
 	var result *gorm.DB

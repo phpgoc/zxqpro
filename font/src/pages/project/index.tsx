@@ -1,31 +1,28 @@
-import React, { useState } from 'react';
-import { Input, Select, Table, Pagination, Space } from 'antd';
+import React, {useEffect, useState} from 'react';
+import { Table, Pagination, Space } from 'antd';
 import {useNavigate} from "react-router-dom";
 import getRequestAndSetNavigate from "../../services/axios.ts";
-const { Search } = Input;
-const { Option } = Select;
+import ProjectStatusSelect from "../../components/ProjectStatus.tsx";
+import {projectStatusMap, roleTypesMap} from "../../types/project.ts";
+import { Project } from "../../types/response.ts";
+import {UserInfo} from "../../types/response.ts";
+import RoleTypeSelect from "../../components/RoleType.tsx";
+import {isAdmin} from "../../services/auth.ts";
 
 const ProjectList = () => {
-    const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-    const [searchText, setSearchText] = useState('');
-    const [selectedStatus, setSelectedStatus] = useState('');
+    const user = JSON.parse(localStorage.getItem('userInfo') ?? '{}') as UserInfo;
+
     const navigate = useNavigate();
     let request = getRequestAndSetNavigate(navigate);
 
-    const dataSource = [
-        {
-            key: '1',
-            name: 'Project 1',
-            status: 'Active',
-        },
-        {
-            key: '2',
-            name: 'Project 2',
-            status: 'Inactive',
-        },
-        // 可以添加更多项目数据
-    ];
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(1);
+
+    const [roleType, setRoleType] = useState('');
+    const [selectedStatus, setSelectedStatus] = useState('');
+    const [total, setTotal] = useState(0);
+    const [ProjectList, setProjectList] = useState<Project[]>([]);
+
 
     const columns = [
         {
@@ -37,62 +34,94 @@ const ProjectList = () => {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
+            render: (_text: any, record: Project) => {
+                return (
+                    projectStatusMap[record.status]
+                )
+            }
+        },
+        {
+            title: 'Role Type',
+            dataIndex: 'role_type',
+            key: 'role_type',
+            render: (_text: any, record: Project) => {
+                return (
+                    roleTypesMap[record.role_type]
+                )
+            }
+        },
+        {
+            title: 'Owner Name',
+            dataIndex: 'owner_name',
+            key: 'owner_name',
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            render: (_text: any, record: Project) => (
+                <Space size="middle">
+                    {isAdmin(user.id, record.owner_id) && <a onClick={() => {
+                        navigate(`/project/${record.id}`)
+                    }}>Edit</a>}
+                    <a onClick={() => {
+                        navigate(`/project/${record.id}/task`)
+                    }}>Task</a>
+                </Space>
+            ),
         },
     ];
 
-    const handleSearch = (value) => {
-        setSearchText(value);
+    const fetchProjectList = () => {
+        request.get("project/list", {
+            params: {
+                page: currentPage,
+                page_size: pageSize,
+                role_type: roleType,
+                status: selectedStatus
+            }
+        }).then((res) => {
+            if (res.data.code == 0) {
+                setTotal(res.data.data.total);
+                setProjectList(res.data.data.list);
+            }
+        })
     };
+    useEffect(fetchProjectList,
+        [currentPage, pageSize, roleType, selectedStatus]);
 
-    const handleStatusChange = (value) => {
-        setSelectedStatus(value);
-    };
 
-    const handlePageChange = (page, size) => {
+
+    const handlePageChange = (page:number, size :number) => {
         setCurrentPage(page);
         setPageSize(size);
     };
 
-    // 过滤数据
-    const filteredData = dataSource.filter((item) => {
-        const matchSearch = item.name.includes(searchText);
-        const matchStatus = selectedStatus === '' || item.status === selectedStatus;
-        return matchSearch && matchStatus;
-    });
 
     return (
         <div>
             <Space direction="horizontal" style={{ marginBottom: 16 }}>
-                <Search
-                    placeholder="Search by project name"
-                    onSearch={handleSearch}
-                    style={{ width: 200 }}
-                />
-                <Select
-                    placeholder="Select status"
-                    onChange={handleStatusChange}
-                    style={{ width: 200 }}
-                >
-                    <Option value="Active">Active</Option>
-                    <Option value="Inactive">Inactive</Option>
-                </Select>
+
+                {user.id!=1 && <RoleTypeSelect roleType={roleType} onChange={setRoleType}/> }
+               <ProjectStatusSelect status={selectedStatus} onChange={setSelectedStatus}/>
             </Space>
             <Pagination
                 current={currentPage}
                 pageSize={pageSize}
-                total={filteredData.length}
+                total={total}
                 onChange={handlePageChange}
                 style={{ marginBottom: 16 }}
             />
             <Table
-                dataSource={filteredData.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
+                dataSource={ProjectList}
                 columns={columns}
             />
             <Pagination
                 current={currentPage}
                 pageSize={pageSize}
-                total={filteredData.length}
+                total={total}
                 onChange={handlePageChange}
+                showSizeChanger={true}
+                // onShowSizeChange={handlePageChange}
                 style={{ marginTop: 16 }}
             />
         </div>

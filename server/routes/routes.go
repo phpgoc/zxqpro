@@ -25,7 +25,7 @@ func ApiRoutes() *gin.Engine {
 				allowedOrigins := map[string]bool{
 					"http://localhost:5173": true,
 				}
-				utils.LogError(fmt.Sprintf("origin: %s", origin))
+				utils.LogWarn(fmt.Sprintf("origin: %s", origin))
 				return allowedOrigins[origin]
 			},
 			AllowOrigins:     []string{"http://locahost:5173", "http://locahost:5174"},

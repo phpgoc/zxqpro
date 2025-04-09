@@ -1,3 +1,5 @@
+import {ProjectStatus, RoleType} from "./project.ts";
+
 export interface BaseResponse<T = any> {
     code: number;
     message: string;
@@ -19,11 +21,11 @@ export type UserInfo = {
 
 export type Project = {
     id: number;
-    title: string;
-    description: string;
-    status: string;
-    created_at: Date;
-    updated_at: Date;
+    name: string;
+    role_type: RoleType
+    status: ProjectStatus;
+    owner_id: number;
+    owner_name: string;
 }
 
 export type ProjectList = {
