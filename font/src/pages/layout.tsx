@@ -1,10 +1,11 @@
 import { Button, Layout, Menu } from 'antd';
 import { HomeOutlined, SettingOutlined, SettingFilled, UsergroupAddOutlined } from '@ant-design/icons';
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import {UserInfo} from "../types/response.ts";
-
+import {BaseResponse, UserInfo} from "../types/response.ts";
+import getRequestAndSetNavigate from "../services/axios.ts";
 const { Header, Content } = Layout;
 
+//根据 user.id是不是1来判断是不是需要admin权限
 const items = [
     {
         key: 'project',
@@ -30,12 +31,23 @@ const items = [
 
 export default function ZxqLayout() {
     const navigate = useNavigate();
+    let request = getRequestAndSetNavigate(navigate);
     const currentPath = useLocation().pathname;
     const user  = JSON.parse(localStorage.getItem('userInfo') ?? '{}') as UserInfo;
-    console.log(user);
+    if (user.id != 1){
+        delete items[2];
+    }
     const serverUrl = import.meta.env.VITE_SERVER_URL;
     const avatarUrl = `${serverUrl}static/avatar/${user.avatar}.webp`;
-    console.log(avatarUrl);
+
+
+    function logout() {
+        request.post<BaseResponse>("user/logout").then((res) =>{
+                if(res.data.code == 0){
+                    navigate("/")
+                }
+        })
+    }
     return (
         <Layout>
 
@@ -85,7 +97,7 @@ export default function ZxqLayout() {
                             padding: '8px 16px',
                             borderRadius: 24, // 圆角更柔和
                         }}
-                        onClick={() => console.log("Logout clicked")}
+                        onClick={logout}
                     > Logout </Button>
                 </div>
             </Header>

@@ -1,5 +1,5 @@
 import { Form, Input, Checkbox, Button, Space } from 'antd';
-import request from '../services/axios';
+import getRequestAndSetNavigate from '../services/axios';
 import { type BaseResponseWithoutData} from "../types/response";
 import MessageContext        from "../context/message.tsx";
 import {useContext} from "react";
@@ -15,6 +15,8 @@ interface LoginForm {
 const LoginPage = () => {
     const [form] = Form.useForm<LoginForm>();
     const navigate = useNavigate();
+    let  request = getRequestAndSetNavigate(navigate);
+    // @ts-ignore
     const {middleApi} = useContext(MessageContext)
 
     const submit = async (values: LoginForm) => {
