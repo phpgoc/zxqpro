@@ -15,15 +15,16 @@ import {Route, Routes} from "react-router-dom";
 
 function App() {
 
-    // @ts-ignore
     const [middleMessageApi, middleMessageHolder] = message.useMessage({
         top: "30%",
         duration: 3,
+        // @ts-ignore
         key: 'middle-message',
     })
     // @ts-ignore
     const [bottomRightMessageApi, bottomRightMessageHolder] = message.useMessage({
         top: "90%",
+        // @ts-ignore
         right: "5%",
         duration: 3,
         key: 'bottom-right-message',

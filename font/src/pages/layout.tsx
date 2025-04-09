@@ -85,7 +85,7 @@ export default function ZxqLayout() {
                     alignItems: 'center',
                 }}>
                     <img src={avatarUrl} alt="User Avatar" width={40} height={40} style={{ borderRadius: 10 }} />
-                    <span style={{ marginLeft: 10 }}>{user.username}</span>
+                    <span style={{ marginLeft: 10 }}>{user.user_name}</span>
                     <Button
                         type="primary"
                         size="middle"

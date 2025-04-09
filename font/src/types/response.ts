@@ -14,7 +14,7 @@ export type BaseResponseWithoutData = {
 export type UserInfo = {
     id: number;
     name : string;
-    username: string;
+    user_name: string;
     email: string;
     avatar: number;
 }

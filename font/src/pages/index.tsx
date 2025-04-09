@@ -30,9 +30,10 @@ const LoginPage = () => {
                         duration: 1,
                         }).then(() => {
                             let  redirectUrl = sessionStorage.getItem('redirectUrl')
-                            if (!redirectUrl) {
+                            if (!redirectUrl || redirectUrl == '/') {
                                 redirectUrl = '/project'
                             }
+                            console.log(redirectUrl)
                          navigate(redirectUrl);
                          }
                      )

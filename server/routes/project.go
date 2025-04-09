@@ -113,7 +113,7 @@ func ProjectList(c *gin.Context) {
 
 	if userId == 1 {
 		var projects []entity.Project
-		model := dao.Db.Model(entity.Project{})
+		model := dao.Db.Model(entity.Project{}).Joins("Owner")
 		if req.Status != 0 {
 			model = model.Where("status = ?", req.Status)
 		}
@@ -122,17 +122,18 @@ func ProjectList(c *gin.Context) {
 		result = model.Offset((req.Page - 1) * req.PageSize).Limit(req.PageSize).Find(&projects)
 		for _, project := range projects {
 			responseProjectList.List = append(responseProjectList.List, response.Project{
-				ID:       project.ID,
-				Name:     project.Name,
-				RoleType: entity.RoleTypeAdmin,
-				OwnerID:  project.OwnerID,
-				Status:   project.Status,
+				ID:        project.ID,
+				Name:      project.Name,
+				RoleType:  entity.RoleTypeAdmin,
+				OwnerID:   project.OwnerID,
+				OwnerName: project.Owner.UserName,
+				Status:    project.Status,
 			})
 		}
 
 	} else {
 		var roles []entity.Role
-		model := dao.Db.Model(entity.Role{}).Joins("Role.Project").Where("user_id = ?", userId)
+		model := dao.Db.Model(entity.Role{}).Joins("Project").Where("user_id = ?", userId)
 		if req.Status != 0 {
 			model = model.Where("status = ?", req.Status)
 		}

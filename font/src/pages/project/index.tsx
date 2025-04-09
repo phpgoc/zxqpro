@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import  {useEffect, useState} from 'react';
 import { Table, Pagination, Space } from 'antd';
 import {useNavigate} from "react-router-dom";
 import getRequestAndSetNavigate from "../../services/axios.ts";
@@ -16,7 +16,7 @@ const ProjectList = () => {
     let request = getRequestAndSetNavigate(navigate);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(1);
+    const [pageSize, setPageSize] = useState(5);
 
     const [roleType, setRoleType] = useState('');
     const [selectedStatus, setSelectedStatus] = useState('');
