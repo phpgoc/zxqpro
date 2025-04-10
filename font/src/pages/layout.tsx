@@ -10,22 +10,22 @@ const items = [
     {
         key: 'project',
         label: 'Project',
-        icon: <HomeOutlined />,
+        icon: <HomeOutlined style={{ fontSize: '5vh', lineHeight: '6vh' }}/>,
     },
     {
         key: 'task',
         label: 'Task',
-        icon: <UsergroupAddOutlined />,
+        icon: <UsergroupAddOutlined style={{ fontSize: '5vh', lineHeight: '6vh' }}/>,
     },
     {
         key: 'admin',
         label: 'Admin',
-        icon: <SettingFilled />,
+        icon: <SettingFilled style={{ fontSize: '5vh', lineHeight: '6vh' }} />,
     },
     {
         key:'setting',
         label: 'Setting',
-        icon: <SettingOutlined />,
+        icon: <SettingOutlined style={{ fontSize: '5vh', lineHeight: '6vh' }}/>,
     },
 ];
 
@@ -56,16 +56,21 @@ export default function ZxqLayout() {
                 background: 'linear-gradient(90deg, #1890FF 0%, #40a9ff 100%)',
                 // 增加阴影提升层次感
                 boxShadow: '0 2px 4px rgba(0, 0, 0, 0.08)',
-                height: '56px', // 适当增加高度让导航更舒展
+                // height: '56px', // 适当增加高度让导航更舒展
+                height: '7vh',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                padding: '0 40px', // 左右内边距，让内容不贴边
+                padding: '0 1vw', // 左右内边距，让内容不贴边
             }}>
                 <div style={{
-                    width: '50%', // 左边元素占据50%宽度
+                    height: "100%",
+                    width: '80%', // 左边元素占据50%宽度
+                    background: 'linear-gradient(90deg, #1890FF 0%, #40a9ff 100%)',
+
                 }}>
                     <Menu
+                        style={{height: '100%'}}
                         mode="horizontal"
                         items={items}
                         selectedKeys={currentPath.includes('/project')? ['project'] :
@@ -83,6 +88,7 @@ export default function ZxqLayout() {
                 <div style={{
                     display: 'flex',
                     alignItems: 'center',
+                    height: '100%',
                 }}>
                     <img src={avatarUrl} alt="User Avatar" width={40} height={40} style={{ borderRadius: 10 }} />
                     <span style={{ marginLeft: 10 }}>{user.user_name}</span>
