@@ -185,23 +185,22 @@ func UserUpdatePassword(c *gin.Context) {
 // @Tags User
 // @Accept */*
 // @Produce json
-// @Param page query request.Page true "UserList"
+// @Param page query request.UserList true "UserList"
 // @Success 200 {object} response.CommonResponse[data=response.UserList] "成功响应"
 // @Router /user/list [get]
 func UserList(g *gin.Context) {
-	var req request.Page
+	var req request.UserList
 	if success := utils.ValidateQuery(g, &req); !success {
 		return
 	}
-	var total int64
-	dao.Db.Model(&entity.User{}).Count(&total)
-	total = total - 1
-	var responseUsers []response.User
-	dao.Db.Model(entity.User{}).Where("deleted_at IS NULL").Where("id != ?", 1).Offset((req.Page - 1) * req.PageSize).Limit(req.PageSize).Select("id, name, user_name, email, avatar").Find(&responseUsers)
-	g.JSON(http.StatusOK, response.CreateResponse(0, "ok", response.UserList{
-		Total: total,
-		Users: responseUsers,
-	}))
+
+	var res response.UserList
+	if req.ProjectId == 0 {
+		dao.Db.Model(entity.User{}).Where("id != ?", 1).Select("id, name, user_name, email, avatar").Find(&res.List)
+	} else {
+		dao.Db.Model(entity.Role{}).Joins("User").Where("User.id != ?", 1).Where("project_id = ?", req.ProjectId).Select("User.id, name, user_name, email, avatar, role_type").Find(&res.List)
+	}
+	g.JSON(http.StatusOK, response.CreateResponse(0, "ok", res))
 }
 
 func generateCookie(user entity.User) string {

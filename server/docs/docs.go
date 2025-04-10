@@ -338,18 +338,8 @@ const docTemplate = `{
                 "summary": "user list",
                 "parameters": [
                     {
-                        "minimum": 1,
                         "type": "integer",
-                        "default": 1,
-                        "name": "page",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "minimum": 5,
-                        "type": "integer",
-                        "default": 10,
-                        "name": "page_size",
+                        "name": "project_id",
                         "in": "query",
                         "required": true
                     }
@@ -500,7 +490,7 @@ const docTemplate = `{
                 4
             ],
             "x-enum-varnames": [
-                "Draft",
+                "InActive",
                 "Active",
                 "Completed",
                 "Archived"
@@ -696,6 +686,9 @@ const docTemplate = `{
                 "owner_id": {
                     "type": "integer"
                 },
+                "owner_name": {
+                    "type": "string"
+                },
                 "role_type": {
                     "$ref": "#/definitions/entity.RoleType"
                 },
@@ -732,6 +725,9 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "role_type": {
+                    "$ref": "#/definitions/entity.RoleType"
                 },
                 "user_name": {
                     "type": "string"

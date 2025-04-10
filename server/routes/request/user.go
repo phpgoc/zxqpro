@@ -17,3 +17,7 @@ type UserUpdatePassword struct {
 	NewPassword  string `json:"new_password" binding:"required,min=8,complexPassword"`
 	NewPassword2 string `json:"new_password2" binding:"required,min=8,complexPassword"`
 }
+
+type UserList struct {
+	ProjectId uint `form:"project_id" binding:"min=0"`
+}

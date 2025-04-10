@@ -1,14 +1,16 @@
 package response
 
+import "github.com/phpgoc/zxqpro/model/entity"
+
 type User struct {
-	ID       uint    `json:"id"`
-	Name     string  `json:"name"`
-	UserName string  `json:"user_name"`
-	Email    *string `json:"email"`
-	Avatar   byte    `json:"avatar"`
+	ID              uint    `json:"id"`
+	Name            string  `json:"name"`
+	UserName        string  `json:"user_name"`
+	Email           *string `json:"email"`
+	Avatar          byte    `json:"avatar"`
+	entity.RoleType `json:"role_type"`
 }
 
 type UserList struct {
-	Total int64  `json:"total"`
-	Users []User `json:"users"`
+	List []User `json:"list"`
 }
