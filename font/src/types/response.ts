@@ -17,6 +17,7 @@ export type UserInfo = {
     user_name: string;
     email: string;
     avatar: number;
+    role_type: RoleType;
 }
 
 export type Project = {

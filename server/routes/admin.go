@@ -31,7 +31,7 @@ func AdminRegister(g *gin.Context) {
 	if success := utils.ValidateJson(g, &req); !success {
 		return
 	}
-	user := entity.User{Name: req.Name, Password: req.Password}
+	user := entity.User{Name: req.Name, UserName: req.Name, Password: req.Password}
 	if err := dao.CreateUser(&user); err != nil {
 		g.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
