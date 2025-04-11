@@ -164,7 +164,7 @@ func UserUpdatePassword(c *gin.Context) {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "新旧密码不能相同"))
 		return
 	}
-	if req.NewPassword == req.NewPassword2 {
+	if req.NewPassword != req.NewPassword2 {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "两次新密码不一致"))
 		return
 	}

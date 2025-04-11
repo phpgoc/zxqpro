@@ -1,29 +1,33 @@
 import { Layout, Menu } from "antd";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
-import { HomeOutlined, PlusOutlined, KeyOutlined } from "@ant-design/icons";
+import {
+  JavaOutlined,
+  JavaScriptOutlined,
+  PythonOutlined
+} from "@ant-design/icons";
 
 const { Sider, Content } = Layout;
 
-const AdminLayout = () => {
+const SettingLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const menuItems = [
     {
       key: "/setting",
-      icon: <HomeOutlined />,
+      icon: <JavaOutlined />,
       label: "Setting Page",
       path: "/setting",
     },
     {
       key: "/setting/update_user",
-      icon: <PlusOutlined />,
+      icon: <JavaScriptOutlined />,
       label: "Update Info",
       path: "/setting/update_user",
     },
     {
       key: "/setting/update_password",
-      icon: <KeyOutlined />,
+      icon: <PythonOutlined />,
       label: "Update Password",
       path: "/setting/update_password",
     },
@@ -49,7 +53,6 @@ const AdminLayout = () => {
             minHeight: 280,
           }}
         >
-          {/* 嵌套路由的出口，显示匹配的子路由组件 */}
           <Outlet />
         </Content>
       </Layout>
@@ -57,4 +60,4 @@ const AdminLayout = () => {
   );
 };
 
-export default AdminLayout;
+export default SettingLayout;
