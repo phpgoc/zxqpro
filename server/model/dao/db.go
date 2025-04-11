@@ -2,19 +2,31 @@ package dao
 
 import (
 	"crypto/md5"
+	"database/sql"
 	"encoding/hex"
 	"fmt"
 
 	"github.com/phpgoc/zxqpro/model/entity"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	_ "modernc.org/sqlite"
 )
+
+func newSQLiteDialector(dsn string) gorm.Dialector {
+	db, err := sql.Open("sqlite", dsn)
+	if err != nil {
+		panic(err)
+	}
+	return sqlite.Dialector{
+		Conn: db,
+	}
+}
 
 var Db *gorm.DB
 
 func InitDb() {
 	var err error
-	Db, err = gorm.Open(sqlite.Open("zxqpro.db"), &gorm.Config{})
+	Db, err = gorm.Open(newSQLiteDialector("zxqpro.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
