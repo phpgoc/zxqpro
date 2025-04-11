@@ -381,8 +381,8 @@ paths:
       description: user list
       parameters:
       - in: query
+        minimum: 0
         name: project_id
-        required: true
         type: integer
       produces:
       - application/json

@@ -1,66 +1,60 @@
-
-import { Layout, Menu } from 'antd';
-import { useNavigate, useLocation, Outlet } from 'react-router-dom';
-import {
-    HomeOutlined,
-    PlusOutlined,
-    KeyOutlined
-} from '@ant-design/icons';
+import { Layout, Menu } from "antd";
+import { useNavigate, useLocation, Outlet } from "react-router-dom";
+import { HomeOutlined, PlusOutlined, KeyOutlined } from "@ant-design/icons";
 
 const { Sider, Content } = Layout;
 
 const AdminLayout = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    const menuItems = [
-        {
-            key: '/setting',
-            icon: <HomeOutlined />,
-            label: 'Setting Page',
-            path: '/setting'
-        },
-        {
-            key: '/setting/update_user',
-            icon: <PlusOutlined />,
-            label: 'Update User',
-            path: '/setting/update_user'
-        },
-        {
-            key: '/setting/update_password',
-            icon: <KeyOutlined />,
-            label: 'Update Password',
-            path: '/setting/update_password'
-        },
+  const menuItems = [
+    {
+      key: "/setting",
+      icon: <HomeOutlined />,
+      label: "Setting Page",
+      path: "/setting",
+    },
+    {
+      key: "/setting/update_user",
+      icon: <PlusOutlined />,
+      label: "Update User",
+      path: "/setting/update_user",
+    },
+    {
+      key: "/setting/update_password",
+      icon: <KeyOutlined />,
+      label: "Update Password",
+      path: "/setting/update_password",
+    },
+  ];
 
-    ];
-
-    return (
-        <Layout style={{ minHeight: '80vh' }}>
-            <Sider width={200} style={{ background: '#fff' }}>
-                <Menu
-                    mode="inline"
-                    selectedKeys={[location.pathname]}
-                    items={menuItems.map(item => ({
-                        ...item,
-                        onClick: () => navigate(item.path)
-                    }))}
-                />
-            </Sider>
-            <Layout>
-                <Content
-                    style={{
-                        padding: 24,
-                        margin: 0,
-                        minHeight: 280
-                    }}
-                >
-                    {/* 嵌套路由的出口，显示匹配的子路由组件 */}
-                    <Outlet />
-                </Content>
-            </Layout>
-        </Layout>
-    );
+  return (
+    <Layout style={{ minHeight: "80vh" }}>
+      <Sider width={200} style={{ background: "#fff" }}>
+        <Menu
+          mode="inline"
+          selectedKeys={[location.pathname]}
+          items={menuItems.map((item) => ({
+            ...item,
+            onClick: () => navigate(item.path),
+          }))}
+        />
+      </Sider>
+      <Layout>
+        <Content
+          style={{
+            padding: 24,
+            margin: 0,
+            minHeight: 280,
+          }}
+        >
+          {/* 嵌套路由的出口，显示匹配的子路由组件 */}
+          <Outlet />
+        </Content>
+      </Layout>
+    </Layout>
+  );
 };
 
 export default AdminLayout;

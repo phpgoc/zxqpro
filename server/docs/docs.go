@@ -338,10 +338,10 @@ const docTemplate = `{
                 "summary": "user list",
                 "parameters": [
                     {
+                        "minimum": 0,
                         "type": "integer",
                         "name": "project_id",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {

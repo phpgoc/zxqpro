@@ -1,6 +1,3 @@
-
 export default function Task() {
-   return (
-         <h1>Task Page</h1>
-    );
+  return <h1>Task Page</h1>;
 }

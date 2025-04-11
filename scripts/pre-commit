@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # 获取所有已添加到暂存区的 Go 文件
 staged_go_files=$(git diff --cached --name-only -- '*.go')
@@ -15,5 +15,14 @@ fi
 
 swag init -g cmd/server/main.go -d  server -o server/docs 
 git add server/docs
+
+# 重新add 这些文件
+files=$(git diff --cached --name-only -- 'font/*')
+if [ -n "$files" ]; then
+  # 对这些文件进行格式化
+  npx prettier "${files[@]}" --write
+  # 重新 add 这些文件
+  git add "${files[@]}"
+fi
 
 exit 0    

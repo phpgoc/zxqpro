@@ -1,7 +1,3 @@
 export default function CreateProject() {
-    return (
-        <div>
-            hello world
-        </div>
-    );  
+  return <div>hello world</div>;
 }
