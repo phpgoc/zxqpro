@@ -6,6 +6,7 @@ import MessageContext, {
 } from "../context/message.tsx";
 import { useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useUserContext } from "../context/userInfo.tsx";
 
 interface LoginForm {
   name: string;
@@ -21,6 +22,7 @@ const LoginPage = () => {
 
   const messageContext = useContext(MessageContext);
   const { middleApi } = messageContext as MessageContextValue;
+  const {updateUser} = useUserContext()
 
   const submit = async (values: LoginForm) => {
     console.log("Received values of form: ", values);
@@ -29,7 +31,7 @@ const LoginPage = () => {
       .then((res) => {
         if (res.data.code === 0) {
           request.get("/user/info").then((info) => {
-            localStorage.setItem("userInfo", JSON.stringify(info.data.data));
+            updateUser(info.data.data);
             middleApi
               .success({
                 content: "登录成功",

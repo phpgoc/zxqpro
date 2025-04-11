@@ -95,8 +95,6 @@ export default function UpdateUser() {
             email: email,
             avatar: avatar,
           }
-
-          localStorage.setItem("userInfo", JSON.stringify(newUser))
           updateUser(newUser )
           middleApi.success(response.data.message).then((_: any) => {
             middleApi.success(response.data.message).then()
