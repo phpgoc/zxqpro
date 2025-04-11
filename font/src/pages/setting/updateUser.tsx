@@ -6,6 +6,7 @@ import MessageContext, {
   type MessageContextValue,
 } from "../../context/message.tsx";
 import { BaseResponse, UserInfo } from "../../types/response.ts";
+import {useUserContext} from "../../context/userInfo.tsx";
 import * as React from "react";
 
 
@@ -62,10 +63,13 @@ function ImageSelectorPopup ({setAvatar}:{ setAvatar:(n:number) => void}){
 }
 
 export default function UpdateUser() {
-  const [name, setName] = useState("");
-  const [userName, setUserName] = useState("");
-  const [email, setEmail] = useState("");
-  const [avatar, setAvatar] = useState(0);
+  const {user, updateUser} = useUserContext()
+
+  const [name, setName] = useState(user.name);
+  const [userName, setUserName] = useState(user.user_name);
+  const [email, setEmail] = useState(user.email);
+  const [avatar, setAvatar] = useState(user.avatar);
+
 
   let avatarImgUrl = import.meta.env.VITE_SERVER_URL+`static/avatar/${avatar}.webp`;
 
@@ -85,6 +89,15 @@ export default function UpdateUser() {
       .post<BaseResponse>("/user/update", {  user_name: userName, email, avatar})
       .then((response) => {
         if (response.data.code == 0) {
+          let newUser = {
+            ...user,
+            user_name: userName,
+            email: email,
+            avatar: avatar,
+          }
+
+          localStorage.setItem("userInfo", JSON.stringify(newUser))
+          updateUser(newUser )
           middleApi.success(response.data.message).then((_: any) => {
             middleApi.success(response.data.message).then()
           });
@@ -100,9 +113,10 @@ export default function UpdateUser() {
     request.get<BaseResponse<UserInfo>>("user/info").then((res) => {
       if (res.data.code === 0) {
         setName(res.data.data.name);
-        setUserName(res.data.data.name);
+        setUserName(res.data.data.user_name);
         setEmail(res.data.data.email);
         setAvatar(res.data.data.avatar)
+        localStorage.setItem("userInfo", JSON.stringify(res.data.data))
       }
     })
   },[])

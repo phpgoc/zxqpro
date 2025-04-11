@@ -6,8 +6,10 @@ import {
   UsergroupAddOutlined,
 } from "@ant-design/icons";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { BaseResponse, UserInfo } from "../types/response.ts";
+import { BaseResponse } from "../types/response.ts";
 import getRequestAndSetNavigate from "../services/axios.ts";
+import {useUserContext} from "../context/userInfo.tsx";
+
 const { Header, Content } = Layout;
 
 //根据 user.id是不是1来判断是不是需要admin权限
@@ -40,7 +42,8 @@ export default function ZxqLayout() {
   const navigate = useNavigate();
   let request = getRequestAndSetNavigate(navigate, useLocation());
   const currentPath = useLocation().pathname;
-  const user = JSON.parse(localStorage.getItem("userInfo") ?? "{}") as UserInfo;
+  // const user = JSON.parse(localStorage.getItem("userInfo") ?? "{}") as UserInfo;
+  const {user} = useUserContext()
   if (user.id != 1) {
     delete items[2];
   }
@@ -107,6 +110,7 @@ export default function ZxqLayout() {
             height: "100%",
           }}
         >
+
           <img
             src={avatarUrl}
             alt="User Avatar"
@@ -115,6 +119,7 @@ export default function ZxqLayout() {
             style={{ borderRadius: 10 }}
           />
           <span style={{ marginLeft: 10 }}>{user.user_name}</span>
+
           <Button
             type="primary"
             size="middle"

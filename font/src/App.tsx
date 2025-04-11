@@ -18,6 +18,7 @@ import UpdatePassword from "./pages/setting/updatePassword";
 import MessageContext from "./context/message";
 import "@ant-design/v5-patch-for-react-19";
 import { Route, Routes } from "react-router-dom";
+import {UserProvider} from "./context/userInfo.tsx";
 
 function App() {
   const [middleMessageApi, middleMessageHolder] = message.useMessage({
@@ -41,6 +42,8 @@ function App() {
   };
 
   return (
+    <UserProvider >
+
     <MessageContext.Provider value={messageContextValue}>
       {middleMessageHolder}
       {bottomRightMessageHolder}
@@ -68,6 +71,7 @@ function App() {
         </Route>
       </Routes>
     </MessageContext.Provider>
+     </UserProvider>
   );
 }
 
