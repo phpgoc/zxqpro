@@ -5,7 +5,7 @@ import MessageContext, {
   type MessageContextValue,
 } from "../context/message.tsx";
 import { useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface LoginForm {
   name: string;
@@ -16,7 +16,8 @@ interface LoginForm {
 const LoginPage = () => {
   const [form] = Form.useForm<LoginForm>();
   const navigate = useNavigate();
-  let request = getRequestAndSetNavigate(navigate);
+
+  let request = getRequestAndSetNavigate(navigate, useLocation());
 
   const messageContext = useContext(MessageContext);
   const { middleApi } = messageContext as MessageContextValue;
@@ -39,7 +40,6 @@ const LoginPage = () => {
                 if (!redirectUrl || redirectUrl == "/") {
                   redirectUrl = "/project";
                 }
-                console.log(redirectUrl);
                 navigate(redirectUrl);
               });
           });

@@ -16,7 +16,7 @@ import SettingPage from "./pages/setting";
 import UpdateUser from "./pages/setting/updateUser";
 import UpdatePassword from "./pages/setting/updatePassword";
 import MessageContext from "./context/message";
-
+import "@ant-design/v5-patch-for-react-19";
 import { Route, Routes } from "react-router-dom";
 
 function App() {

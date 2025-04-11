@@ -38,7 +38,7 @@ const items = [
 
 export default function ZxqLayout() {
   const navigate = useNavigate();
-  let request = getRequestAndSetNavigate(navigate);
+  let request = getRequestAndSetNavigate(navigate, useLocation());
   const currentPath = useLocation().pathname;
   const user = JSON.parse(localStorage.getItem("userInfo") ?? "{}") as UserInfo;
   if (user.id != 1) {

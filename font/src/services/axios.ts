@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { Location } from "react-router-dom";
 
 type NavigateFunction = (path: string) => void;
 
@@ -9,6 +10,7 @@ let navigate: NavigateFunction | null = null;
 const setNavigate = (nav: NavigateFunction) => {
   navigate = nav;
 };
+let fullPath: string = "/";
 
 const request = axios.create({
   baseURL: `${import.meta.env.VITE_SERVER_URL}api/`,
@@ -27,11 +29,7 @@ request.interceptors.response.use(
       return response;
     }
     if (response.data.code === 401) {
-      const fullUrl =
-        window.location.pathname +
-        window.location.search +
-        window.location.hash;
-      sessionStorage.setItem("redirectUrl", fullUrl); // 存储完整 URL
+      sessionStorage.setItem("redirectUrl", fullPath); // 存储完整 URL
       if (navigate) {
         navigate("/"); // 使用 navigate 进行页面跳转
       }
@@ -43,11 +41,9 @@ request.interceptors.response.use(
     // 处理 HTTP 级错误（如网络问题、500 等）
     if (error.response?.status === 401) {
       // 若同时有 HTTP 401（可选，根据实际情况）
-      const fullUrl =
-        window.location.pathname +
-        window.location.search +
-        window.location.hash;
-      sessionStorage.setItem("redirectUrl", fullUrl); // 存储完整 URL
+
+      sessionStorage.setItem("redirectUrl", fullPath); // 存储完整 URL
+
       if (navigate) {
         navigate("/"); // 使用 navigate 进行页面跳转
       }
@@ -55,7 +51,14 @@ request.interceptors.response.use(
     return Promise.reject(error);
   },
 );
-export default function getRequestAndSetNavigate(nav: NavigateFunction) {
+export default function getRequestAndSetNavigate(
+  nav: NavigateFunction,
+  location: Location<any>,
+) {
   setNavigate(nav);
+  fullPath = setFullPath(location);
   return request;
+}
+function setFullPath(lct: Location<any>): string {
+  return lct.pathname + lct.search + lct.hash;
 }

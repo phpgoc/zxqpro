@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Table, Pagination, Space } from "antd";
-import { useNavigate } from "react-router-dom";
-import getRequestAndSetNavigate from "../../services/axios.ts";
+import { useLocation, useNavigate } from "react-router-dom";
+import getRequestAndSetNavigateLocaton from "../../services/axios.ts";
 import ProjectStatusSelect from "../../components/ProjectStatus.tsx";
 import { projectStatusMap, roleTypesMap } from "../../types/project.ts";
 import { Project } from "../../types/response.ts";
@@ -13,7 +13,7 @@ const ProjectList = () => {
   const user = JSON.parse(localStorage.getItem("userInfo") ?? "{}") as UserInfo;
 
   const navigate = useNavigate();
-  let request = getRequestAndSetNavigate(navigate);
+  let request = getRequestAndSetNavigateLocaton(navigate, useLocation());
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);

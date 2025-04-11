@@ -1,7 +1,7 @@
 import { Select } from "antd";
 import { UserInfo } from "../types/response.ts";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import getRequestAndSetNavigate from "../services/axios.ts";
 
 export default function UserListSelect({
@@ -14,7 +14,8 @@ export default function UserListSelect({
   projectId?: number;
 }) {
   const navigate = useNavigate();
-  let request = getRequestAndSetNavigate(navigate);
+  const lct = useLocation();
+  let request = getRequestAndSetNavigate(navigate, lct);
   const [userList, setUserList] = useState<UserInfo[]>([]);
   useEffect(() => {
     request

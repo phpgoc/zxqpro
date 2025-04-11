@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -26,7 +27,7 @@ func AuthLogin() gin.HandlerFunc {
 		}
 		cookie, err := c.Request.Cookie(utils.CookieName)
 		if err != nil {
-			c.JSON(UnauthorizedStatus, gin.H{
+			c.JSON(http.StatusOK, gin.H{
 				"code":    UnauthorizedStatus,
 				"message": UnauthorizedMsg,
 			})
@@ -36,7 +37,7 @@ func AuthLogin() gin.HandlerFunc {
 		cookieValue := cookie.Value
 		cookieStruct, has := interfaces.Cache.Get(cookieValue)
 		if !has {
-			c.JSON(UnauthorizedStatus, gin.H{
+			c.JSON(http.StatusOK, gin.H{
 				"code":    UnauthorizedStatus,
 				"message": UnauthorizedMsg,
 			})
