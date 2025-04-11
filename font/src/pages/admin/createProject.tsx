@@ -15,8 +15,7 @@ export default function CreateProject() {
   const [ownerId, setOwnerId] = useState(0);
 
   const navigate = useNavigate();
-  const lct = useLocation();
-  let request = getRequestAndSetNavigate(navigate, lct);
+  let request = getRequestAndSetNavigate(navigate, useLocation());
 
   const messageContext = useContext(MessageContext);
   const { middleApi } = messageContext as MessageContextValue;

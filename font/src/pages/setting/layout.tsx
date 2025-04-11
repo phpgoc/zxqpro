@@ -18,7 +18,7 @@ const AdminLayout = () => {
     {
       key: "/setting/update_user",
       icon: <PlusOutlined />,
-      label: "Update User",
+      label: "Update Info",
       path: "/setting/update_user",
     },
     {
