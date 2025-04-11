@@ -1,7 +1,7 @@
 import { Form, Input, Checkbox, Button, Space } from 'antd';
 import getRequestAndSetNavigate from '../services/axios';
 import { type BaseResponseWithoutData} from "../types/response";
-import MessageContext        from "../context/message.tsx";
+import MessageContext ,{type MessageContextValue}       from "../context/message.tsx";
 import {useContext} from "react";
 import { useNavigate } from 'react-router-dom';
 
@@ -16,8 +16,9 @@ const LoginPage = () => {
     const [form] = Form.useForm<LoginForm>();
     const navigate = useNavigate();
     let  request = getRequestAndSetNavigate(navigate);
-    // @ts-ignore
-    const {middleApi} = useContext(MessageContext)
+
+    const messageContext = useContext(MessageContext)
+    const {middleApi} = messageContext as MessageContextValue;
 
     const submit = async (values: LoginForm) => {
         console.log('Received values of form: ', values);

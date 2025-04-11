@@ -1,10 +1,14 @@
 package utils
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
 
 func ValidateJson(g *gin.Context, req interface{}) bool {
 	if err := g.ShouldBindJSON(req); err != nil {
-		g.JSON(400, gin.H{
+		g.JSON(http.StatusOK, gin.H{
 			"code":    400,
 			"message": err.Error(),
 		})
@@ -15,7 +19,7 @@ func ValidateJson(g *gin.Context, req interface{}) bool {
 
 func ValidateQuery(g *gin.Context, req interface{}) bool {
 	if err := g.ShouldBindQuery(req); err != nil {
-		g.JSON(400, gin.H{
+		g.JSON(http.StatusOK, gin.H{
 			"code":    400,
 			"message": err.Error(),
 		})

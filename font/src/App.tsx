@@ -10,8 +10,11 @@ import AdminLayout from "./pages/admin/layout"
 import CreateProject from "./pages/admin/createProject"
 import Register from "./pages/admin/register"
 import ResetRateLimit from "./pages/admin/resetRateLimit"
-import UpdatePassword from "./pages/admin/updatePassword"
+import AdminUpdatePassword from "./pages/admin/updatePassword"
+import SettingLayout from "./pages/setting/layout"
 import SettingPage from "./pages/setting"
+import UpdateUser from "./pages/setting/updateUser"
+import UpdatePassword from "./pages/setting/updatePassword"
 import MessageContext from "./context/message"
 
 
@@ -61,10 +64,12 @@ function App() {
               <Route path={"create_project"} element={<CreateProject />} />
               <Route path={"register"} element={<Register />} />
               <Route path={"reset_rate_limit"}  element={<ResetRateLimit />} />
-              <Route path={"update_password"} element={<UpdatePassword />} />
+              <Route path={"update_password"} element={<AdminUpdatePassword />} />
           </Route>
-          <Route path="/setting" >
+          <Route path="/setting"  element={<SettingLayout />}>
               <Route index element={<SettingPage />} />
+                <Route path={"update_user"} element={<UpdateUser />} />
+                <Route path={"update_password"} element={<UpdatePassword />} />
           </Route>
         </Route>
     </Routes>

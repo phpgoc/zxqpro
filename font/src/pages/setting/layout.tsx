@@ -4,8 +4,6 @@ import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import {
     HomeOutlined,
     PlusOutlined,
-    UserAddOutlined,
-    SyncOutlined,
     KeyOutlined
 } from '@ant-design/icons';
 
@@ -17,36 +15,24 @@ const AdminLayout = () => {
 
     const menuItems = [
         {
-            key: '/admin',
+            key: '/setting',
             icon: <HomeOutlined />,
-            label: 'Admin Page',
-            path: '/admin'
-        },
-
-        {
-            key: '/admin/register',
-            icon: <UserAddOutlined />,
-            label: 'Register',
-            path: '/admin/register'
+            label: 'Setting Page',
+            path: '/setting'
         },
         {
-            key: '/admin/create_project',
+            key: '/setting/update_user',
             icon: <PlusOutlined />,
-            label: 'Create Project',
-            path: '/admin/create_project'
+            label: 'Update User',
+            path: '/setting/update_user'
         },
         {
-            key: '/admin/reset_rate_limit',
-            icon: <SyncOutlined />,
-            label: 'Reset Rate Limit',
-            path: '/admin/reset_rate_limit'
-        },
-        {
-            key: '/admin/update_password',
+            key: '/setting/update_password',
             icon: <KeyOutlined />,
             label: 'Update Password',
-            path: '/admin/update_password'
-        }
+            path: '/setting/update_password'
+        },
+
     ];
 
     return (
