@@ -33,6 +33,7 @@ export default function UserListSelect({
     <Select
       placeholder="Select User"
       onChange={onChange}
+      onClear={() => onChange(0)}
       style={{ width: 200 }}
     >
       {userList.map((user) => (

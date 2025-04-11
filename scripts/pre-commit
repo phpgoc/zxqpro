@@ -19,10 +19,17 @@ git add server/docs
 # 重新add 这些文件
 files=$(git diff --cached --name-only -- 'font/*')
 if [ -n "$files" ]; then
-  # 对这些文件进行格式化
-  npx prettier "${files[@]}" --write
-  # 重新 add 这些文件
-  git add "${files[@]}"
+    echo "Files to format: $files"  # 输出文件路径进行调试
+    # 对这些文件进行格式化
+    npx prettier "${files[@]}" --write
+    # 检查是否有文件被修改
+    modified_files=$(git diff --name-only -- 'font/*')
+    if [ -n "$modified_files" ]; then
+        echo "Modified files after formatting: $modified_files"
+        git add "$modified_files"
+    else
+        echo "No files were modified after formatting."
+    fi
 fi
 
 exit 0    

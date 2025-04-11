@@ -123,14 +123,17 @@ const ProjectList = () => {
         onChange={handlePageChange}
         style={{ marginBottom: 16 }}
       />
-      <Table dataSource={ProjectList} columns={columns} />
+      <Table
+        dataSource={ProjectList}
+        rowKey={(item) => item.id}
+        columns={columns}
+      />
       <Pagination
         current={currentPage}
         pageSize={pageSize}
         total={total}
         onChange={handlePageChange}
         showSizeChanger={true}
-        // onShowSizeChange={handlePageChange}
         style={{ marginTop: 16 }}
       />
     </div>

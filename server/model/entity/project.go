@@ -15,8 +15,8 @@ type Project struct {
 type ProjectStatus byte
 
 const (
-	InActive ProjectStatus = iota + 1
-	Active
-	Completed
-	Archived
+	ProjectStatusInActive ProjectStatus = iota + 1
+	ProjectStatusActive
+	ProjectStatusCompleted
+	ProjectStatusArchived
 )

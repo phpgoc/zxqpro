@@ -490,10 +490,10 @@ const docTemplate = `{
                 4
             ],
             "x-enum-varnames": [
-                "InActive",
-                "Active",
-                "Completed",
-                "Archived"
+                "ProjectStatusInActive",
+                "ProjectStatusActive",
+                "ProjectStatusCompleted",
+                "ProjectStatusArchived"
             ]
         },
         "entity.RoleType": {
