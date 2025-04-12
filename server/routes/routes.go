@@ -17,30 +17,32 @@ import (
 
 func ApiRoutes() *gin.Engine {
 	router := gin.Default()
-	if gin.Mode() != gin.ReleaseMode {
-		// 非 Release 模式下，启用 CORS 中间件，允许所有来源访问
-		config := cors.Config{
-			AllowOriginFunc: func(origin string) bool {
-				// 白名单：只允许指定域名
-				allowedOrigins := map[string]bool{
-					"http://localhost:5173": true,
-				}
-				utils.LogWarn(fmt.Sprintf("origin: %s", origin))
-				return allowedOrigins[origin]
-			},
-			AllowOrigins:     []string{"http://locahost:5173", "http://locahost:5174"},
-			AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-			AllowHeaders:     []string{"Authorization", "Content-Type"},
-			AllowCredentials: true,
-		}
-
-		utils.LogWarn("CORS is enabled in debug mode, please disable it in production.")
-		router.Use(cors.New(config))
+	// if gin.Mode() != gin.ReleaseMode {
+	// 非 Release 模式下，启用 CORS 中间件，允许所有来源访问
+	config := cors.Config{
+		AllowOriginFunc: func(origin string) bool {
+			// 白名单：只允许指定域名
+			allowedOrigins := map[string]bool{
+				"http://localhost:5173": true,
+				"http://localhost:5174": true,
+				"tauri://app":           true,
+			}
+			utils.LogWarn(fmt.Sprintf("origin: %s", origin))
+			return allowedOrigins[origin]
+		},
+		// AllowOrigins:     []string{"http://locahost:5173", "http://locahost:5174", "tauri://app"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Authorization", "Content-Type"},
+		AllowCredentials: true,
 	}
+
+	utils.LogWarn("CORS is enabled in debug mode, please disable it in production.")
+	router.Use(cors.New(config))
+	//}
 	api := router.Group("/api")
 
 	api.Use(middleware.AuthLogin())
-	api.Use(middleware.RateLimit(1000))
+	api.Use(middleware.RateLimit(500))
 	docs.SwaggerInfo.BasePath = "/api"
 	admin := api.Group("/admin")
 	admin.Use(middleware.AuthAdmin())
@@ -49,7 +51,7 @@ func ApiRoutes() *gin.Engine {
 	admin.POST("create_project", AdminCreateProject)
 	admin.POST("/reset_rate_limit", AdminResetRateLimit)
 
-	api.POST("/user/login", middleware.RateLimit(20), UserLogin)
+	api.POST("/user/login", middleware.RateLimit(10), UserLogin)
 
 	api.POST("/user/logout", UserLogout)
 	api.GET("/user/info", UserInfo)

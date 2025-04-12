@@ -41,16 +41,15 @@ request.interceptors.response.use(
   },
   (error) => {
     // 处理 HTTP 级错误（如网络问题、500 等）
-    if (error.response?.status === 401) {
-      // 若同时有 HTTP 401（可选，根据实际情况）
-
-      sessionStorage.setItem(REDIRECT_KEY, fullPath); // 存储完整 URL
-
-      if (navigate) {
-        navigate("/"); // 使用 navigate 进行页面跳转
-      }
-    }
-    return Promise.reject(error);
+    const status = error.response?.status;
+    const message = `server err: ${error.message}`;
+    // 返回正常响应
+    return {
+      data: {
+        code: status,
+        message: message,
+      },
+    };
   },
 );
 export default function getRequestAndSetNavigate(

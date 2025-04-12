@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/phpgoc/zxqpro/model/dao"
 
 	"github.com/gin-gonic/gin/binding"
@@ -27,8 +29,11 @@ func main() {
 	// router.StaticFS("/static", http.FileSystem(box))
 
 	mux := http.NewServeMux()
-	dist := packr.New("dist", "../../../dist")
-	mux.Handle("/", spaHandler{box: dist})
+	if gin.Mode() == gin.ReleaseMode {
+		dist := packr.New("dist", "../../../dist")
+		mux.Handle("/", spaHandler{box: dist})
+	}
+
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(box)))
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
