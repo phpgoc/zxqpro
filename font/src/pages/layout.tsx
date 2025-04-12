@@ -9,6 +9,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { BaseResponse } from "../types/response.ts";
 import getRequestAndSetNavigate from "../services/axios.ts";
 import {useUserContext} from "../context/userInfo.tsx";
+import { avatarUrl, isAdmin } from "../services/utils.ts";
 
 const { Header, Content } = Layout;
 
@@ -42,13 +43,12 @@ export default function ZxqLayout() {
   const navigate = useNavigate();
   let request = getRequestAndSetNavigate(navigate, useLocation());
   const currentPath = useLocation().pathname;
-  // const user = JSON.parse(localStorage.getItem("userInfo") ?? "{}") as UserInfo;
   const {user} = useUserContext()
-  if (user.id != 1) {
+  if (!isAdmin(user.id)) {
     delete items[2];
   }
-  const serverUrl = import.meta.env.VITE_SERVER_URL;
-  const avatarUrl = `${serverUrl}static/avatar/${user.avatar}.webp`;
+
+  const avatarSrc =  avatarUrl(user.avatar)
 
   function logout() {
     request.post<BaseResponse>("user/logout").then((res) => {
@@ -112,7 +112,7 @@ export default function ZxqLayout() {
         >
 
           <img
-            src={avatarUrl}
+            src={avatarSrc}
             alt="User Avatar"
             width={40}
             height={40}

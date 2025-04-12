@@ -18,7 +18,7 @@ export default function CreateProject() {
   let request = getRequestAndSetNavigate(navigate, useLocation());
 
   const messageContext = useContext(MessageContext);
-  const { middleApi } = messageContext as MessageContextValue;
+  const { middleMessageApi } = messageContext as MessageContextValue;
 
   const handleSubmit = (_: React.FormEvent<HTMLFormElement>) => {
     // e.preventDefault();
@@ -30,16 +30,16 @@ export default function CreateProject() {
       })
       .then((response) => {
         if (response.data.code == 0) {
-          middleApi.success(response.data.message).then((_: any) => {
+          middleMessageApi.success(response.data.message).then((_: any) => {
             setName("");
             setDescription("");
           });
         } else {
-          middleApi.warning(response.data.message).then();
+          middleMessageApi.warning(response.data.message).then();
         }
       })
       .catch((_) => {
-        middleApi.error("Create Project failed. Please try again.").then();
+        middleMessageApi.error("Create Project failed. Please try again.").then();
       });
   };
 

@@ -18,7 +18,7 @@ export default function UpdatePassword() {
   let request = getRequestAndSetNavigate(navigate, lct);
 
   const messageContext = useContext(MessageContext);
-  const { middleApi } = messageContext as MessageContextValue;
+  const { middleMessageApi } = messageContext as MessageContextValue;
 
   const divStyle = {
     display: "flex",
@@ -40,7 +40,7 @@ export default function UpdatePassword() {
       .post<BaseResponse>("/user/update_password", {  new_password: newPassowrd, old_password: oldPassword , new_password2: newPassword2})
       .then((response) => {
         if (response.data.code == 0) {
-          middleApi.success(response.data.message).then(
+          middleMessageApi.success(response.data.message).then(
             (_: any) => {
               setNewPassword("");
               setOldPassword("");
@@ -48,11 +48,11 @@ export default function UpdatePassword() {
             }
           );
         } else {
-          middleApi.warning(response.data.message).then();
+          middleMessageApi.warning(response.data.message).then();
         }
       })
       .catch((_) => {
-        middleApi.error("Registration failed. Please try again.").then();
+        middleMessageApi.error("Registration failed. Please try again.").then();
       });
   };
 

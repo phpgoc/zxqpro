@@ -7,10 +7,11 @@ import { projectStatusMap, roleTypesMap } from "../../types/project.ts";
 import { Project } from "../../types/response.ts";
 import { UserInfo } from "../../types/response.ts";
 import RoleTypeSelect from "../../components/RoleType.tsx";
-import { isAdmin } from "../../services/auth.ts";
+import { ownerOrAdmin } from "../../services/utils.ts";
+import { LOCAL_USER_INFO_KEY } from "../../types/const.ts";
 
 const ProjectList = () => {
-  const user = JSON.parse(localStorage.getItem("userInfo") ?? "{}") as UserInfo;
+  const user = JSON.parse(localStorage.getItem(LOCAL_USER_INFO_KEY) ?? "{}") as UserInfo;
 
   const navigate = useNavigate();
   let request = getRequestAndSetNavigateLocaton(navigate, useLocation());
@@ -55,7 +56,7 @@ const ProjectList = () => {
       key: "action",
       render: (_text: any, record: Project) => (
         <Space size="middle">
-          {isAdmin(user.id, record.owner_id) && (
+          {ownerOrAdmin(user.id, record.owner_id) && (
             <a
               onClick={() => {
                 navigate(`/project/${record.id}`);

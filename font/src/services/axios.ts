@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { Location } from "react-router-dom";
-import {HOST_KEY, REDIRECT_KEY} from "../types/const.ts";
+import { REDIRECT_KEY } from "../types/const.ts";
+import { serverUrl } from "./utils.ts";
 
 type NavigateFunction = (path: string) => void;
 
@@ -13,30 +14,14 @@ const setNavigate = (nav: NavigateFunction) => {
 };
 let fullPath: string = "/";
 
-const request = (() => {
-  // 从 localStorage 中获取 HOST_KEY
-  const host = localStorage.getItem(HOST_KEY);
-  if (host) {
-    // 如果存在，则将其作为 baseURL
-    return axios.create({
-      baseURL: `${host}/api/`,
-      timeout: 5000,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      withCredentials: true,
-    });
-  }
-
-  return axios.create({
-    baseURL: `${import.meta.env.VITE_SERVER_URL}api/`,
-    timeout: 5000,
-    headers: {
-      "Content-Type": "application/json",
-    },
-    withCredentials: true,
-  });
-})();
+const request = axios.create({
+  baseURL: `${serverUrl()}api/`,
+  timeout: 5000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  withCredentials: true,
+});
 
 request.interceptors.response.use(
   (response) => {

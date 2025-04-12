@@ -38,8 +38,8 @@ function App() {
   });
 
   const messageContextValue = {
-    middleApi: middleMessageApi,
-    bottomRightApi: bottomRightMessageApi,
+    middleMessageApi: middleMessageApi,
+    bottomRightMessageApi: bottomRightMessageApi,
   };
 
   return (

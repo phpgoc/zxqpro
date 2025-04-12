@@ -15,7 +15,7 @@ export default function Register() {
   let request = getRequestAndSetNavigate(navigate, lct);
 
   const messageContext = useContext(MessageContext);
-  const { middleApi } = messageContext as MessageContextValue;
+  const { middleMessageApi } = messageContext as MessageContextValue;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -23,16 +23,16 @@ export default function Register() {
       .post<BaseResponse>("/admin/register", { name, password })
       .then((response) => {
         if (response.data.code == 0) {
-          middleApi.success(response.data.message).then((_: any) => {
+          middleMessageApi.success(response.data.message).then((_: any) => {
             setName("");
             setPassword("");
           });
         } else {
-          middleApi.warning(response.data.message).then();
+          middleMessageApi.warning(response.data.message).then();
         }
       })
       .catch((_) => {
-        middleApi.error("Registration failed. Please try again.").then();
+        middleMessageApi.error("Registration failed. Please try again.").then();
       });
   };
 

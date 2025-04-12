@@ -8,6 +8,8 @@ import MessageContext, {
 import { BaseResponse, UserInfo } from "../../types/response.ts";
 import {useUserContext} from "../../context/userInfo.tsx";
 import * as React from "react";
+import { LOCAL_USER_INFO_KEY } from "../../types/const.ts";
+import { avatarUrl } from "../../services/utils.ts";
 
 
 function ImageSelectorPopup ({setAvatar}:{ setAvatar:(n:number) => void}){
@@ -49,7 +51,7 @@ function ImageSelectorPopup ({setAvatar}:{ setAvatar:(n:number) => void}){
               lg={6}  // 大屏幕（≥ 992px），每行 4 个
             >
               <img
-                src={import.meta.env.VITE_SERVER_URL+`static/avatar/${index + 1}.webp`}
+                src={avatarUrl(index + 1)}
                 alt={`Avatar ${index + 1}`}
                 style={{ width: '100%', cursor: 'pointer' }}
                 onClick={() => setAvatar(index + 1)}
@@ -71,13 +73,13 @@ export default function UpdateUser() {
   const [avatar, setAvatar] = useState(user.avatar);
 
 
-  let avatarImgUrl = import.meta.env.VITE_SERVER_URL+`static/avatar/${avatar}.webp`;
+  let avatarImgUrl = avatarUrl(avatar);
 
   const navigate = useNavigate();
   let request = getRequestAndSetNavigate(navigate, useLocation());
 
   const messageContext = useContext(MessageContext);
-  const { middleApi } = messageContext as MessageContextValue;
+  const { middleMessageApi } = messageContext as MessageContextValue;
 
 
 
@@ -96,15 +98,13 @@ export default function UpdateUser() {
             avatar: avatar,
           }
           updateUser(newUser )
-          middleApi.success(response.data.message).then((_: any) => {
-            middleApi.success(response.data.message).then()
-          });
+          middleMessageApi.success(response.data.message).then();
         } else {
-          middleApi.warning(response.data.message).then();
+          middleMessageApi.warning(response.data.message).then();
         }
       })
       .catch((_) => {
-        middleApi.error("Registration failed. Please try again.").then();
+        middleMessageApi.error({content:"Update failed. Please try again."}).then();
       });
   };
   useEffect(()=>{
@@ -114,7 +114,7 @@ export default function UpdateUser() {
         setUserName(res.data.data.user_name);
         setEmail(res.data.data.email);
         setAvatar(res.data.data.avatar)
-        localStorage.setItem("userInfo", JSON.stringify(res.data.data))
+        localStorage.setItem(LOCAL_USER_INFO_KEY, JSON.stringify(res.data.data))
       }
     })
   },[])

@@ -21,7 +21,7 @@ const LoginPage = () => {
   let request = getRequestAndSetNavigate(navigate, useLocation());
 
   const messageContext = useContext(MessageContext);
-  const { middleApi } = messageContext as MessageContextValue;
+  const { middleMessageApi } = messageContext as MessageContextValue;
   const {updateUser} = useUserContext()
 
   const submit = async (values: LoginForm) => {
@@ -32,7 +32,7 @@ const LoginPage = () => {
         if (res.data.code === 0) {
           request.get("/user/info").then((info) => {
             updateUser(info.data.data);
-            middleApi
+            middleMessageApi
               .success({
                 content: "登录成功",
                 duration: 1,
@@ -46,7 +46,7 @@ const LoginPage = () => {
               });
           });
         } else {
-          middleApi.error({
+          middleMessageApi.error({
             content: res.data.message,
           });
         }

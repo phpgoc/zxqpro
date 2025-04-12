@@ -8,7 +8,7 @@ import type { MessageContextValue } from "../context/message.tsx";
 export  default function SetHost(){
   const navigate = useNavigate()
   const messageContext = useContext(MessageContext);
-  const { middleApi } = messageContext as MessageContextValue;
+  const { middleMessageApi } = messageContext as MessageContextValue;
   // 我需要保留协议和端口
   const [hostValue, setHostValue] = useState("");
 
@@ -28,7 +28,7 @@ export  default function SetHost(){
     // 处理确定按钮点击事件，这里可以添加具体的逻辑
       localStorage.setItem(HOST_KEY, hostValue)
     // 这里使用window的跳转而不是navigate，是为了让react刷新整个页面，request可以重新加载
-      middleApi.success({content:"设置成功", duration: 2}).then(()=>
+      middleMessageApi.success({content:"设置成功", duration: 2}).then(()=>
         window.location.href = "/set_host"
       )
   };
@@ -42,7 +42,7 @@ export  default function SetHost(){
     localStorage.removeItem(HOST_KEY)
     // 这里使用window的跳转而不是navigate，是为了让react刷新整个页面，request可以重新加载
 
-    middleApi.success({content:"设置成功", duration: 1}).then(()=>
+    middleMessageApi.success({content:"设置成功", duration: 1}).then(()=>
       window.location.href = "/set_host"
     )
   }

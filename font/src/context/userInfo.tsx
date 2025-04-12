@@ -1,6 +1,7 @@
 // UserContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserInfo } from "../types/response.ts";
+import { LOCAL_USER_INFO_KEY } from "../types/const.ts";
 
 // 假设 UserInfo 类型定义如下
 
@@ -12,19 +13,19 @@ const UserContext = createContext<{
 
 const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserInfo>(() => {
-    const storedUser = localStorage.getItem("userInfo");
+    const storedUser = localStorage.getItem(LOCAL_USER_INFO_KEY);
     return storedUser ? JSON.parse(storedUser) as UserInfo : {} as UserInfo;
   });
 
   const updateUser = (newUser: UserInfo) => {
     setUser(newUser);
-    localStorage.setItem("userInfo", JSON.stringify(newUser));
+    localStorage.setItem(LOCAL_USER_INFO_KEY, JSON.stringify(newUser));
   };
 
   // 监听 localStorage 变化
   useEffect(() => {
     const handleStorageChange = () => {
-      const storedUser = localStorage.getItem("userInfo");
+      const storedUser = localStorage.getItem(LOCAL_USER_INFO_KEY);
       if (storedUser) {
         setUser(JSON.parse(storedUser) as UserInfo);
       }
