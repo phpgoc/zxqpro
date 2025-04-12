@@ -3,6 +3,7 @@ import "./App.css";
 import message from "antd/es/message";
 import ZxqLayout from "./pages/layout";
 import IndexPage from "./pages/index";
+import SetHost from "./pages/setHost";
 import ProjectPage from "./pages/project";
 import TaskPage from "./pages/task";
 import AdminPage from "./pages/admin";
@@ -49,6 +50,7 @@ function App() {
       {bottomRightMessageHolder}
       <Routes>
         <Route index element={<IndexPage />} />
+        <Route path={"/set_host"} element={<SetHost />} />
         <Route path={"/"} element={<ZxqLayout />}>
           <Route path="/project">
             <Route index element={<ProjectPage />} />

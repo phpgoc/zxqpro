@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { Location } from "react-router-dom";
+import {HOST_KEY, REDIRECT_KEY} from "../types/const.ts";
 
 type NavigateFunction = (path: string) => void;
 
@@ -12,14 +13,30 @@ const setNavigate = (nav: NavigateFunction) => {
 };
 let fullPath: string = "/";
 
-const request = axios.create({
-  baseURL: `${import.meta.env.VITE_SERVER_URL}api/`,
-  timeout: 5000,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  withCredentials: true,
-});
+const request = (() => {
+  // 从 localStorage 中获取 HOST_KEY
+  const host = localStorage.getItem(HOST_KEY);
+  if (host) {
+    // 如果存在，则将其作为 baseURL
+    return axios.create({
+      baseURL: `${host}/api/`,
+      timeout: 5000,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+  }
+
+  return axios.create({
+    baseURL: `${import.meta.env.VITE_SERVER_URL}api/`,
+    timeout: 5000,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    withCredentials: true,
+  });
+})();
 
 request.interceptors.response.use(
   (response) => {
@@ -29,7 +46,7 @@ request.interceptors.response.use(
       return response;
     }
     if (response.data.code === 401) {
-      sessionStorage.setItem("redirectUrl", fullPath); // 存储完整 URL
+      sessionStorage.setItem(REDIRECT_KEY, fullPath); // 存储完整 URL
       if (navigate) {
         navigate("/"); // 使用 navigate 进行页面跳转
       }
@@ -42,7 +59,7 @@ request.interceptors.response.use(
     if (error.response?.status === 401) {
       // 若同时有 HTTP 401（可选，根据实际情况）
 
-      sessionStorage.setItem("redirectUrl", fullPath); // 存储完整 URL
+      sessionStorage.setItem(REDIRECT_KEY, fullPath); // 存储完整 URL
 
       if (navigate) {
         navigate("/"); // 使用 navigate 进行页面跳转

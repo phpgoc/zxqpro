@@ -58,8 +58,10 @@ const LoginPage = () => {
     form.resetFields();
   };
 
+
+
   return (
-    <div style={{ maxWidth: 400, margin: "0 auto", padding: 24 }}>
+    <div style={{ maxWidth: 400, margin: "0 auto", padding: 24 ,fontSize:"35px" }}>
       <h2 style={{ textAlign: "center", marginBottom: 32 }}>登录</h2>
 
       <Form
@@ -88,6 +90,7 @@ const LoginPage = () => {
         <Form.Item name="use_mobile" valuePropName="checked" label="长期登录">
           <Checkbox />
         </Form.Item>
+        <a onClick={()=>navigate("/set_host")} >设置host</a>
 
         <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
           <Space>
