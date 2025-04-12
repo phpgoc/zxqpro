@@ -61,6 +61,9 @@ export default function Register() {
         >
           Register
         </Button>
+        <Button onClick={() => {setPassword("Aa123456")}} style={{fontSize: 10 }}>
+           Password: Aa123456
+        </Button>
         <Button
           onClick={() => {
             setName("");

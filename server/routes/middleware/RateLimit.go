@@ -94,7 +94,7 @@ func RateLimit(reqPerHour int) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		clientIP := c.ClientIP()
 		if !limiter.incrementCount(clientIP) {
-			c.JSON(http.StatusTooManyRequests, gin.H{
+			c.JSON(http.StatusOK, gin.H{
 				"code":    http.StatusTooManyRequests,
 				"message": "Too many requests, please try again later.",
 			})
