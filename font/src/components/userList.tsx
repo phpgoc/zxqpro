@@ -14,8 +14,7 @@ export default function UserListSelect({
   projectId?: number;
 }) {
   const navigate = useNavigate();
-  const lct = useLocation();
-  let request = getRequestAndSetNavigate(navigate, lct);
+  let request = getRequestAndSetNavigate(navigate, useLocation());
   const [userList, setUserList] = useState<UserInfo[]>([]);
   useEffect(() => {
     request
@@ -48,3 +47,5 @@ export default function UserListSelect({
     </Select>
   );
 }
+
+

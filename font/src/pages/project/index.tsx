@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { Table, Pagination, Space } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import getRequestAndSetNavigateLocaton from "../../services/axios.ts";
-import ProjectStatusSelect from "../../components/ProjectStatus.tsx";
+import ProjectStatusSelect from "../../components/projectStatus.tsx";
 import { projectStatusMap, roleTypesMap } from "../../types/project.ts";
 import { Project } from "../../types/response.ts";
 import { UserInfo } from "../../types/response.ts";
-import RoleTypeSelect from "../../components/RoleType.tsx";
+import RoleTypeSelect from "../../components/roleType.tsx";
 import { ownerOrAdmin } from "../../services/utils.ts";
 import { LOCAL_USER_INFO_KEY } from "../../types/const.ts";
 
@@ -59,7 +59,7 @@ const ProjectList = () => {
           {ownerOrAdmin(user.id, record.owner_id) && (
             <a
               onClick={() => {
-                navigate(`/project/${record.id}`);
+                navigate(`/project/edit/${record.id}`);
               }}
             >
               Edit
@@ -67,10 +67,17 @@ const ProjectList = () => {
           )}
           <a
             onClick={() => {
-              navigate(`/project/${record.id}/task`);
+              navigate(`/project/tasks/${record.id}`);
             }}
           >
-            Task
+            Tasks
+          </a>
+          <a
+            onClick={() => {
+              navigate(`/project/${record.id}`);
+            }}
+          >
+            View
           </a>
         </Space>
       ),

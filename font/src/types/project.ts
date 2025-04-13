@@ -1,4 +1,4 @@
-export enum RoleType {
+export enum RoleType  {
   OWNER = 1,
   PRODUCTER,
   DEVELOPER,

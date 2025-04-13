@@ -20,6 +20,9 @@ import MessageContext from "./context/message";
 import "@ant-design/v5-patch-for-react-19";
 import { Route, Routes } from "react-router-dom";
 import {UserProvider} from "./context/userInfo.tsx";
+import ProjectTasks from "./pages/project/tasks.tsx";
+import ProjectView from "./pages/project/view.tsx";
+import ProjectEdit from "./pages/project/edit.tsx";
 
 function App() {
   const [middleMessageApi, middleMessageHolder] = message.useMessage({
@@ -54,6 +57,9 @@ function App() {
         <Route path={"/"} element={<ZxqLayout />}>
           <Route path="/project">
             <Route index element={<ProjectPage />} />
+            <Route path=":id" element={<ProjectView />} />
+            <Route path="tasks/:id" element={<ProjectTasks />} />
+            <Route path="edit/:id" element={<ProjectEdit />} />
           </Route>
           <Route path="/task">
             <Route index element={<TaskPage />} />

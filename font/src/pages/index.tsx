@@ -25,7 +25,6 @@ const LoginPage = () => {
   const {updateUser} = useUserContext()
 
   const submit = async (values: LoginForm) => {
-    console.log("Received values of form: ", values);
     request
       .post<BaseResponseWithoutData>("user/login", JSON.stringify(values))
       .then((res) => {
@@ -50,7 +49,6 @@ const LoginPage = () => {
             content: res.data.message,
           });
         }
-        console.log("Response from server: ", res.data.code);
       });
   };
 

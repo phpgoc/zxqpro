@@ -7,7 +7,7 @@ import MessageContext, {
 } from "../../context/message.tsx";
 import { BaseResponse } from "../../types/response.ts";
 import * as React from "react";
-import UserListSelect from "../../components/UserList.tsx";
+import UserListSelect from "../../components/userList.tsx";
 
 export default function CreateProject() {
   const [name, setName] = useState("");

@@ -23,7 +23,6 @@ func main() {
 	if err != nil {
 		return
 	}
-
 	dao.InitDb()
 	box := packr.New("static", "../../../static")
 	// router.StaticFS("/static", http.FileSystem(box))
@@ -43,6 +42,7 @@ func main() {
 		}
 	}
 	mux.Handle("/api/", router)
+	mux.Handle("/swagger/", router)
 	//_ = router.Run()
 	err = http.ListenAndServe(":8080", mux)
 }

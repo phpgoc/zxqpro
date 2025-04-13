@@ -20,3 +20,13 @@ export function serverUrl(): string {
 export function avatarUrl(avatarId  : number): string {
   return `${serverUrl()}static/avatar/${avatarId}.webp`;
 }
+
+export function parseIdToNumber (id: string | undefined): number  {
+  if (id) {
+    const parsedId = Number(id);
+    if (!isNaN(parsedId)) {
+      return parsedId;
+    }
+  }
+  return 0;
+}
