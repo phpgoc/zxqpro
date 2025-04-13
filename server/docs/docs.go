@@ -551,16 +551,16 @@ const docTemplate = `{
         "request.AdminUpdatePassword": {
             "type": "object",
             "required": [
-                "id",
-                "password"
+                "password",
+                "user_id"
             ],
             "properties": {
-                "id": {
-                    "type": "integer"
-                },
                 "password": {
                     "type": "string",
                     "minLength": 8
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },

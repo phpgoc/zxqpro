@@ -6,7 +6,7 @@ type AdminRegister struct {
 }
 
 type AdminUpdatePassword struct {
-	ID       uint   `json:"id" binding:"required"`
+	UserId   uint   `json:"user_id" binding:"required"`
 	Password string `json:"password" binding:"required,min=8,complexPassword"`
 }
 

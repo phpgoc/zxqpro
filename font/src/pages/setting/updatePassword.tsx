@@ -14,8 +14,7 @@ export default function UpdatePassword() {
   const [newPassword2, setNewPassword2] = useState("");
 
   const navigate = useNavigate();
-  const lct = useLocation();
-  let request = getRequestAndSetNavigate(navigate, lct);
+  let request = getRequestAndSetNavigate(navigate, useLocation());
 
   const messageContext = useContext(MessageContext);
   const { middleMessageApi } = messageContext as MessageContextValue;

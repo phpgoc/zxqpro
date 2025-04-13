@@ -55,7 +55,7 @@ func AdminUpdatePassword(c *gin.Context) {
 		return
 	}
 	user := entity.User{}
-	result := dao.Db.Where("id = ?", req.ID).First(&user)
+	result := dao.Db.Where("id = ?", req.UserId).First(&user)
 	if result.Error != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, result.Error.Error()))
 		return

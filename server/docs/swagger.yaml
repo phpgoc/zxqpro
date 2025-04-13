@@ -51,14 +51,14 @@ definitions:
     type: object
   request.AdminUpdatePassword:
     properties:
-      id:
-        type: integer
       password:
         minLength: 8
         type: string
+      user_id:
+        type: integer
     required:
-    - id
     - password
+    - user_id
     type: object
   request.ProjectDeleteRole:
     properties:
