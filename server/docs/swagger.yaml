@@ -266,6 +266,61 @@ paths:
       summary: admin update_password
       tags:
       - Admin
+  /message/receive_list:
+    get:
+      consumes:
+      - '*/*'
+      description: message receive_list
+      parameters:
+      - default: 1
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        in: query
+        name: page_size
+        type: integer
+      - in: query
+        name: read
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: message receive_list
+      tags:
+      - Message
+  /message/send_list:
+    get:
+      consumes:
+      - '*/*'
+      description: message send_list
+      parameters:
+      - default: 1
+        in: query
+        minimum: 1
+        name: page
+        required: true
+        type: integer
+      - default: 10
+        in: query
+        minimum: 5
+        name: page_size
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: message send_list
+      tags:
+      - Message
   /message/share_link:
     post:
       consumes:

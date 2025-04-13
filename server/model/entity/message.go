@@ -23,7 +23,7 @@ type MessageTo struct {
 	UserId    uint    `gorm:"index:idx_user_read_message,priority:1"`
 	User      User    `gorm:"foreignKey:UserId;references:ID"`
 	MessageId uint    `gorm:"index:idx_user_read_message,priority:3"`
-	Message   Message `gorm:"foreignKey:MessageId"`
+	Message   Message `gorm:"foreignKey:MessageId;references:ID"`
 	Read      bool    `gorm:"index:idx_user_read_message,priority:2"`
 	ReadAt    time.Time
 }

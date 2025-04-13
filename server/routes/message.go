@@ -1,7 +1,10 @@
 package routes
 
 import (
+	"encoding/json"
 	"net/http"
+
+	"gorm.io/gorm/clause"
 
 	"github.com/gin-gonic/gin"
 	"github.com/phpgoc/zxqpro/model/dao"
@@ -35,4 +38,91 @@ func MessageShareLink(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
+}
+
+// MessageReceiveList  godoc
+// @Summary message receive_list
+// @Schemes
+// @Description message receive_list
+// @Tags Message
+// @Accept */*
+// @Produce json
+// @Param MessageReceiveList query request.MessageList true "MessageReceiveList"
+// @Success 200 {object} response.CommonResponse[Data=response.MessageList] "成功响应"
+// @Router /message/receive_list [get]
+func MessageReceiveList(c *gin.Context) {
+	var req request.MessageList
+	if success := utils.ValidateQuery(c, &req); !success {
+		return
+	}
+	userId := middleware.GetUserIdFromAuthMiddleware(c)
+	var res response.MessageList
+	var messageToList []entity.MessageTo
+	model := dao.Db.Model(entity.MessageTo{}).Preload(clause.Associations).Preload("Message.CreateUser").Where(entity.MessageTo{UserId: userId, Read: req.Read})
+	result := model.Count(&res.Total)
+	if result.Error != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, result.Error.Error()))
+		return
+	}
+	// model.DryRun = true
+	result = model.Offset((req.Page - 1) * req.PageSize).Limit(req.PageSize).Order("message_id desc").Find(&messageToList)
+	// utils.LogError(result.Statement.SQL.String())
+	if result.Error != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, result.Error.Error()))
+		return
+	}
+	for _, messageTo := range messageToList {
+		j, _ := json.Marshal(messageTo.Message.CreateUser)
+		utils.LogError(string(j))
+		res.List = append(res.List, response.Message{
+			Id:      messageTo.ID,
+			Link:    messageTo.Message.Link,
+			Message: dao.JoinReceiveMessage(messageTo.Message.CreateUser.UserName, messageTo.User.UserName, messageTo.Message.Action),
+			Read:    messageTo.Read,
+		})
+	}
+	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", res))
+}
+
+// MessageSendList  godoc
+// @Summary message send_list
+// @Schemes
+// @Description message send_list
+// @Tags Message
+// @Accept */*
+// @Produce json
+// @Param MessageSendList query request.Page true "MessageSendList"
+// @Success 200 {object} response.CommonResponse[Data=response.MessageList] "成功响应"
+// @Router /message/send_list [get]
+func MessageSendList(c *gin.Context) {
+	var req request.Page
+	if success := utils.ValidateQuery(c, &req); !success {
+		return
+	}
+	userId := middleware.GetUserIdFromAuthMiddleware(c)
+	var res response.MessageList
+	var messageToList []entity.MessageTo
+	model := dao.Db.Model(entity.MessageTo{}).Preload("Message", "create_user_id = ?", userId).Preload("User")
+	result := model.Count(&res.Total)
+	if result.Error != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, result.Error.Error()))
+		return
+	}
+	result = model.Offset((req.Page - 1) * req.PageSize).Limit(req.PageSize).Order("message_id desc").Find(&messageToList)
+
+	utils.LogError(result.Statement.SQL.String())
+
+	if result.Error != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, result.Error.Error()))
+		return
+	}
+	for _, messageTo := range messageToList {
+		res.List = append(res.List, response.Message{
+			Id:      messageTo.ID,
+			Link:    messageTo.Message.Link,
+			Message: dao.JoinSendMessage(messageTo.Message.CreateUser.UserName, messageTo.User.UserName, messageTo.Message.Action),
+			Read:    messageTo.Read,
+		})
+	}
+	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", res))
 }
