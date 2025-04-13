@@ -6,10 +6,13 @@ import {
   UsergroupAddOutlined,
 } from "@ant-design/icons";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { BaseResponse } from "../types/response.ts";
+import { BaseResponse, BaseResponseWithoutData } from "../types/response.ts";
 import getRequestAndSetNavigate from "../services/axios.ts";
 import {useUserContext} from "../context/userInfo.tsx";
 import { avatarUrl, isAdmin } from "../services/utils.ts";
+import UserListSelect from "../components/userList.tsx";
+import { useContext, useState } from "react";
+import MessageContext, { type MessageContextValue } from "../context/message.tsx";
 
 const { Header, Content } = Layout;
 
@@ -40,14 +43,18 @@ const items = [
 ];
 
 export default function ZxqLayout() {
+  const [isSelectVisible, setIsSelectVisible] = useState(false);
+
   const navigate = useNavigate();
   let request = getRequestAndSetNavigate(navigate, useLocation());
   const currentPath = useLocation().pathname;
+  const messageContext = useContext(MessageContext);
+  const { middleMessageApi } = messageContext as MessageContextValue;
   const {user} = useUserContext()
   if (!isAdmin(user.id)) {
     delete items[2];
   }
-
+  const [sharedUserId, setSharedUserId] = useState(0);
   const avatarSrc =  avatarUrl(user.avatar)
 
   function logout() {
@@ -57,6 +64,30 @@ export default function ZxqLayout() {
       }
     });
   }
+
+  function handleButtonClick() {
+    setIsSelectVisible(true)
+    setTimeout(() => {
+      setIsSelectVisible(false)
+    }, 10000)
+  }
+
+  function handleSelectChange(newUserId : number) {
+    setSharedUserId(newUserId)
+    request.post<BaseResponseWithoutData>("message/share_link", {
+      to_user_id: newUserId,
+      link: window.location.href,
+    }).then((res) => {
+      if (res.data.code == 0) {
+        middleMessageApi.success("分享成功").then();
+      } else {
+        middleMessageApi.error("分享失败").then();
+      }
+    });
+    setIsSelectVisible(false)
+  }
+
+
   return (
     <Layout>
       <Header
@@ -110,6 +141,35 @@ export default function ZxqLayout() {
             height: "100%",
           }}
         >
+          <div style={{ position: 'relative' }}>
+              <Button
+                style={{
+                  position: 'relative',
+                  zIndex: 1,
+                }}
+                onClick={handleButtonClick}
+              >
+                Share Link
+              </Button>
+
+            {isSelectVisible && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  zIndex: 2
+                }}
+              >
+                <UserListSelect
+                  userId={sharedUserId}
+                  onChange={handleSelectChange}
+                  includeAdmin={true}
+                  filterSelf={true}
+                />
+              </div>
+            )}
+          </div>
 
           <img
             src={avatarSrc}
@@ -133,9 +193,9 @@ export default function ZxqLayout() {
             }}
             onClick={logout}
           >
-            {" "}
-            Logout{" "}
+            Logout
           </Button>
+
         </div>
       </Header>
       <Content style={{ padding: "20px 24px 0" }}>

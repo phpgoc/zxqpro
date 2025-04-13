@@ -137,6 +137,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/message/share_link": {
+            "post": {
+                "description": "message share link",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Message"
+                ],
+                "summary": "message share link",
+                "parameters": [
+                    {
+                        "description": "MessageShareLink",
+                        "name": "MessageShareLink",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.MessageShareLink"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponseWithoutData"
+                        }
+                    }
+                }
+            }
+        },
         "/project/create_role": {
             "post": {
                 "description": "project create role",
@@ -337,6 +371,11 @@ const docTemplate = `{
                 ],
                 "summary": "user list",
                 "parameters": [
+                    {
+                        "type": "boolean",
+                        "name": "include_admin",
+                        "in": "query"
+                    },
                     {
                         "minimum": 0,
                         "type": "integer",
@@ -560,6 +599,21 @@ const docTemplate = `{
                     "minLength": 8
                 },
                 "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.MessageShareLink": {
+            "type": "object",
+            "required": [
+                "link",
+                "to_user_id"
+            ],
+            "properties": {
+                "link": {
+                    "type": "string"
+                },
+                "to_user_id": {
                     "type": "integer"
                 }
             }

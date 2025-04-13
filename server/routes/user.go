@@ -196,9 +196,13 @@ func UserList(g *gin.Context) {
 
 	var res response.UserList
 	if req.ProjectId == 0 {
-		dao.Db.Model(entity.User{}).Where("id != ?", 1).Select("id, name, user_name, email, avatar").Find(&res.List)
+		model := dao.Db.Model(entity.User{})
+		if !req.IncludeAdmin {
+			model = model.Where("id != ?", 1)
+		}
+		model.Select("id, name, user_name, email, avatar").Find(&res.List)
 	} else {
-		dao.Db.Model(entity.Role{}).Joins("User").Where("User.id != ?", 1).Where("project_id = ?", req.ProjectId).Select("User.id, name, user_name, email, avatar, role_type").Find(&res.List)
+		dao.Db.Model(entity.Role{}).Joins("User").Where("project_id = ?", req.ProjectId).Select("User.id, name, user_name, email, avatar, role_type").Find(&res.List)
 	}
 	g.JSON(http.StatusOK, response.CreateResponse(0, "ok", res))
 }

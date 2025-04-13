@@ -3,25 +3,42 @@ import { UserInfo } from "../types/response.ts";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import getRequestAndSetNavigate from "../services/axios.ts";
+import { useUserContext } from "../context/userInfo.tsx";
 
 export default function UserListSelect({
   userId,
   onChange,
   projectId = 0,
+  includeAdmin = false,
+  filterSelf = false,
 }: {
   userId: number;
   onChange: (newUserId: number) => void;
   projectId?: number;
+  includeAdmin?: boolean;
+  filterSelf?: boolean;
 }) {
   const navigate = useNavigate();
   let request = getRequestAndSetNavigate(navigate, useLocation());
   const [userList, setUserList] = useState<UserInfo[]>([]);
+  const {user} = useUserContext()
   useEffect(() => {
+    let url = `user/list?project_id=${projectId}`
+    if (includeAdmin) {
+      url += "&include_admin=1";
+    }
     request
-      .get(`user/list?project_id=${projectId}`)
+      .get(url)
       .then((res) => {
         if (res.data.code === 0) {
-          setUserList(res.data.data.list as UserInfo[]);
+          // Filter out the current user if filterSelf is true
+          let filteredList = res.data.data.list as UserInfo[]
+          if(filterSelf){
+             filteredList = filteredList.filter(
+              (u) => u.id != user.id
+            );
+          }
+          setUserList(filteredList);
         }
       })
       .catch((error) => {

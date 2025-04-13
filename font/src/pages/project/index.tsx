@@ -19,7 +19,7 @@ const ProjectList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
 
-  const [roleType, setRoleType] = useState("");
+  const [roleType, setRoleType] = useState(0);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [total, setTotal] = useState(0);
   const [ProjectList, setProjectList] = useState<Project[]>([]);

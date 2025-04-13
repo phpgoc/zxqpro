@@ -60,6 +60,16 @@ definitions:
     - password
     - user_id
     type: object
+  request.MessageShareLink:
+    properties:
+      link:
+        type: string
+      to_user_id:
+        type: integer
+    required:
+    - link
+    - to_user_id
+    type: object
   request.ProjectDeleteRole:
     properties:
       project_id:
@@ -256,6 +266,28 @@ paths:
       summary: admin update_password
       tags:
       - Admin
+  /message/share_link:
+    post:
+      consumes:
+      - application/json
+      description: message share link
+      parameters:
+      - description: MessageShareLink
+        in: body
+        name: MessageShareLink
+        required: true
+        schema:
+          $ref: '#/definitions/request.MessageShareLink'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/response.CommonResponseWithoutData'
+      summary: message share link
+      tags:
+      - Message
   /project/create_role:
     post:
       consumes:
@@ -380,6 +412,9 @@ paths:
       - '*/*'
       description: user list
       parameters:
+      - in: query
+        name: include_admin
+        type: boolean
       - in: query
         minimum: 0
         name: project_id
