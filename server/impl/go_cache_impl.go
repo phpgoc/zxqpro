@@ -23,9 +23,19 @@ func (g *GoCache) Set(key string, value interface{}, expiration time.Duration) {
 	g.cache.Set(key, value, expiration)
 }
 
+func (g *GoCache) IsSet(key string) bool {
+	_, found := g.cache.Get(key)
+	return found
+}
+
 // Get 实现 Cache 接口的 Get 方法
-func (g *GoCache) Get(key string) (interface{}, bool) {
-	return g.cache.Get(key)
+func (g *GoCache) Get(key string, result interface{}) (res bool) {
+	value, found := g.cache.Get(key)
+	if found {
+		result = value
+		return true
+	}
+	return false
 }
 
 // Increment 实现 Cache 接口的 Increment 方法
@@ -44,10 +54,10 @@ func (g *GoCache) Delete(key string) {
 }
 
 func (g *GoCache) GetAndRefresh(key string, expiration time.Duration) (interface{}, bool) {
-	value, found := g.Get(key)
+	value, found := g.cache.Get(key)
 	if found {
 		// 如果找到值，使用 Set 方法刷新过期时间
-		g.Set(key, value, expiration)
+		g.cache.Set(key, value, expiration)
 	}
 	return value, found
 }

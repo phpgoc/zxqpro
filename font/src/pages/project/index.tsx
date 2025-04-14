@@ -5,13 +5,12 @@ import getRequestAndSetNavigateLocaton from "../../services/axios.ts";
 import ProjectStatusSelect from "../../components/projectStatus.tsx";
 import { projectStatusMap, roleTypesMap } from "../../types/project.ts";
 import { Project } from "../../types/response.ts";
-import { UserInfo } from "../../types/response.ts";
 import RoleTypeSelect from "../../components/roleType.tsx";
 import { ownerOrAdmin } from "../../services/utils.ts";
-import { LOCAL_USER_INFO_KEY } from "../../types/const.ts";
+import { useUserContext } from "../../context/userInfo.tsx";
 
 const ProjectList = () => {
-  const user = JSON.parse(localStorage.getItem(LOCAL_USER_INFO_KEY) ?? "{}") as UserInfo;
+
 
   const navigate = useNavigate();
   let request = getRequestAndSetNavigateLocaton(navigate, useLocation());
@@ -23,6 +22,11 @@ const ProjectList = () => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [total, setTotal] = useState(0);
   const [ProjectList, setProjectList] = useState<Project[]>([]);
+
+  const {user} = useUserContext()
+  if (!user || Object.keys(user).length === 0) {
+    return navigate("/");
+  }
 
   const columns = [
     {

@@ -54,7 +54,7 @@ func UserLogin(c *gin.Context) {
 
 	cookie := generateCookie(user)
 	for {
-		_, have := interfaces.Cache.Get(cookie)
+		have := interfaces.Cache.IsSet(cookie)
 		if !have {
 			break
 		}

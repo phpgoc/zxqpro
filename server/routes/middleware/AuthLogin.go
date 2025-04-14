@@ -35,22 +35,12 @@ func AuthLogin() gin.HandlerFunc {
 			return
 		}
 		cookieValue := cookie.Value
-		cookieStruct, has := interfaces.Cache.Get(cookieValue)
+		var cookieData pro_types.Cookie
+		has := interfaces.Cache.Get(cookieValue, &cookieData)
 		if !has {
 			c.JSON(http.StatusOK, gin.H{
 				"code":    UnauthorizedStatus,
 				"message": UnauthorizedMsg,
-			})
-			c.Abort()
-			return
-		}
-
-		// 类型断言并处理错误
-		cookieData, ok := cookieStruct.(pro_types.Cookie)
-		if !ok {
-			c.JSON(InternalErrorStatus, gin.H{
-				"code":    InternalErrorStatus,
-				"message": InternalErrorMsg + ": Invalid cookie data",
 			})
 			c.Abort()
 			return

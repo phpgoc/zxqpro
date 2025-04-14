@@ -12,9 +12,16 @@ const UserContext = createContext<{
 } | null>(null);
 
 const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserInfo>(() => {
+  const [user, setUser] = useState<UserInfo>( () => {
     const storedUser = localStorage.getItem(LOCAL_USER_INFO_KEY);
-    return storedUser ? JSON.parse(storedUser) as UserInfo : {} as UserInfo;
+    if (storedUser) {
+      try {
+        return JSON.parse(storedUser) as UserInfo;
+      } catch (error) {
+
+      }
+    }
+    return {} as UserInfo; // 返回一个空对象或默认值
   });
 
   const updateUser = (newUser: UserInfo) => {

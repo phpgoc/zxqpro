@@ -51,9 +51,14 @@ export default function ZxqLayout() {
   const messageContext = useContext(MessageContext);
   const { middleMessageApi } = messageContext as MessageContextValue;
   const {user} = useUserContext()
-  if (!isAdmin(user.id)) {
-    delete items[2];
+  if (!user || Object.keys(user).length === 0) {
+    navigate("/");
+  }else{
+    if (!isAdmin(user.id)) {
+      delete items[2];
+    }
   }
+
   const [sharedUserId, setSharedUserId] = useState(0);
   const avatarSrc =  avatarUrl(user.avatar)
 

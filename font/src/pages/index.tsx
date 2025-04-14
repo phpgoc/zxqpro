@@ -30,6 +30,12 @@ const LoginPage = () => {
       .then((res) => {
         if (res.data.code === 0) {
           request.get("/user/info").then((info) => {
+            if (info.data.code !== 0) {
+              middleMessageApi.error({
+                content: info.data.message + ". maybe cache serve error",
+              });
+              return;
+            }
             updateUser(info.data.data);
             middleMessageApi
               .success({
