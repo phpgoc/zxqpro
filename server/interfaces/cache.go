@@ -23,7 +23,7 @@ type CacheInterface interface {
 	GetAndRefresh(key string, expiration time.Duration) (interface{}, bool)
 }
 
-var Cache CacheInterface = cacheFactory(CacheRedisImpl)
+var Cache = cacheFactory(CacheRedisImpl)
 
 func cacheFactory(i CacheImpl) CacheInterface {
 	switch i {

@@ -53,6 +53,15 @@ func ApiRoutes() *gin.Engine {
 
 	api.POST("/user/login", middleware.RateLimit(10), UserLogin)
 
+	sseManager := utils.NewSSEManager()
+	api.Use(func(c *gin.Context) {
+		c.Set("sseManager", sseManager)
+		c.Next()
+	})
+
+	api.GET("/sse", ServerSideEvent)
+	api.GET("/sse/test", TestSendSelf)
+
 	api.POST("/user/logout", UserLogout)
 	api.GET("/user/info", UserInfo)
 	api.POST("/user/update", UserUpdate)
