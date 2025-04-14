@@ -36,6 +36,14 @@ func MessageShareLink(c *gin.Context) {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
+	sseManager := c.MustGet("sseManager").(*utils.SSEManager)
+	user, _ := dao.GetUserById(userId)
+	toUser, _ := dao.GetUserById(req.ToUserId)
+	sseManager.SendMessageToUser(req.ToUserId,
+		utils.SSEMessage{
+			Message: dao.JoinReceiveMessage(user.UserName, toUser.UserName, entity.ActionnShareLink),
+			Link:    &(req.Link),
+		})
 
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }

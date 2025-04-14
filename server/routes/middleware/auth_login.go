@@ -29,7 +29,7 @@ func AuthLogin() gin.HandlerFunc {
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{
 				"code":    UnauthorizedStatus,
-				"message": UnauthorizedMsg,
+				"message": UnauthorizedMsg + "1",
 			})
 			c.Abort()
 			return
@@ -40,7 +40,7 @@ func AuthLogin() gin.HandlerFunc {
 		if !has {
 			c.JSON(http.StatusOK, gin.H{
 				"code":    UnauthorizedStatus,
-				"message": UnauthorizedMsg,
+				"message": UnauthorizedMsg + "2",
 			})
 			c.Abort()
 			return

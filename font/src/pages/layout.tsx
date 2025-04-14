@@ -3,54 +3,78 @@ import {
   HomeOutlined,
   SettingOutlined,
   SettingFilled,
-  UsergroupAddOutlined,
+  UsergroupAddOutlined, MessageOutlined
 } from "@ant-design/icons";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { BaseResponse, BaseResponseWithoutData } from "../types/response.ts";
 import getRequestAndSetNavigate from "../services/axios.ts";
 import {useUserContext} from "../context/userInfo.tsx";
-import { avatarUrl, isAdmin } from "../services/utils.ts";
+import { avatarUrl, isAdmin, serverUrl } from "../services/utils.ts";
 import UserListSelect from "../components/userList.tsx";
-import { useContext, useState } from "react";
-import MessageContext, { type MessageContextValue } from "../context/message.tsx";
+import { useContext, useEffect, useState } from "react";
+import MessageContext, { type MessageContextValue, SetMessageNumberContext } from "../context/message.tsx";
+import { SSEMessage } from "../types/message.ts";
+
 
 const { Header, Content } = Layout;
 
 //根据 user.id是不是1来判断是不是需要admin权限
-const items = [
-  {
-    key: "project",
-    label: "Project",
-    icon: <HomeOutlined style={{ fontSize: "5vh", lineHeight: "6vh" }} />,
-  },
-  {
-    key: "task",
-    label: "Task",
-    icon: (
-      <UsergroupAddOutlined style={{ fontSize: "5vh", lineHeight: "6vh" }} />
-    ),
-  },
-  {
-    key: "admin",
-    label: "Admin",
-    icon: <SettingFilled style={{ fontSize: "5vh", lineHeight: "6vh" }} />,
-  },
-  {
-    key: "setting",
-    label: "Setting",
-    icon: <SettingOutlined style={{ fontSize: "5vh", lineHeight: "6vh" }} />,
-  },
-];
+
+
 
 export default function ZxqLayout() {
   const [isSelectVisible, setIsSelectVisible] = useState(false);
+
+  const [messageNumber, setMessageNumber] = useState(1);
 
   const navigate = useNavigate();
   let request = getRequestAndSetNavigate(navigate, useLocation());
   const currentPath = useLocation().pathname;
   const messageContext = useContext(MessageContext);
-  const { middleMessageApi } = messageContext as MessageContextValue;
+  const { middleMessageApi ,bottomRightMessageApi} = messageContext as MessageContextValue;
   const {user} = useUserContext()
+  const items = [
+    {
+      key: "project",
+      label: "Project",
+      icon: <HomeOutlined style={{ fontSize: "5vh", lineHeight: "6vh" }} />,
+    },
+    {
+      key: "task",
+      label: "Task",
+      icon: (
+        <UsergroupAddOutlined style={{ fontSize: "5vh", lineHeight: "6vh" }} />
+      ),
+    },
+    {
+      key: "admin",
+      label: "Admin",
+      icon: <SettingFilled style={{ fontSize: "5vh", lineHeight: "6vh" }} />,
+    },
+    {
+      key: "message",
+      label: (
+        <span style={{  alignItems: 'center' }}>
+          Message
+          {messageNumber > 0 && (
+            <span
+              style={{
+                color: messageNumber > 0 ? '#ff4d4f' : 'inherit', // 红色警示色
+              }}
+            >
+              ({messageNumber})
+            </span>
+          )|| ("(0)")}
+        </span>
+      ),
+      icon: <MessageOutlined style={{ fontSize: "5vh", lineHeight: "6vh" }} />,
+    },
+    {
+      key: "setting",
+      label: "Setting",
+      icon: <SettingOutlined style={{ fontSize: "5vh", lineHeight: "6vh" }} />,
+    },
+  ];
   if (!user || Object.keys(user).length === 0) {
     navigate("/");
   }else{
@@ -61,6 +85,36 @@ export default function ZxqLayout() {
 
   const [sharedUserId, setSharedUserId] = useState(0);
   const avatarSrc =  avatarUrl(user.avatar)
+
+  useEffect(() => {
+    const eventSource = new EventSource(serverUrl() + "api/sse",{withCredentials:true});
+
+    eventSource.onmessage = (event) => {
+      const sseMessage = JSON.parse(event.data) as SSEMessage
+      console.log(sseMessage)
+      bottomRightMessageApi.success({
+        content:  <>
+          {sseMessage.message}
+          {sseMessage.link ? (
+            <>
+              <br />
+              &nbsp;{/* 空格 */}
+              <a href={sseMessage.link!} onClick={(e) => {
+                e.preventDefault(); // 阻止默认跳转
+                window.location.href = sseMessage.link!; // 直接跳转
+              }}>
+                点击前往
+              </a>
+            </>
+          ) : null}
+        </>,
+        duration: 30
+      }).then()
+    };
+    return () => {
+      eventSource.close();
+    };
+  }, []);
 
   function logout() {
     request.post<BaseResponse>("user/logout").then((res) => {
@@ -127,6 +181,8 @@ export default function ZxqLayout() {
                   ? ["task"]
                   : currentPath.includes("/admin")
                     ? ["admin"]
+                    : currentPath.includes("/message")
+                      ? ["message"]
                     : currentPath.includes("/setting")
                       ? ["setting"]
                       : []
@@ -204,11 +260,11 @@ export default function ZxqLayout() {
         </div>
       </Header>
       <Content style={{ padding: "20px 24px 0" }}>
-        {" "}
-        {/* 顶部 20px 内边距 */}
-        <Outlet />
+
+        <SetMessageNumberContext value={setMessageNumber}>
+          <Outlet />
+        </SetMessageNumberContext>
       </Content>
-      {/* 其他页面内容 */}
     </Layout>
   );
 }

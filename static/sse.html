@@ -38,6 +38,7 @@
             const messagesList = document.getElementById('messages');
             // 创建一个新的列表项元素
             const newMessage = document.createElement('li');
+            console.log(event)
             // 将接收到的消息内容设置为列表项的文本内容
             newMessage.textContent = event.data;
             // 将新的列表项添加到消息列表中
@@ -51,6 +52,7 @@
             eventSource.close();
         };
 
+        console.log("hello")
     </script>
 </body>
 

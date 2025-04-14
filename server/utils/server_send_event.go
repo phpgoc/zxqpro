@@ -4,30 +4,35 @@ import (
 	"sync"
 )
 
-// 用户 SSE 连接管理
+// SSEManager 用户 SSE 连接管理
 type SSEManager struct {
-	clients map[uint]chan string
+	clients map[uint]chan SSEMessage
 	mu      sync.Mutex
 }
 
-// 初始化 SSE 管理器
+type SSEMessage struct {
+	Message string  `json:"message"`
+	Link    *string `json:"link"`
+}
+
+// NewSSEManager 初始化 SSE 管理器
 func NewSSEManager() *SSEManager {
 	return &SSEManager{
-		clients: make(map[uint]chan string),
+		clients: make(map[uint]chan SSEMessage),
 	}
 }
 
-// 注册 SSE 客户端
-func (m *SSEManager) RegisterClient(userId uint) chan string {
+// RegisterClient 注册 SSE 客户端
+func (m *SSEManager) RegisterClient(userId uint) chan SSEMessage {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if _, exists := m.clients[userId]; !exists {
-		m.clients[userId] = make(chan string)
+		m.clients[userId] = make(chan SSEMessage)
 	}
 	return m.clients[userId]
 }
 
-// 注销 SSE 客户端
+// UnregisterClient 注销 SSE 客户端
 func (m *SSEManager) UnregisterClient(userId uint) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -37,11 +42,11 @@ func (m *SSEManager) UnregisterClient(userId uint) {
 	}
 }
 
-// 向指定用户发送消息
-func (m *SSEManager) SendMessageToUser(userId uint, message string) {
+// SendMessageToUser 向指定用户发送消息
+func (m *SSEManager) SendMessageToUser(userId uint, sseMessage SSEMessage) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if client, exists := m.clients[userId]; exists {
-		client <- message
+		client <- sseMessage
 	}
 }

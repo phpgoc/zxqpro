@@ -13,3 +13,12 @@ const MessageContext = createContext<MessageContextValue | null>({
   bottomRightMessageApi: {} as MessageInstance,
 });
 export default MessageContext;
+
+export type setMessageNumber = (messageNumber: number) => void;
+
+const SetMessageNumberContext = createContext<setMessageNumber>(
+  (_messageNumber:number) => {
+    throw new Error('未在 MessageNumberContext.Provider 中使用'); // 明确报错提示
+  });
+
+export { SetMessageNumberContext };

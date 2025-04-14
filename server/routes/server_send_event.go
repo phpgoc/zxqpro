@@ -1,8 +1,11 @@
 package routes
 
 import (
-	"log"
+	"encoding/json"
 	"net/http"
+
+	"github.com/phpgoc/zxqpro/interfaces"
+	"github.com/phpgoc/zxqpro/pro_types"
 
 	"github.com/phpgoc/zxqpro/routes/middleware"
 	"github.com/phpgoc/zxqpro/utils"
@@ -10,15 +13,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func joinMessage(sseMessage utils.SSEMessage) (res []byte) {
+	jsonData, _ := json.Marshal(sseMessage)
+	res = []byte("data: " + string(jsonData) + "\n\n")
+	return
+}
+
 // SSE 处理程序
 func ServerSideEvent(c *gin.Context) {
-	userId := middleware.GetUserIdFromAuthMiddleware(c)
 	manager := c.MustGet("sseManager").(*utils.SSEManager)
 	// 设置响应头
 	c.Writer.Header().Set("Content-Type", "text/event-stream")
 	c.Writer.Header().Set("Cache-Control", "no-cache")
 	c.Writer.Header().Set("Connection", "keep-alive")
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+	// c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+	c.Writer.Header().Set("Access-Control-Allow-Origin", c.Request.Header.Get("Origin"))
 
 	// 保持连接打开
 	flusher, ok := c.Writer.(http.Flusher)
@@ -26,6 +35,24 @@ func ServerSideEvent(c *gin.Context) {
 		http.Error(c.Writer, "Streaming unsupported!", http.StatusInternalServerError)
 		return
 	}
+	cookie, err := c.Request.Cookie(utils.CookieName)
+	if err != nil {
+		_, _ = c.Writer.Write(joinMessage(utils.SSEMessage{
+			Message: err.Error(),
+		}))
+		flusher.Flush()
+		return
+	}
+	cookieValue := cookie.Value
+	var cookieData pro_types.Cookie
+	has := interfaces.Cache.Get(cookieValue, &cookieData)
+	if !has {
+		_, _ = c.Writer.Write(joinMessage(utils.SSEMessage{Message: "Unauthorized"}))
+		flusher.Flush()
+		return
+	}
+
+	userId := cookieData.ID
 
 	// 注册客户端
 	client := manager.RegisterClient(userId)
@@ -39,11 +66,10 @@ func ServerSideEvent(c *gin.Context) {
 			if !ok {
 				return
 			}
-			// 发送消息
-			sseMessage := "data: " + message + "\n\n"
-			_, err := c.Writer.Write([]byte(sseMessage))
+
+			_, err = c.Writer.Write(joinMessage(message))
 			if err != nil {
-				log.Println("Error writing message:", err)
+				utils.LogError("Error writing message:" + err.Error())
 				return
 			}
 			flusher.Flush()
@@ -53,7 +79,7 @@ func ServerSideEvent(c *gin.Context) {
 
 func TestSendSelf(c *gin.Context) {
 	userId := middleware.GetUserIdFromAuthMiddleware(c)
-	manager := c.MustGet("sseManager").(*utils.SSEManager)
-	manager.SendMessageToUser(userId, "test message")
+	sseManager := c.MustGet("sseManager").(*utils.SSEManager)
+	sseManager.SendMessageToUser(userId, utils.SSEMessage{Message: "test message"})
 	c.JSON(http.StatusOK, gin.H{"message": "Message sent"})
 }

@@ -18,7 +18,7 @@ import (
 func ApiRoutes() *gin.Engine {
 	router := gin.Default()
 	// if gin.Mode() != gin.ReleaseMode {
-	// 非 Release 模式下，启用 CORS 中间件，允许所有来源访问
+
 	config := cors.Config{
 		AllowOriginFunc: func(origin string) bool {
 			// 白名单：只允许指定域名
@@ -27,18 +27,23 @@ func ApiRoutes() *gin.Engine {
 				"http://localhost:5174": true,
 				"tauri://app":           true,
 			}
-			utils.LogWarn(fmt.Sprintf("origin: %s", origin))
+			utils.LogWarn(fmt.Sprintf("origin: %s is %t", origin, allowedOrigins[origin]))
+
 			return allowedOrigins[origin]
 		},
-		// AllowOrigins:     []string{"http://locahost:5173", "http://locahost:5174", "tauri://app"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Authorization", "Content-Type"},
+		AllowAllOrigins:  false,
 		AllowCredentials: true,
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 	}
-
-	utils.LogWarn("CORS is enabled in debug mode, please disable it in production.")
 	router.Use(cors.New(config))
-	//}
+
+	sseManager := utils.NewSSEManager()
+	router.Use(func(c *gin.Context) {
+		c.Set("sseManager", sseManager)
+		c.Next()
+	})
+
 	api := router.Group("/api")
 
 	api.Use(middleware.AuthLogin())
@@ -53,13 +58,9 @@ func ApiRoutes() *gin.Engine {
 
 	api.POST("/user/login", middleware.RateLimit(10), UserLogin)
 
-	sseManager := utils.NewSSEManager()
-	api.Use(func(c *gin.Context) {
-		c.Set("sseManager", sseManager)
-		c.Next()
-	})
+	// 这个接口不是不需要验证登录，而是单独验证，在验证错误时不能返回json，这是不符合sse规范的
+	router.GET("/api/sse", ServerSideEvent)
 
-	api.GET("/sse", ServerSideEvent)
 	api.GET("/sse/test", TestSendSelf)
 
 	api.POST("/user/logout", UserLogout)
