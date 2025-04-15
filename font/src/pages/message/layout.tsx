@@ -1,37 +1,37 @@
 import { Layout, Menu } from "antd";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import {
-  JavaOutlined,
+  HomeFilled,
   JavaScriptOutlined,
   PythonOutlined
 } from "@ant-design/icons";
 
 const { Sider, Content } = Layout;
 
-const SettingLayout = () => {
-  const menuItems = [
-    {
-      key: "/setting",
-      icon: <JavaOutlined />,
-      label: "Setting Page",
-      path: "/setting",
-    },
-    {
-      key: "/setting/update_user",
-      icon: <JavaScriptOutlined />,
-      label: "Update Info",
-      path: "/setting/update_user",
-    },
-    {
-      key: "/setting/update_password",
-      icon: <PythonOutlined />,
-      label: "Update Password",
-      path: "/setting/update_password",
-    },
-  ];
-
+export default function  MessageLayout  () {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const menuItems = [
+    {
+      key: "/message",
+      icon: <HomeFilled />,
+      label: "Received",
+      path: "/message",
+    },
+    {
+      key: "/message/send_list",
+      icon: <JavaScriptOutlined />,
+      label: "Send",
+      path: "/message/send_list",
+    },
+    {
+      key: "/message/manual_send",
+      icon: <PythonOutlined />,
+      label: "Manual Send",
+      path: "/message/manual_send",
+    },
+  ];
 
   return (
     <Layout style={{ minHeight: "80vh" }}>
@@ -57,7 +57,5 @@ const SettingLayout = () => {
         </Content>
       </Layout>
     </Layout>
-  );
-};
-
-export default SettingLayout;
+  )
+}

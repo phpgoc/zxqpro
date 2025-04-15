@@ -7,21 +7,10 @@ import type { MessageContextValue } from "../context/message.tsx";
 
 export  default function SetHost(){
   const navigate = useNavigate()
-  const messageContext = useContext(MessageContext);
-  const { middleMessageApi } = messageContext as MessageContextValue;
-  // 我需要保留协议和端口
   const [hostValue, setHostValue] = useState("");
 
-  useEffect(()=>{
-    let curHost = localStorage.getItem(HOST_KEY);
-    if (curHost == null || curHost == "") {
-      const { protocol, host } = window.location;
-      curHost= `${protocol}//${host}`;
-    }
-    setHostValue(curHost)
-  },[])
-
-  useEffect(()=> console.log(hostValue), [hostValue])
+  const messageContext = useContext(MessageContext);
+  const { middleMessageApi } = messageContext as MessageContextValue;
 
 
   const onSubmit = () => {
@@ -34,18 +23,29 @@ export  default function SetHost(){
   };
 
   const onBack = () => {
-    // 处理返回按钮点击事件，这里可以添加具体的逻辑
     navigate("/");
   };
 
   function onReset() {
     localStorage.removeItem(HOST_KEY)
-    // 这里使用window的跳转而不是navigate，是为了让react刷新整个页面，request可以重新加载
 
+    // 这里使用window的跳转而不是navigate，是为了让react刷新整个页面，request可以重新加载
     middleMessageApi.success({content:"设置成功", duration: 1}).then(()=>
       window.location.href = "/set_host"
     )
   }
+
+  useEffect(()=>{
+    let curHost = localStorage.getItem(HOST_KEY);
+    if (curHost == null || curHost == "") {
+      const { protocol, host } = window.location;
+      curHost= `${protocol}//${host}`;
+    }
+    setHostValue(curHost)
+  },[])
+
+  useEffect(()=> console.log(hostValue), [hostValue])
+
 
   return (
     <div style={{ maxWidth: 600, margin: "15vh auto", padding: 24 }}>

@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import getRequestAndSetNavigate from "../../services/axios.ts";
+import getRequestAndSetNavigateLocation from "../../services/axios.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Input, Button, Modal, Row, Col } from "antd";
 import MessageContext, {
@@ -76,7 +76,7 @@ export default function UpdateUser() {
   let avatarImgUrl = avatarUrl(avatar);
 
   const navigate = useNavigate();
-  let request = getRequestAndSetNavigate(navigate, useLocation());
+  let request = getRequestAndSetNavigateLocation(navigate, useLocation());
 
   const messageContext = useContext(MessageContext);
   const { middleMessageApi } = messageContext as MessageContextValue;

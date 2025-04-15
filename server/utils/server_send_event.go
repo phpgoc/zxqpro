@@ -11,6 +11,7 @@ type SSEManager struct {
 }
 
 type SSEMessage struct {
+	Code    int     `json:"code"`
 	Message string  `json:"message"`
 	Link    *string `json:"link"`
 }

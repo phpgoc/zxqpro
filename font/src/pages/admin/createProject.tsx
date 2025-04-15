@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import getRequestAndSetNavigate from "../../services/axios.ts";
+import getRequestAndSetNavigateLocation from "../../services/axios.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Input, Button, Form } from "antd";
 import MessageContext, {
@@ -15,7 +15,7 @@ export default function CreateProject() {
   const [ownerId, setOwnerId] = useState(0);
 
   const navigate = useNavigate();
-  let request = getRequestAndSetNavigate(navigate, useLocation());
+  let request = getRequestAndSetNavigateLocation(navigate, useLocation());
 
   const messageContext = useContext(MessageContext);
   const { middleMessageApi } = messageContext as MessageContextValue;

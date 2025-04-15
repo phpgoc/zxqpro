@@ -38,6 +38,7 @@ func ServerSideEvent(c *gin.Context) {
 	cookie, err := c.Request.Cookie(utils.CookieName)
 	if err != nil {
 		_, _ = c.Writer.Write(joinMessage(utils.SSEMessage{
+			Code:    401,
 			Message: err.Error(),
 		}))
 		flusher.Flush()
@@ -47,7 +48,10 @@ func ServerSideEvent(c *gin.Context) {
 	var cookieData pro_types.Cookie
 	has := interfaces.Cache.Get(cookieValue, &cookieData)
 	if !has {
-		_, _ = c.Writer.Write(joinMessage(utils.SSEMessage{Message: "Unauthorized"}))
+		_, _ = c.Writer.Write(joinMessage(utils.SSEMessage{
+			Code:    401,
+			Message: "Unauthorized",
+		}))
 		flusher.Flush()
 		return
 	}
@@ -80,6 +84,9 @@ func ServerSideEvent(c *gin.Context) {
 func TestSendSelf(c *gin.Context) {
 	userId := middleware.GetUserIdFromAuthMiddleware(c)
 	sseManager := c.MustGet("sseManager").(*utils.SSEManager)
-	sseManager.SendMessageToUser(userId, utils.SSEMessage{Message: "test message"})
+	sseManager.SendMessageToUser(userId, utils.SSEMessage{
+		Code:    0,
+		Message: "test message",
+	})
 	c.JSON(http.StatusOK, gin.H{"message": "Message sent"})
 }

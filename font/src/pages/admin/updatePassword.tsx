@@ -1,6 +1,6 @@
 
 import { useContext, useState } from "react";
-import getRequestAndSetNavigate from "../../services/axios.ts";
+import getRequestAndSetNavigateLocation from "../../services/axios.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Input, Button } from "antd";
 import MessageContext, {
@@ -15,7 +15,7 @@ export default function UpdatePassword() {
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
-  let request = getRequestAndSetNavigate(navigate, useLocation());
+  let request = getRequestAndSetNavigateLocation(navigate, useLocation());
 
   const messageContext = useContext(MessageContext);
   const { middleMessageApi } = messageContext as MessageContextValue;

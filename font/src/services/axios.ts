@@ -52,7 +52,7 @@ request.interceptors.response.use(
     };
   },
 );
-export default function getRequestAndSetNavigate(
+export default function getRequestAndSetNavigateLocation(
   nav: NavigateFunction,
   location: Location<any>,
 ) {

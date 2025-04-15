@@ -7,7 +7,7 @@ import {
 } from "@ant-design/icons";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { BaseResponse, BaseResponseWithoutData } from "../types/response.ts";
-import getRequestAndSetNavigate from "../services/axios.ts";
+import getRequestAndSetNavigateLocation from "../services/axios.ts";
 import {useUserContext} from "../context/userInfo.tsx";
 import { avatarUrl, isAdmin, serverUrl } from "../services/utils.ts";
 import UserListSelect from "../components/userList.tsx";
@@ -15,24 +15,12 @@ import { useContext, useEffect, useState } from "react";
 import MessageContext, { type MessageContextValue, SetMessageNumberContext } from "../context/message.tsx";
 import { SSEMessage } from "../types/message.ts";
 
-
 const { Header, Content } = Layout;
 
-//根据 user.id是不是1来判断是不是需要admin权限
-
-
-
 export default function ZxqLayout() {
+
   const [isSelectVisible, setIsSelectVisible] = useState(false);
-
   const [messageNumber, setMessageNumber] = useState(1);
-
-  const navigate = useNavigate();
-  let request = getRequestAndSetNavigate(navigate, useLocation());
-  const currentPath = useLocation().pathname;
-  const messageContext = useContext(MessageContext);
-  const { middleMessageApi ,bottomRightMessageApi} = messageContext as MessageContextValue;
-  const {user} = useUserContext()
   const items = [
     {
       key: "project",
@@ -75,46 +63,16 @@ export default function ZxqLayout() {
       icon: <SettingOutlined style={{ fontSize: "5vh", lineHeight: "6vh" }} />,
     },
   ];
-  if (!user || Object.keys(user).length === 0) {
-    navigate("/");
-  }else{
-    if (!isAdmin(user.id)) {
-      delete items[2];
-    }
-  }
-
   const [sharedUserId, setSharedUserId] = useState(0);
+
+  const navigate = useNavigate();
+  let request = getRequestAndSetNavigateLocation(navigate, useLocation());
+  const currentPath = useLocation().pathname;
+
+  const messageContext = useContext(MessageContext);
+  const { middleMessageApi ,bottomRightMessageApi} = messageContext as MessageContextValue;
+  const {user} = useUserContext()
   const avatarSrc =  avatarUrl(user.avatar)
-
-  useEffect(() => {
-    const eventSource = new EventSource(serverUrl() + "api/sse",{withCredentials:true});
-
-    eventSource.onmessage = (event) => {
-      const sseMessage = JSON.parse(event.data) as SSEMessage
-      console.log(sseMessage)
-      bottomRightMessageApi.success({
-        content:  <>
-          {sseMessage.message}
-          {sseMessage.link ? (
-            <>
-              <br />
-              &nbsp;{/* 空格 */}
-              <a href={sseMessage.link!} onClick={(e) => {
-                e.preventDefault(); // 阻止默认跳转
-                window.location.href = sseMessage.link!; // 直接跳转
-              }}>
-                点击前往
-              </a>
-            </>
-          ) : null}
-        </>,
-        duration: 30
-      }).then()
-    };
-    return () => {
-      eventSource.close();
-    };
-  }, []);
 
   function logout() {
     request.post<BaseResponse>("user/logout").then((res) => {
@@ -146,6 +104,59 @@ export default function ZxqLayout() {
     setIsSelectVisible(false)
   }
 
+  useEffect(() => {
+    if (!user || Object.keys(user).length === 0) {
+      navigate("/");
+    }else{
+      if (!isAdmin(user.id)) {
+        delete items[2];
+      }
+    }
+
+    request.get("message/receive_list",{
+      params: {
+        page: 1,
+        page_size: 1,
+      },
+    }).then((res) => {
+      if (res.data.code == 0) {
+        setMessageNumber(res.data.data.total);
+      }
+    })
+    const eventSource = new EventSource(serverUrl() + "api/sse",{withCredentials:true});
+
+    eventSource.onmessage = (event) => {
+      const sseMessage = JSON.parse(event.data) as SSEMessage
+      if(sseMessage.code !== 0) {
+        middleMessageApi.error(sseMessage.message).then();
+        if (sseMessage.code === 401) {
+          navigate("/");
+        }
+        return;
+      }
+      bottomRightMessageApi.success({
+        content:  <>
+          {sseMessage.message}
+          {sseMessage.link ? (
+            <>
+              <br />
+              &nbsp;{/* 空格 */}
+              <a href={sseMessage.link!} onClick={(e) => {
+                e.preventDefault(); // 阻止默认跳转
+                window.location.href = sseMessage.link!; // 直接跳转
+              }}>
+                点击前往
+              </a>
+            </>
+          ) : null}
+        </>,
+        duration: 30
+      }).then()
+    };
+    return () => {
+      eventSource.close();
+    };
+  }, []);
 
   return (
     <Layout>
@@ -190,6 +201,7 @@ export default function ZxqLayout() {
             onClick={(e) => {
               if (e.key === "project") navigate("/project");
               else if (e.key === "task") navigate("/task");
+              else if (e.key === "message") navigate("/message");
               else if (e.key === "admin") navigate("/admin");
               else if (e.key === "setting") navigate("/setting");
             }}

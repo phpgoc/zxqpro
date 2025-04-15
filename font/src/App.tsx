@@ -4,7 +4,6 @@ import message from "antd/es/message";
 import ZxqLayout from "./pages/layout";
 import IndexPage from "./pages/index";
 import SetHost from "./pages/setHost";
-import ProjectPage from "./pages/project";
 import TaskPage from "./pages/task";
 import AdminPage from "./pages/admin";
 import AdminLayout from "./pages/admin/layout";
@@ -12,6 +11,10 @@ import CreateProject from "./pages/admin/createProject";
 import Register from "./pages/admin/register";
 import ResetRateLimit from "./pages/admin/resetRateLimit";
 import AdminUpdatePassword from "./pages/admin/updatePassword";
+import MessageLayout from "./pages/message/layout";
+import MessageIndex from "./pages/message";
+import MessageSendList from "./pages/message/sendList";
+import MessageManualSend from "./pages/message/manualSend";
 import SettingLayout from "./pages/setting/layout";
 import SettingPage from "./pages/setting";
 import UpdateUser from "./pages/setting/updateUser";
@@ -19,10 +22,12 @@ import UpdatePassword from "./pages/setting/updatePassword";
 import MessageContext from "./context/message";
 import "@ant-design/v5-patch-for-react-19";
 import { Route, Routes } from "react-router-dom";
-import {UserProvider} from "./context/userInfo.tsx";
-import ProjectTasks from "./pages/project/tasks.tsx";
-import ProjectView from "./pages/project/view.tsx";
-import ProjectEdit from "./pages/project/edit.tsx";
+import {UserProvider} from "./context/userInfo";
+import ProjectIndex from "./pages/project";
+import ProjectTasks from "./pages/project/tasks";
+import ProjectView from "./pages/project/view";
+import ProjectEdit from "./pages/project/edit";
+
 
 function App() {
   const [middleMessageApi, middleMessageHolder] = message.useMessage({
@@ -55,8 +60,7 @@ function App() {
         <Route index element={<IndexPage />} />
         <Route path={"/set_host"} element={<SetHost />} />
         <Route path={"/"} element={<ZxqLayout />}>
-          <Route path="/project">
-            <Route index element={<ProjectPage />} />
+          <Route path="/project" element={<ProjectIndex />}>
             <Route path=":id" element={<ProjectView />} />
             <Route path="tasks/:id" element={<ProjectTasks />} />
             <Route path="edit/:id" element={<ProjectEdit />} />
@@ -64,6 +68,12 @@ function App() {
           <Route path="/task">
             <Route index element={<TaskPage />} />
           </Route>
+          <Route path="/message" element={<MessageLayout />}>
+            <Route index element={<MessageIndex />} />
+            <Route path="send_list" element={<MessageSendList />} />
+            <Route path="manual_send" element={<MessageManualSend />} />
+          </Route>
+
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminPage />} />
             <Route path={"create_project"} element={<CreateProject />} />

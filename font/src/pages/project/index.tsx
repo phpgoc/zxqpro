@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Table, Pagination, Space } from "antd";
+import { Pagination, Space, Table } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
-import getRequestAndSetNavigateLocaton from "../../services/axios.ts";
+import getRequestAndSetNavigateLocation from "../../services/axios.ts";
 import ProjectStatusSelect from "../../components/projectStatus.tsx";
 import { projectStatusMap, roleTypesMap } from "../../types/project.ts";
 import { Project } from "../../types/response.ts";
@@ -9,30 +9,13 @@ import RoleTypeSelect from "../../components/roleType.tsx";
 import { ownerOrAdmin } from "../../services/utils.ts";
 import { useUserContext } from "../../context/userInfo.tsx";
 
-const ProjectList = () => {
 
-
-  const navigate = useNavigate();
-  let request = getRequestAndSetNavigateLocaton(navigate, useLocation());
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
-
-  const [roleType, setRoleType] = useState(0);
-  const [selectedStatus, setSelectedStatus] = useState("");
-  const [total, setTotal] = useState(0);
-  const [ProjectList, setProjectList] = useState<Project[]>([]);
-
-  const {user} = useUserContext()
-  if (!user || Object.keys(user).length === 0) {
-    return navigate("/");
-  }
-
+export default function ProjectIndex() {
   const columns = [
     {
       title: "Name",
       dataIndex: "name",
-      key: "name",
+      key: "name"
     },
     {
       title: "Status",
@@ -40,7 +23,7 @@ const ProjectList = () => {
       key: "status",
       render: (_text: any, record: Project) => {
         return projectStatusMap[record.status];
-      },
+      }
     },
     {
       title: "Role Type",
@@ -48,12 +31,12 @@ const ProjectList = () => {
       key: "role_type",
       render: (_text: any, record: Project) => {
         return roleTypesMap[record.role_type];
-      },
+      }
     },
     {
       title: "Owner Name",
       dataIndex: "owner_name",
-      key: "owner_name",
+      key: "owner_name"
     },
     {
       title: "Action",
@@ -84,9 +67,20 @@ const ProjectList = () => {
             View
           </a>
         </Space>
-      ),
-    },
+      )
+    }
   ];
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const [roleType, setRoleType] = useState(0);
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [total, setTotal] = useState(0);
+  const [ProjectList, setProjectList] = useState<Project[]>([]);
+
+  const navigate = useNavigate();
+  let request = getRequestAndSetNavigateLocation(navigate, useLocation());
+
+  const { user } = useUserContext();
 
   const fetchProjectList = () => {
     request
@@ -95,8 +89,8 @@ const ProjectList = () => {
           page: currentPage,
           page_size: pageSize,
           role_type: roleType,
-          status: selectedStatus,
-        },
+          status: selectedStatus
+        }
       })
       .then((res) => {
         if (res.data.code == 0) {
@@ -105,17 +99,24 @@ const ProjectList = () => {
         }
       });
   };
-  useEffect(fetchProjectList, [
-    currentPage,
-    pageSize,
-    roleType,
-    selectedStatus,
-  ]);
 
   const handlePageChange = (page: number, size: number) => {
     setCurrentPage(page);
     setPageSize(size);
   };
+
+  useEffect(() => {
+    if (!user || Object.keys(user).length === 0) {
+      navigate("/");
+    }
+  }, []);
+
+  useEffect(fetchProjectList, [
+    currentPage,
+    pageSize,
+    roleType,
+    selectedStatus
+  ]);
 
   return (
     <div>
@@ -150,6 +151,4 @@ const ProjectList = () => {
       />
     </div>
   );
-};
-
-export default ProjectList;
+}

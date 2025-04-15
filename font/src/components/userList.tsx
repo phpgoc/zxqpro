@@ -2,7 +2,7 @@ import { Select } from "antd";
 import { UserInfo } from "../types/response.ts";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import getRequestAndSetNavigate from "../services/axios.ts";
+import getRequestAndSetNavigateLocation from "../services/axios.ts";
 import { useUserContext } from "../context/userInfo.tsx";
 
 export default function UserListSelect({
@@ -19,7 +19,7 @@ export default function UserListSelect({
   filterSelf?: boolean;
 }) {
   const navigate = useNavigate();
-  let request = getRequestAndSetNavigate(navigate, useLocation());
+  let request = getRequestAndSetNavigateLocation(navigate, useLocation());
   const [userList, setUserList] = useState<UserInfo[]>([]);
   const {user} = useUserContext()
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { Form, Input, Checkbox, Button, Space } from "antd";
-import getRequestAndSetNavigate from "../services/axios";
+import getRequestAndSetNavigateLocation from "../services/axios";
 import { type BaseResponseWithoutData } from "../types/response";
 import MessageContext, {
   type MessageContextValue,
@@ -16,9 +16,9 @@ interface LoginForm {
 
 const LoginPage = () => {
   const [form] = Form.useForm<LoginForm>();
-  const navigate = useNavigate();
 
-  let request = getRequestAndSetNavigate(navigate, useLocation());
+  const navigate = useNavigate();
+  let request = getRequestAndSetNavigateLocation(navigate, useLocation());
 
   const messageContext = useContext(MessageContext);
   const { middleMessageApi } = messageContext as MessageContextValue;

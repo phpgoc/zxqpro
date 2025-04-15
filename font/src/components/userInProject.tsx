@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import getRequestAndSetNavigate from "../services/axios.ts";
+import getRequestAndSetNavigateLocation from "../services/axios.ts";
 import React, { forwardRef, useEffect, useState } from "react";
 import { UserInfo } from "../types/response.ts";
 import { roleTypesMap } from "../types/project.ts";
@@ -12,7 +12,7 @@ export interface UserInProjectMethods{
 // export default function UserInProject({ id  }:{id :number})  {
 const   UserInProject = forwardRef<UserInProjectMethods,{id:number}> (( {id }, ref) =>{
   const navigate = useNavigate();
-  let request = getRequestAndSetNavigate(navigate, useLocation());
+  let request = getRequestAndSetNavigateLocation(navigate, useLocation());
   const [userList, setUserList] = useState<UserInfo[]>([]);
   useEffect(() => {
     request

@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import getRequestAndSetNavigate from "../../services/axios.ts";
+import getRequestAndSetNavigateLocation from "../../services/axios.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Input, Button } from "antd";
 import MessageContext, {
@@ -9,16 +9,6 @@ import { BaseResponse } from "../../types/response.ts";
 import * as React from "react";
 
 export default function UpdatePassword() {
-  const [newPassowrd, setNewPassword] = useState("");
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword2, setNewPassword2] = useState("");
-
-  const navigate = useNavigate();
-  let request = getRequestAndSetNavigate(navigate, useLocation());
-
-  const messageContext = useContext(MessageContext);
-  const { middleMessageApi } = messageContext as MessageContextValue;
-
   const divStyle = {
     display: "flex",
     alignItems: "flex-start",
@@ -33,10 +23,21 @@ export default function UpdatePassword() {
     marginTop: 5,
   }
 
+  const [newPassword, setNewPassword] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword2, setNewPassword2] = useState("");
+
+
+  const navigate = useNavigate();
+  let request = getRequestAndSetNavigateLocation(navigate, useLocation());
+
+  const messageContext = useContext(MessageContext);
+  const { middleMessageApi } = messageContext as MessageContextValue;
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     request
-      .post<BaseResponse>("/user/update_password", {  new_password: newPassowrd, old_password: oldPassword , new_password2: newPassword2})
+      .post<BaseResponse>("/user/update_password", {  new_password: newPassword, old_password: oldPassword , new_password2: newPassword2})
       .then((response) => {
         if (response.data.code == 0) {
           middleMessageApi.success(response.data.message).then(
@@ -83,7 +84,7 @@ export default function UpdatePassword() {
             New Password
           </label>
           <Input.Password
-            value={newPassowrd}
+            value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder="new Password"
             style={{ width: "70%" }}
