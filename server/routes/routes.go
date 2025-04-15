@@ -1,8 +1,6 @@
 package routes
 
 import (
-	"fmt"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/phpgoc/zxqpro/docs"
@@ -19,24 +17,7 @@ func ApiRoutes() *gin.Engine {
 	router := gin.Default()
 	// if gin.Mode() != gin.ReleaseMode {
 
-	config := cors.Config{
-		AllowOriginFunc: func(origin string) bool {
-			// 白名单：只允许指定域名
-			allowedOrigins := map[string]bool{
-				"http://localhost:5173": true,
-				"http://localhost:5174": true,
-				"tauri://app":           true,
-			}
-			utils.LogWarn(fmt.Sprintf("origin: %s is %t", origin, allowedOrigins[origin]))
-
-			return allowedOrigins[origin]
-		},
-		AllowAllOrigins:  false,
-		AllowCredentials: true,
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
-	}
-	router.Use(cors.New(config))
+	router.Use(cors.New(middleware.CorsConfig))
 
 	sseManager := utils.NewSSEManager()
 	router.Use(func(c *gin.Context) {

@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 
+	"github.com/phpgoc/zxqpro/routes/middleware"
+
 	"github.com/gin-gonic/gin"
 
 	"github.com/phpgoc/zxqpro/model/dao"
@@ -33,7 +35,7 @@ func main() {
 		mux.Handle("/", spaHandler{box: dist})
 	}
 
-	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(box)))
+	mux.Handle("/static/", middleware.CORSMiddleware(http.StripPrefix("/static/", http.FileServer(box))))
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		err := v.RegisterValidation("complexPassword", request.ComplexPasswordValidator)

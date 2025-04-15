@@ -1,4 +1,4 @@
-import { HOST_KEY } from "../types/const.ts";
+import { HOST_KEY, LOCAL_LOCALE_LANGUAGE_KEY } from "../types/const.ts";
 
 export function ownerOrAdmin(userId: number, ownerId: number): boolean {
   return userId === ownerId || isAdmin(userId);
@@ -19,6 +19,14 @@ export function serverUrl(): string {
 
 export function avatarUrl(avatarId  : number): string {
   return `${serverUrl()}static/avatar/${avatarId}.webp`;
+}
+
+export function localeLanguage() :string{
+  const lang = localStorage.getItem(LOCAL_LOCALE_LANGUAGE_KEY);
+  if (lang) {
+    return lang;
+  }
+  return "zh";
 }
 
 export function parseIdToNumber (id: string | undefined): number  {
