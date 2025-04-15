@@ -58,6 +58,7 @@ func ApiRoutes() *gin.Engine {
 	api.POST("/message/share_link", MessageShareLink)
 	api.GET("/message/receive_list", MessageReceiveList)
 	api.GET("/message/send_list", MessageSendList)
+	api.POST("/message/read", MessageRead)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	return router

@@ -14,11 +14,16 @@ const MessageContext = createContext<MessageContextValue | null>({
 });
 export default MessageContext;
 
-export type setMessageNumber = (messageNumber: number) => void;
+export type setMessageNumber = (messageNumber: number | ((prev: number) => number)) => void;
 
 const SetMessageNumberContext = createContext<setMessageNumber>(
-  (_messageNumber:number) => {
-    throw new Error('未在 MessageNumberContext.Provider 中使用'); // 明确报错提示
-  });
+  (messageNumber: number | ((prev: number) => number)) => {
+    if (typeof messageNumber === 'function') {
+      // 处理传入函数的情况，这里只是为了类型兼容，实际会报错
+      messageNumber(0);
+    }
+    throw new Error('未在 MessageNumberContext.Provider 中使用');
+  }
+);
 
 export { SetMessageNumberContext };

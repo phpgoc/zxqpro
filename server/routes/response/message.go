@@ -1,15 +1,17 @@
 package response
 
 type Message struct {
-	Id      uint    `json:"id"`
-	Message string  `json:"message"`
-	Link    *string `json:"link"`
-	Read    bool    `json:"read"`
+	Id       uint    `json:"id"`
+	UserName string  `json:"user_name"`
+	Message  string  `json:"message"`
+	Link     *string `json:"link"`
+	Time     string  `json:"time"`
+	Read     bool    `json:"read"`
 }
 
 type MessageList struct {
 	Total int64     `json:"total"`
-	List  []Message `json:"messages"`
+	List  []Message `json:"list"`
 }
 
 type MessageRead struct {

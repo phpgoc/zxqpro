@@ -266,6 +266,26 @@ paths:
       summary: admin update_password
       tags:
       - Admin
+  /message/read:
+    post:
+      consumes:
+      - application/json
+      description: message read
+      parameters:
+      - in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/response.CommonResponseWithoutData'
+      summary: message read
+      tags:
+      - Message
   /message/receive_list:
     get:
       consumes:
