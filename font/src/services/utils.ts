@@ -38,3 +38,11 @@ export function parseIdToNumber (id: string | undefined): number  {
   }
   return 0;
 }
+
+export function localNavigate(navigate: Function, link: string) {
+  if (link.startsWith("/")) {
+    navigate(link);
+  }else{
+    window.location.href = link;
+  }
+}

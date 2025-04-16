@@ -4,6 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import getRequestAndSetNavigateLocation from "../../services/axios.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 import MessageContext, { type MessageContextValue, SetMessageNumberContext } from "../../context/message.tsx";
+import CustomLink  from "../../components/customLink.tsx";
 
 export default function MessageIndex() {
   const [total, setTotal] = useState(0);
@@ -41,27 +42,6 @@ export default function MessageIndex() {
     }).then()
   }
 
-  function handleLink(link: string, id:number, newTab: boolean = false) {
-    request.post("message/read", { id: id }).then((response) => {
-      if (response.data.code == 0) {
-        middleMessageApi.success(response.data.message).then();
-        setMessageNumber((prev) => prev - 1);
-      } else {
-        middleMessageApi.warning(response.data.message).then();
-      }
-    }).then(
-      () => {
-
-        if (newTab) {
-          window.open(link, "_blank");
-          return;
-        }else{
-          window.location.href = link
-        }
-      }
-    )
-  }
-
   const columns = [
     {
       title: "From UserName",
@@ -76,7 +56,17 @@ export default function MessageIndex() {
     {
       title: "Link",
       dataIndex: "link",
-      key: "link"
+      key: "link",
+      render: (_text: any, record: Message) => {
+        if (record.link) {
+          return (
+            <CustomLink to={record.link} >
+              {record.link}
+            </CustomLink>
+          );
+        }
+        return null;
+      }
     },
     {
       title: "Time",
@@ -97,24 +87,6 @@ export default function MessageIndex() {
               Read
             </a>
           }
-          {record.link && (
-            <a
-              onClick={() => {
-                handleLink(record.link!, record.id);
-              }}
-            >
-              Go to Link
-            </a>
-          )}
-          {record.link && (
-            <a
-              onClick={() => {
-                handleLink(record.link!, record.id, true);
-              }}
-            >
-              Open Link with New Tab
-            </a>
-          )}
         </Space>
       )
     }

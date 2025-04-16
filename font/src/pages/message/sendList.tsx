@@ -4,6 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import getRequestAndSetNavigateLocation from "../../services/axios.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 import MessageContext, { type MessageContextValue } from "../../context/message.tsx";
+import CustomLink from "../../components/customLink.tsx";
 
 export default function MessageSend() {
   const [total, setTotal] = useState(0);
@@ -18,13 +19,6 @@ export default function MessageSend() {
   const messageContext = useContext(MessageContext);
   const { middleMessageApi } = messageContext as MessageContextValue
 
-  function handleLink(link: string, newTab: boolean = false) {
-      if (newTab){
-        window.open(link, "_blank");
-      }else{
-        window.location.href = link
-      }
-  }
 
   const columns = [
     {
@@ -40,7 +34,17 @@ export default function MessageSend() {
     {
       title: "Link",
       dataIndex: "link",
-      key: "link"
+      key: "link",
+      render: (_text: any, record: Message) => {
+        if (record.link) {
+          return (
+            <CustomLink to={record.link!} >
+              {record.link}
+            </CustomLink>
+          );
+        }
+        return null;
+      }
     },
     {
       title: "Time",
@@ -50,26 +54,9 @@ export default function MessageSend() {
     {
       title: "Action",
       key: "action",
-      render: (_text: any, record: Message) => (
+      render: (_text: any, _record: Message) => (
         <Space size="middle">
-          {record.link && (
-            <a
-              onClick={() => {
-                handleLink(record.link!);
-              }}
-            >
-              Go to Link
-            </a>
-          )}
-          {record.link && (
-            <a
-              onClick={() => {
-                handleLink(record.link!, true);
-              }}
-            >
-              Open Link with New Tab
-            </a>
-          )}
+            do nothing
         </Space>
       )
     }

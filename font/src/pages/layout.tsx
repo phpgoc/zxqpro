@@ -66,7 +66,8 @@ export default function ZxqLayout() {
   const [sharedUserId, setSharedUserId] = useState(0);
 
   const navigate = useNavigate();
-  let request = getRequestAndSetNavigateLocation(navigate, useLocation());
+  const lct = useLocation();
+  let request = getRequestAndSetNavigateLocation(navigate, lct);
   const currentPath = useLocation().pathname;
 
   const messageContext = useContext(MessageContext);
@@ -91,9 +92,11 @@ export default function ZxqLayout() {
 
   function handleSelectChange(newUserId : number) {
     setSharedUserId(newUserId)
+    // link: window.location.href,
+
     request.post<BaseResponseWithoutData>("message/share_link", {
       to_user_id: newUserId,
-      link: window.location.href,
+      link: location.pathname,
     }).then((res) => {
       if (res.data.code == 0) {
         middleMessageApi.success("分享成功").then();
@@ -134,6 +137,7 @@ export default function ZxqLayout() {
         }
         return;
       }
+      setMessageNumber((prev) => (prev + 1))
       bottomRightMessageApi.success({
         content:  <>
           {sseMessage.message}
