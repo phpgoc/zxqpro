@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useEffect,useState } from "react";
 import { localNavigate } from "../services/utils.ts";
 
 export default function CustomLink({ to, children }: { to: string; children: ReactNode }) {
@@ -7,27 +7,35 @@ export default function CustomLink({ to, children }: { to: string; children: Rea
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
 
-
-
     function handleClick  (e: React.MouseEvent<HTMLAnchorElement>) {
       e.preventDefault();
-      console.log(to)
       localNavigate(navigate,to)
     }
 
+  useEffect(() => {
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [isContextMenuOpen]);
 
 
   function handleContextMenu(e: React.MouseEvent<HTMLAnchorElement>) {
     e.preventDefault();
     setIsContextMenuOpen(true);
-    console.log(isContextMenuOpen)
-    console.log({ x: e.clientX, y: e.clientY })
     setContextMenuPosition({ x: e.clientX, y: e.clientY });
   }
 
-  function handleOutsideClick() {
-    if (isContextMenuOpen) {
-      setIsContextMenuOpen(false);
+
+  function handleOutsideClick(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+    const linkElement = document.querySelector('a.text-blue-500.underline.cursor-pointer');
+    const menuElement = document.querySelector('div[style*="position: fixed"]');
+
+    if (isContextMenuOpen && linkElement && menuElement) {
+      if (!linkElement.contains(target) &&!menuElement.contains(target)) {
+        setIsContextMenuOpen(false);
+      }
     }
   }
 
@@ -37,7 +45,7 @@ export default function CustomLink({ to, children }: { to: string; children: Rea
   }
 
   return (
-    <div onClick={handleOutsideClick}>
+    <div onClick={()=>handleOutsideClick}>
       <a
         href={to}
         onClick={handleClick}

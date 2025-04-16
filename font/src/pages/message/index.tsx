@@ -109,7 +109,6 @@ export default function MessageIndex() {
       (response) => {
         if (response.data.code == 0) {
           setList(response.data.data.list);
-          console.log(response.data.data.list)
           setTotal(response.data.data.total);
         } else {
           middleMessageApi.error(response.data.message).then();
