@@ -11,12 +11,14 @@ export default function UserSelect({
   projectId = 0,
   includeAdmin = false,
   filterSelf = false,
+                                     placeholder = "Select User"
 }: {
   userId: number;
   onChange: (newUserId: number) => void;
   projectId?: number;
   includeAdmin?: boolean;
   filterSelf?: boolean;
+  placeholder? : string;
 }) {
   const navigate = useNavigate();
   let request = getRequestAndSetNavigateLocation(navigate, useLocation());
@@ -47,7 +49,7 @@ export default function UserSelect({
   }, []);
   return (
     <Select
-      placeholder="Select User"
+      placeholder={placeholder}
       onChange={onChange}
       onClear={() => onChange(0)}
       style={{ width: 200 }}
