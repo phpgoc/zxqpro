@@ -51,3 +51,22 @@ func (m *SSEManager) SendMessageToUser(userId uint, sseMessage SSEMessage) {
 		client <- sseMessage
 	}
 }
+
+func (m *SSEManager) SendMessageToUsers(userIds []uint, sseMessage SSEMessage) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	for _, userId := range userIds {
+		if client, exists := m.clients[userId]; exists {
+			client <- sseMessage
+		}
+	}
+}
+
+// SendMessageToAllUsers 向所有用户发送消息
+func (m *SSEManager) SendMessageToAllUsers(sseMessage SSEMessage) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	for _, client := range m.clients {
+		client <- sseMessage
+	}
+}

@@ -32,7 +32,7 @@ func MessageShareLink(c *gin.Context) {
 	}
 	userId := middleware.GetUserIdFromAuthMiddleware(c)
 
-	if err := dao.CreateMessage(userId, []uint{req.ToUserId}, entity.ActionnShareLink, &req.Link); err != nil {
+	if err := dao.CreateMessage(userId, []uint{req.ToUserId}, entity.ActionShareLink, &req.Link, nil); err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
@@ -41,7 +41,7 @@ func MessageShareLink(c *gin.Context) {
 	toUser, _ := dao.GetUserById(req.ToUserId)
 	sseManager.SendMessageToUser(req.ToUserId,
 		utils.SSEMessage{
-			Message: dao.JoinReceiveMessage(user.UserName, toUser.UserName, entity.ActionnShareLink),
+			Message: dao.JoinReceiveMessage(user.UserName, toUser.UserName, entity.ActionShareLink, nil),
 			Link:    &(req.Link),
 		})
 
@@ -86,7 +86,7 @@ func MessageReceiveList(c *gin.Context) {
 			Id:       messageTo.ID,
 			Link:     messageTo.Message.Link,
 			UserName: messageTo.Message.CreateUser.UserName,
-			Message:  dao.JoinReceiveMessage(messageTo.Message.CreateUser.UserName, messageTo.User.UserName, messageTo.Message.Action),
+			Message:  dao.JoinReceiveMessage(messageTo.Message.CreateUser.UserName, messageTo.User.UserName, messageTo.Message.Action, messageTo.Message.MessageContent),
 			Time:     messageTo.Message.CreatedAt.Format("2006-01-02 15:04:05"),
 			Read:     messageTo.Read,
 		})
@@ -138,7 +138,7 @@ func MessageSendList(c *gin.Context) {
 			Id:       message.ID,
 			UserName: joinedNames,
 			Link:     message.Link,
-			Message:  dao.JoinSendMessage(message.CreateUser.UserName, joinedNames, message.Action),
+			Message:  dao.JoinSendMessage(message.CreateUser.UserName, joinedNames, message.Action, message.MessageContent),
 			Time:     message.CreatedAt.Format("2006-01-02 15:04:05"),
 			Read:     allRead,
 		})
@@ -153,7 +153,7 @@ func MessageSendList(c *gin.Context) {
 // @Tags Message
 // @Accept json
 // @Produce json
-// @Param MessageRead query request.MessageRead true "MessageRead"
+// @Param MessageRead body request.MessageRead true "MessageRead"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /message/read [post]
 func MessageRead(c *gin.Context) {
@@ -171,5 +171,40 @@ func MessageRead(c *gin.Context) {
 	messageTo.Read = true
 	dao.Db.Save(&messageTo)
 
+	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
+}
+
+// MessageManual  godoc
+// @Summary message manual
+// @Schemes
+// @Description message manual
+// @Tags Message
+// @Accept json
+// @Produce json
+// @Param MessageRead body request.ManualMessage true "MessageRead"
+// @Success 200 {object} response.CommonResponseWithoutData "成功响应"
+// @Router /message/manual [post]
+func MessageManual(c *gin.Context) {
+	var req request.ManualMessage
+	if success := utils.ValidateJson(c, &req); !success {
+		return
+	}
+	userId := middleware.GetUserIdFromAuthMiddleware(c)
+
+	if err := dao.CreateMessage(userId, req.UserIds, entity.ActionManual, nil, &req.Content); err != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
+		return
+	}
+
+	sseManager := c.MustGet("sseManager").(*utils.SSEManager)
+	user, _ := dao.GetUserById(userId)
+	for _, id := range req.UserIds {
+		toUser, _ := dao.GetUserById(id)
+		sseManager.SendMessageToUser(id,
+			utils.SSEMessage{
+				Code:    0,
+				Message: dao.JoinReceiveMessage(user.UserName, toUser.UserName, entity.ActionManual, &req.Content),
+			})
+	}
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }

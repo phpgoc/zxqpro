@@ -5,17 +5,19 @@ import "time"
 type Action byte
 
 const (
-	ActionnShareLink Action = iota + 1
+	ActionShareLink Action = iota + 1
+	ActionManual
 )
 
 type Message struct {
-	ID           uint `gorm:"primarykey"`
-	CreatedAt    time.Time
-	CreateUserId uint
-	CreateUser   User        `gorm:"foreignKey:CreateUserId;references:ID"`
-	ToList       []MessageTo `gorm:"foreignKey:MessageId"`
-	Action       Action
-	Link         *string
+	ID             uint `gorm:"primarykey"`
+	CreatedAt      time.Time
+	CreateUserId   uint
+	CreateUser     User `gorm:"foreignKey:CreateUserId;references:ID"`
+	MessageContent *string
+	ToList         []MessageTo `gorm:"foreignKey:MessageId"`
+	Action         Action
+	Link           *string
 }
 
 type MessageTo struct {

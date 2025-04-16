@@ -137,6 +137,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/message/manual": {
+            "post": {
+                "description": "message manual",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Message"
+                ],
+                "summary": "message manual",
+                "parameters": [
+                    {
+                        "description": "MessageRead",
+                        "name": "MessageRead",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ManualMessage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponseWithoutData"
+                        }
+                    }
+                }
+            }
+        },
         "/message/read": {
             "post": {
                 "description": "message read",
@@ -152,10 +186,13 @@ const docTemplate = `{
                 "summary": "message read",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "name": "id",
-                        "in": "query",
-                        "required": true
+                        "description": "MessageRead",
+                        "name": "MessageRead",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.MessageRead"
+                        }
                     }
                 ],
                 "responses": {
@@ -713,6 +750,35 @@ const docTemplate = `{
                     "minLength": 8
                 },
                 "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.ManualMessage": {
+            "type": "object",
+            "required": [
+                "content",
+                "user_ids"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "user_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "request.MessageRead": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
                     "type": "integer"
                 }
             }

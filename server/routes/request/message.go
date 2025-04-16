@@ -14,3 +14,8 @@ type MessageList struct {
 type MessageRead struct {
 	Id uint `json:"id" binding:"required"`
 }
+
+type ManualMessage struct {
+	UserIds []uint `json:"user_ids" binding:"required"`
+	Content string `json:"content" binding:"required"`
+}

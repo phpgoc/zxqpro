@@ -60,6 +60,25 @@ definitions:
     - password
     - user_id
     type: object
+  request.ManualMessage:
+    properties:
+      content:
+        type: string
+      user_ids:
+        items:
+          type: integer
+        type: array
+    required:
+    - content
+    - user_ids
+    type: object
+  request.MessageRead:
+    properties:
+      id:
+        type: integer
+    required:
+    - id
+    type: object
   request.MessageShareLink:
     properties:
       link:
@@ -266,16 +285,40 @@ paths:
       summary: admin update_password
       tags:
       - Admin
+  /message/manual:
+    post:
+      consumes:
+      - application/json
+      description: message manual
+      parameters:
+      - description: MessageRead
+        in: body
+        name: MessageRead
+        required: true
+        schema:
+          $ref: '#/definitions/request.ManualMessage'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/response.CommonResponseWithoutData'
+      summary: message manual
+      tags:
+      - Message
   /message/read:
     post:
       consumes:
       - application/json
       description: message read
       parameters:
-      - in: query
-        name: id
+      - description: MessageRead
+        in: body
+        name: MessageRead
         required: true
-        type: integer
+        schema:
+          $ref: '#/definitions/request.MessageRead'
       produces:
       - application/json
       responses:
