@@ -1,6 +1,7 @@
 import { Layout, Menu } from "antd";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import {
+  BulbOutlined,
   JavaOutlined,
   JavaScriptOutlined,
   PythonOutlined
@@ -27,6 +28,12 @@ const SettingLayout = () => {
       icon: <PythonOutlined />,
       label: "Update Password",
       path: "/setting/update_password",
+    },
+    {
+      key: "/setting/help",
+      icon:  <BulbOutlined />,
+      label: "Help",
+      path: "/setting/help",
     },
   ];
 

@@ -27,6 +27,7 @@ import ProjectIndex from "./pages/project";
 import ProjectTasks from "./pages/project/tasks";
 import ProjectView from "./pages/project/view";
 import ProjectEdit from "./pages/project/edit";
+import Help from "./pages/setting/help.tsx";
 
 
 function App() {
@@ -39,9 +40,8 @@ function App() {
   // @ts-ignore
   const [bottomRightMessageApi, bottomRightMessageHolder] = message.useMessage({
     top: "90%",
+    duration: 10,
     // @ts-ignore
-    right: "5%",
-    duration: 3,
     key: "bottom-right-message",
   });
 
@@ -85,6 +85,7 @@ function App() {
             <Route index element={<SettingPage />} />
             <Route path={"update_user"} element={<UpdateUser />} />
             <Route path={"update_password"} element={<UpdatePassword />} />
+            <Route path={"help"} element={<Help />} />
           </Route>
         </Route>
       </Routes>
