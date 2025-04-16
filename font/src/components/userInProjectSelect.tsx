@@ -9,8 +9,7 @@ export interface UserInProjectMethods{
   addUser: (newUser: UserInfo) => void;
 }
 
-// export default function UserInProject({ id  }:{id :number})  {
-const   UserInProject = forwardRef<UserInProjectMethods,{id:number}> (( {id }, ref) =>{
+const   UserInProjectSelect = forwardRef<UserInProjectMethods,{id:number}> (( {id }, ref) =>{
   const navigate = useNavigate();
   let request = getRequestAndSetNavigateLocation(navigate, useLocation());
   const [userList, setUserList] = useState<UserInfo[]>([]);
@@ -113,4 +112,4 @@ const   UserInProject = forwardRef<UserInProjectMethods,{id:number}> (( {id }, r
     </>
   );
 })
-export default UserInProject;
+export default UserInProjectSelect;

@@ -8,7 +8,7 @@ import MessageContext, {
 } from "../../context/message.tsx";
 import { BaseResponse } from "../../types/response.ts";
 import * as React from "react";
-import UserListSelect from "../../components/userList.tsx";
+import UserSelect from "../../components/userSelect.tsx";
 
 export default function UpdatePassword() {
   const [userId , setUserId] = useState(0);
@@ -78,7 +78,7 @@ export default function UpdatePassword() {
           />
         </div>
 
-        <UserListSelect userId={userId} onChange={setUserId} />
+        <UserSelect userId={userId} onChange={setUserId} />
 
         <Button
           type="primary"

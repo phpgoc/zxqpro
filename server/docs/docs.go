@@ -764,6 +764,9 @@ const docTemplate = `{
                 "content": {
                     "type": "string"
                 },
+                "link": {
+                    "type": "string"
+                },
                 "user_ids": {
                     "type": "array",
                     "items": {

@@ -191,7 +191,7 @@ func MessageManual(c *gin.Context) {
 	}
 	userId := middleware.GetUserIdFromAuthMiddleware(c)
 
-	if err := dao.CreateMessage(userId, req.UserIds, entity.ActionManual, nil, &req.Content); err != nil {
+	if err := dao.CreateMessage(userId, req.UserIds, entity.ActionManual, req.Link, &req.Content); err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}

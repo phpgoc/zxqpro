@@ -5,22 +5,20 @@ import { useLocation, useNavigate } from "react-router-dom";
 import getRequestAndSetNavigateLocation from "../services/axios.ts";
 import { useUserContext } from "../context/userInfo.tsx";
 
-export default function UserListSelect({
-  userId,
+export default function UserMultipleSelect({
   onChange,
   projectId = 0,
   includeAdmin = false,
   filterSelf = false,
 }: {
-  userId: number;
-  onChange: (newUserId: number) => void;
+  onChange: (newUserIds: number[]) => void;
   projectId?: number;
   includeAdmin?: boolean;
   filterSelf?: boolean;
 }) {
   const navigate = useNavigate();
   let request = getRequestAndSetNavigateLocation(navigate, useLocation());
-  const [userList, setUserList] = useState<UserInfo[]>([]);
+  const [options, setOptions] = useState<{ label: string; value: number }[]>([]);
   const {user} = useUserContext()
   useEffect(() => {
     let url = `user/list?project_id=${projectId}`
@@ -38,7 +36,11 @@ export default function UserListSelect({
               (u) => u.id != user.id
             );
           }
-          setUserList(filteredList);
+          const newOptions = filteredList.map((user) => ({
+            label: user.user_name,
+            value: user.id,
+          }))
+          setOptions(newOptions)
         }
       })
       .catch((error) => {
@@ -46,22 +48,14 @@ export default function UserListSelect({
       });
   }, []);
   return (
-    <Select
-      placeholder="Select User"
-      onChange={onChange}
-      onClear={() => onChange(0)}
-      style={{ width: 200 }}
-    >
-      {userList.map((user) => (
-        <Select.Option
-          key={user.id}
-          value={user.id}
-          selected={userId === user.id}
-        >
-          {user.user_name}
-        </Select.Option>
-      ))}
-    </Select>
+      <Select
+        mode="multiple"
+        allowClear
+        style={{ width: '40vw' }}
+        placeholder="Select User"
+        onChange={onChange}
+        options={options}
+      />
   );
 }
 

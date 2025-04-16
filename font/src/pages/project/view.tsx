@@ -1,4 +1,4 @@
-import UserInProject from "../../components/userInProject.tsx";
+import UserInProjectSelect from "../../components/userInProjectSelect.tsx";
 import { useParams } from "react-router-dom";
 import { parseIdToNumber } from "../../services/utils.ts";
 
@@ -7,7 +7,7 @@ export default function ProjectView() {
   let projectNumericId: number = parseIdToNumber(id);
   return (
     <>
-      <UserInProject id={projectNumericId} />
+      <UserInProjectSelect id={projectNumericId} />
     </>
   )
 }

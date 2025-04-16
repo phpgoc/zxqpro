@@ -10,7 +10,7 @@ import { BaseResponse, BaseResponseWithoutData } from "../types/response.ts";
 import getRequestAndSetNavigateLocation from "../services/axios.ts";
 import {useUserContext} from "../context/userInfo.tsx";
 import { avatarUrl, isAdmin, serverUrl } from "../services/utils.ts";
-import UserListSelect from "../components/userList.tsx";
+import UserSelect from "../components/userSelect.tsx";
 import { useContext, useEffect, useState } from "react";
 import MessageContext, { type MessageContextValue, SetMessageNumberContext } from "../context/message.tsx";
 import { SSEMessage } from "../types/message.ts";
@@ -238,7 +238,7 @@ export default function ZxqLayout() {
                   zIndex: 2
                 }}
               >
-                <UserListSelect
+                <UserSelect
                   userId={sharedUserId}
                   onChange={handleSelectChange}
                   includeAdmin={true}

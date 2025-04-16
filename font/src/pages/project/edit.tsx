@@ -1,4 +1,4 @@
-import UserInProject, { UserInProjectMethods } from "../../components/userInProject.tsx";
+import UserInProjectSelect, { UserInProjectMethods } from "../../components/userInProjectSelect.tsx";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useContext, useEffect, useRef, useState } from "react";
 import { UserInfo } from "../../types/response.ts";
@@ -89,7 +89,7 @@ export default function ProjectEdit() {
 
   return (
     <>
-      <UserInProject id={projectNumericId}  ref={UserInProjectMethodsRef}/>
+      <UserInProjectSelect id={projectNumericId} ref={UserInProjectMethodsRef}/>
 
       <div
         style={{

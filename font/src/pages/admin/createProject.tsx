@@ -7,7 +7,7 @@ import MessageContext, {
 } from "../../context/message.tsx";
 import { BaseResponse } from "../../types/response.ts";
 import * as React from "react";
-import UserListSelect from "../../components/userList.tsx";
+import UserSelect from "../../components/userSelect.tsx";
 
 export default function CreateProject() {
   const [name, setName] = useState("");
@@ -108,7 +108,7 @@ export default function CreateProject() {
           <label style={{ width: "30%", textAlign: "right", marginRight: 10 }}>
             Owner
           </label>
-          <UserListSelect userId={ownerId} onChange={setOwnerId} />
+          <UserSelect userId={ownerId} onChange={setOwnerId} />
         </div>
         <div
           style={{ display: "flex", justifyContent: "center", width: "50%" }}

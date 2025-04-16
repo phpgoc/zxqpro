@@ -16,6 +16,7 @@ type MessageRead struct {
 }
 
 type ManualMessage struct {
-	UserIds []uint `json:"user_ids" binding:"required"`
-	Content string `json:"content" binding:"required"`
+	UserIds []uint  `json:"user_ids" binding:"required"`
+	Content string  `json:"content" binding:"required"`
+	Link    *string `json:"link"`
 }

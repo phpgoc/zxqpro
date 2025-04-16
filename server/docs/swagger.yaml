@@ -64,6 +64,8 @@ definitions:
     properties:
       content:
         type: string
+      link:
+        type: string
       user_ids:
         items:
           type: integer
