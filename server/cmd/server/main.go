@@ -26,6 +26,8 @@ func main() {
 		return
 	}
 	dao.InitDb()
+	go utils.CronTask()
+
 	box := packr.New("static", "../../../static")
 	// router.StaticFS("/static", http.FileSystem(box))
 
