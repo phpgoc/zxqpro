@@ -51,7 +51,7 @@ func InitDb() {
 
 	// Migrate the schema
 	_ = Db.AutoMigrate(&entity.User{})
-	_ = Db.AutoMigrate(&entity.Project{})
+	_ = Db.AutoMigrate(&entity.Project{}, &entity.TaskTimeEstimate{}, &entity.Task{})
 	_ = Db.AutoMigrate(&entity.Role{})
 	_ = Db.AutoMigrate(&entity.Message{}, &entity.MessageTo{})
 	// 如果数据库没有数据就插入一条数据

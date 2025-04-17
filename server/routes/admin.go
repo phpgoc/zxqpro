@@ -96,6 +96,7 @@ func AdminCreateProject(c *gin.Context) {
 		OwnerID:     req.OwnerID,
 		Description: req.Description,
 		Status:      entity.ProjectStatusInActive,
+		Config:      entity.DefaultProjectConfig(),
 	}
 	if err := dao.Db.Create(&project).Error; err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))

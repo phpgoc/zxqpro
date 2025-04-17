@@ -379,6 +379,38 @@
                 }
             }
         },
+        "/project/info": {
+            "get": {
+                "description": "project info",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "project info",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/project/list": {
             "get": {
                 "description": "project list",
@@ -428,6 +460,74 @@
                 }
             }
         },
+        "/project/update": {
+            "post": {
+                "description": "project update",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "project update",
+                "parameters": [
+                    {
+                        "description": "ProjectUpdate",
+                        "name": "ProjectUpdate",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ProjectUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponseWithoutData"
+                        }
+                    }
+                }
+            }
+        },
+        "/project/update_config": {
+            "post": {
+                "description": "project update config",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "project update config",
+                "parameters": [
+                    {
+                        "description": "ProjectUpdateConfig",
+                        "name": "ProjectUpdateConfig",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ProjectUpdateConfig"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponseWithoutData"
+                        }
+                    }
+                }
+            }
+        },
         "/project/update_role": {
             "post": {
                 "description": "project update role",
@@ -449,6 +549,40 @@
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/request.ProjectUpsertRole"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponseWithoutData"
+                        }
+                    }
+                }
+            }
+        },
+        "/project/update_status": {
+            "post": {
+                "description": "project update status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "project update status",
+                "parameters": [
+                    {
+                        "description": "ProjectUpdateStatus",
+                        "name": "ProjectUpdateStatus",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ProjectUpdateStatus"
                         }
                     }
                 ],
@@ -660,6 +794,23 @@
         }
     },
     "definitions": {
+        "entity.NoOrmProjectConfig": {
+            "type": "object",
+            "properties": {
+                "join_by_self": {
+                    "description": "是否可以自己加入到顶级任务,默认真（用户肯定不能自己加入到项目中的，必须所有者邀请）",
+                    "type": "boolean"
+                },
+                "must_check_by_other": {
+                    "description": "是否必须由其他人检查，默认不需要，",
+                    "type": "boolean"
+                },
+                "secret": {
+                    "description": "是否是私密项目，默认不需要",
+                    "type": "boolean"
+                }
+            }
+        },
         "entity.ProjectStatus": {
             "type": "integer",
             "enum": [
@@ -798,6 +949,60 @@
                 },
                 "user_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "request.ProjectUpdate": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "git_address": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.ProjectUpdateConfig": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/entity.NoOrmProjectConfig"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.ProjectUpdateStatus": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "maximum": 4,
+                    "minimum": 0,
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/entity.ProjectStatus"
+                        }
+                    ]
                 }
             }
         },

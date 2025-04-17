@@ -13,6 +13,21 @@ type ProjectDeleteRole struct {
 	ProjectId uint `json:"project_id"`
 }
 
+type ProjectUpdate struct {
+	Id          uint   `json:"id" binding:"required"`
+	Name        string `json:"name" gorm:"unique;not null"`
+	Description string `json:"description"`
+	GitAddress  string `json:"git_address"`
+}
+type ProjectUpdateStatus struct {
+	Id     uint                 `json:"id" binding:"required"`
+	Status entity.ProjectStatus `json:"status" binding:"min=0,max=4"`
+}
+
+type ProjectUpdateConfig struct {
+	Id     uint                      `json:"id" binding:"required"`
+	Config entity.NoOrmProjectConfig `json:"config"`
+}
 type ProjectList struct {
 	Page     int  `form:"page"  bindings:"min=1" default:"1"`
 	PageSize int  `form:"page_size" bindings:"min=1,max=100" default:"10"`

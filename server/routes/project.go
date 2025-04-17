@@ -30,7 +30,7 @@ func ProjectCreateRole(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	if !hasPermission(c, req.ProjectId) {
+	if !hasOwnPermission(c, req.ProjectId) {
 		return
 	}
 	if err := dao.CreateRole(req.UserId, req.ProjectId, req.RoleType); err != nil {
@@ -55,7 +55,7 @@ func ProjectDeleteRole(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	if !hasPermission(c, req.ProjectId) {
+	if !hasOwnPermission(c, req.ProjectId) {
 		return
 	}
 	if err := dao.DeleteRole(req.UserId, req.ProjectId); err != nil {
@@ -80,7 +80,7 @@ func ProjectUpdateRole(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	if !hasPermission(c, req.ProjectId) {
+	if !hasOwnPermission(c, req.ProjectId) {
 		return
 	}
 	if err := dao.UpdateRole(req.UserId, req.ProjectId, req.RoleType); err != nil {
@@ -159,7 +159,120 @@ func ProjectList(c *gin.Context) {
 	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", responseProjectList))
 }
 
-func hasPermission(c *gin.Context, projectId uint) bool {
+// ProjectUpdate  godoc
+// @Summary project update
+// @Schemes
+// @Description project update
+// @Tags Project
+// @Accept json
+// @Produce json
+// @Param ProjectUpdate body request.ProjectUpdate true "ProjectUpdate"
+// @Success 200 {object} response.CommonResponseWithoutData "成功响应"
+// @Router /project/update [post]
+func ProjectUpdate(c *gin.Context) {
+	var req request.ProjectUpdate
+	if success := utils.ValidateJson(c, &req); !success {
+		return
+	}
+	if !hasOwnPermission(c, req.Id) {
+		return
+	}
+	project := entity.Project{
+		Name:        req.Name,
+		Description: req.Description,
+		GitAddress:  req.GitAddress,
+	}
+	if err := dao.UpdateProject(req.Id, project); err != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
+}
+
+// ProjectUpdateConfig  godoc
+// @Summary project update config
+// @Schemes
+// @Description project update config
+// @Tags Project
+// @Accept json
+// @Produce json
+// @Param ProjectUpdateConfig body request.ProjectUpdateConfig true "ProjectUpdateConfig"
+// @Success 200 {object} response.CommonResponseWithoutData "成功响应"
+// @Router /project/update_config [post]
+func ProjectUpdateConfig(c *gin.Context) {
+	var req request.ProjectUpdateConfig
+	if success := utils.ValidateJson(c, &req); !success {
+		return
+	}
+	if !hasOwnPermission(c, req.Id) {
+		return
+	}
+	if err := dao.UpdateProjectConfig(req.Id, req.Config); err != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
+}
+
+// ProjectUpdateStatus  godoc
+// @Summary project update status
+// @Schemes
+// @Description project update status
+// @Tags Project
+// @Accept json
+// @Produce json
+// @Param ProjectUpdateStatus body request.ProjectUpdateStatus true "ProjectUpdateStatus"
+// @Success 200 {object} response.CommonResponseWithoutData "成功响应"
+// @Router /project/update_status [post]
+func ProjectUpdateStatus(c *gin.Context) {
+	var req request.ProjectUpdateStatus
+	if success := utils.ValidateJson(c, &req); !success {
+		return
+	}
+	if !hasOwnPermission(c, req.Id) {
+		return
+	}
+	if err := dao.UpdateProjectStatus(req.Id, req.Status); err != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
+}
+
+// ProjectInfo godoc
+// @Summary project info
+// @Schemes
+// @Description project info
+// @Tags Project
+// @Accept */*
+// @Produce json
+// @Param CommonId query request.CommonId true "CommonId"
+// @Success 200 {object} response.CommonResponse[data=response.ProjectInfo] "成功响应"
+// @Router /project/info [get]
+func ProjectInfo(c *gin.Context) {
+	var req request.CommonId
+	if success := utils.ValidateQuery(c, &req); !success {
+		return
+	}
+	project, err := dao.GetOneProject(req.Id)
+	if err != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
+		return
+	}
+	projectInfo := response.ProjectInfo{
+		ID:          project.ID,
+		Name:        project.Name,
+		OwnerID:     project.OwnerID,
+		OwnerName:   project.Owner.UserName,
+		Description: project.Description,
+		GitAddress:  project.GitAddress,
+		Config:      project.Config,
+		Status:      project.Status,
+	}
+	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", projectInfo))
+}
+
+func hasOwnPermission(c *gin.Context, projectId uint) bool {
 	userId := middleware.GetUserIdFromAuthMiddleware(c)
 	project := entity.Project{}
 	result := dao.Db.First(&project, projectId)

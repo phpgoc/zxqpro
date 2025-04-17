@@ -1,4 +1,16 @@
 definitions:
+  entity.NoOrmProjectConfig:
+    properties:
+      join_by_self:
+        description: 是否可以自己加入到顶级任务,默认真（用户肯定不能自己加入到项目中的，必须所有者邀请）
+        type: boolean
+      must_check_by_other:
+        description: 是否必须由其他人检查，默认不需要，
+        type: boolean
+      secret:
+        description: 是否是私密项目，默认不需要
+        type: boolean
+    type: object
   entity.ProjectStatus:
     enum:
     - 1
@@ -97,6 +109,40 @@ definitions:
         type: integer
       user_id:
         type: integer
+    type: object
+  request.ProjectUpdate:
+    properties:
+      description:
+        type: string
+      git_address:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    required:
+    - id
+    type: object
+  request.ProjectUpdateConfig:
+    properties:
+      config:
+        $ref: '#/definitions/entity.NoOrmProjectConfig'
+      id:
+        type: integer
+    required:
+    - id
+    type: object
+  request.ProjectUpdateStatus:
+    properties:
+      id:
+        type: integer
+      status:
+        allOf:
+        - $ref: '#/definitions/entity.ProjectStatus'
+        maximum: 4
+        minimum: 0
+    required:
+    - id
     type: object
   request.ProjectUpsertRole:
     properties:
@@ -452,6 +498,27 @@ paths:
       summary: project delete role
       tags:
       - Project
+  /project/info:
+    get:
+      consumes:
+      - '*/*'
+      description: project info
+      parameters:
+      - in: query
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: project info
+      tags:
+      - Project
   /project/list:
     get:
       consumes:
@@ -484,6 +551,50 @@ paths:
       summary: project list
       tags:
       - Project
+  /project/update:
+    post:
+      consumes:
+      - application/json
+      description: project update
+      parameters:
+      - description: ProjectUpdate
+        in: body
+        name: ProjectUpdate
+        required: true
+        schema:
+          $ref: '#/definitions/request.ProjectUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/response.CommonResponseWithoutData'
+      summary: project update
+      tags:
+      - Project
+  /project/update_config:
+    post:
+      consumes:
+      - application/json
+      description: project update config
+      parameters:
+      - description: ProjectUpdateConfig
+        in: body
+        name: ProjectUpdateConfig
+        required: true
+        schema:
+          $ref: '#/definitions/request.ProjectUpdateConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/response.CommonResponseWithoutData'
+      summary: project update config
+      tags:
+      - Project
   /project/update_role:
     post:
       consumes:
@@ -504,6 +615,28 @@ paths:
           schema:
             $ref: '#/definitions/response.CommonResponseWithoutData'
       summary: project update role
+      tags:
+      - Project
+  /project/update_status:
+    post:
+      consumes:
+      - application/json
+      description: project update status
+      parameters:
+      - description: ProjectUpdateStatus
+        in: body
+        name: ProjectUpdateStatus
+        required: true
+        schema:
+          $ref: '#/definitions/request.ProjectUpdateStatus'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/response.CommonResponseWithoutData'
+      summary: project update status
       tags:
       - Project
   /user/info:
