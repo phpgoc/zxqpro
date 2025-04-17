@@ -113,7 +113,7 @@ func ProjectList(c *gin.Context) {
 
 	if userId == 1 {
 		var projects []entity.Project
-		model := dao.Db.Model(entity.Project{}).Joins("Owner")
+		model := dao.Db.Model(entity.Project{}).Preload("Owner")
 		if req.Status != 0 {
 			model = model.Where("status = ?", req.Status)
 		}
@@ -133,7 +133,7 @@ func ProjectList(c *gin.Context) {
 
 	} else {
 		var roles []entity.Role
-		model := dao.Db.Model(entity.Role{}).Joins("Project").Where("user_id = ?", userId)
+		model := dao.Db.Model(entity.Role{}).Preload("Project").Where("user_id = ?", userId).Preload("Project.Owner")
 		if req.Status != 0 {
 			model = model.Where("status = ?", req.Status)
 		}
@@ -146,11 +146,12 @@ func ProjectList(c *gin.Context) {
 
 		for _, role := range roles {
 			responseProjectList.List = append(responseProjectList.List, response.Project{
-				ID:       role.Project.ID,
-				Name:     role.Project.Name,
-				RoleType: role.RoleType,
-				Status:   role.Project.Status,
-				OwnerID:  role.Project.OwnerID,
+				ID:        role.Project.ID,
+				Name:      role.Project.Name,
+				RoleType:  role.RoleType,
+				Status:    role.Project.Status,
+				OwnerID:   role.Project.OwnerID,
+				OwnerName: role.Project.Owner.UserName,
 			})
 		}
 	}
