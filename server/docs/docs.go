@@ -505,40 +505,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/project/update_config": {
-            "post": {
-                "description": "project update config",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Project"
-                ],
-                "summary": "project update config",
-                "parameters": [
-                    {
-                        "description": "ProjectUpdateConfig",
-                        "name": "ProjectUpdateConfig",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.ProjectUpdateConfig"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功响应",
-                        "schema": {
-                            "$ref": "#/definitions/response.CommonResponseWithoutData"
-                        }
-                    }
-                }
-            }
-        },
         "/project/update_role": {
             "post": {
                 "description": "project update role",
@@ -969,6 +935,9 @@ const docTemplate = `{
                 "id"
             ],
             "properties": {
+                "config": {
+                    "$ref": "#/definitions/entity.NoOrmProjectConfig"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -980,20 +949,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                }
-            }
-        },
-        "request.ProjectUpdateConfig": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "config": {
-                    "$ref": "#/definitions/entity.NoOrmProjectConfig"
-                },
-                "id": {
-                    "type": "integer"
                 }
             }
         },

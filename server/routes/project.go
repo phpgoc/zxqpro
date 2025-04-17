@@ -181,33 +181,9 @@ func ProjectUpdate(c *gin.Context) {
 		Name:        req.Name,
 		Description: req.Description,
 		GitAddress:  req.GitAddress,
+		Config:      req.Config,
 	}
 	if err := dao.UpdateProject(req.Id, project); err != nil {
-		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
-		return
-	}
-	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
-}
-
-// ProjectUpdateConfig  godoc
-// @Summary project update config
-// @Schemes
-// @Description project update config
-// @Tags Project
-// @Accept json
-// @Produce json
-// @Param ProjectUpdateConfig body request.ProjectUpdateConfig true "ProjectUpdateConfig"
-// @Success 200 {object} response.CommonResponseWithoutData "成功响应"
-// @Router /project/update_config [post]
-func ProjectUpdateConfig(c *gin.Context) {
-	var req request.ProjectUpdateConfig
-	if success := utils.ValidateJson(c, &req); !success {
-		return
-	}
-	if !hasOwnPermission(c, req.Id) {
-		return
-	}
-	if err := dao.UpdateProjectConfig(req.Id, req.Config); err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}

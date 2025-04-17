@@ -20,7 +20,7 @@ export type UserInfo = {
   role_type: RoleType;
 };
 
-export type Project = {
+export type ProjectForList = {
   id: number;
   name: string;
   role_type: RoleType;
@@ -29,7 +29,24 @@ export type Project = {
   owner_name: string;
 };
 
+export type ProjectInfo = {
+  git_address: string;
+  id: number;
+  name: string;
+  description: string;
+  status: ProjectStatus;
+  owner_id: number;
+  owner_name: string;
+  config:{
+    join_by_self :boolean,
+    must_check_by_other : boolean,
+    secret: boolean,
+  }
+};
+
+
+
 export type ProjectList = {
   total: number;
-  list: Project[];
+  list: ProjectForList[];
 };

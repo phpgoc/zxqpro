@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import getRequestAndSetNavigateLocation from "../../services/axios.ts";
 import ProjectStatusSelect from "../../components/projectStatus.tsx";
 import { projectStatusMap, roleTypesMap } from "../../types/project.ts";
-import { Project } from "../../types/response.ts";
+import { ProjectForList } from "../../types/response.ts";
 import RoleTypeSelect from "../../components/roleType.tsx";
 import { ownerOrAdmin } from "../../services/utils.ts";
 import { useUserContext } from "../../context/userInfo.tsx";
@@ -21,7 +21,7 @@ export default function ProjectIndex() {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (_text: any, record: Project) => {
+      render: (_text: any, record: ProjectForList) => {
         return projectStatusMap[record.status];
       }
     },
@@ -29,7 +29,7 @@ export default function ProjectIndex() {
       title: "Role Type",
       dataIndex: "role_type",
       key: "role_type",
-      render: (_text: any, record: Project) => {
+      render: (_text: any, record: ProjectForList) => {
         return roleTypesMap[record.role_type];
       }
     },
@@ -41,7 +41,7 @@ export default function ProjectIndex() {
     {
       title: "Action",
       key: "action",
-      render: (_text: any, record: Project) => (
+      render: (_text: any, record: ProjectForList) => (
         <Space size="middle">
           {ownerOrAdmin(user.id, record.owner_id) && (
             <a
@@ -75,7 +75,7 @@ export default function ProjectIndex() {
   const [roleType, setRoleType] = useState(0);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [total, setTotal] = useState(0);
-  const [ProjectList, setProjectList] = useState<Project[]>([]);
+  const [ProjectList, setProjectList] = useState<ProjectForList[]>([]);
 
   const navigate = useNavigate();
   let request = getRequestAndSetNavigateLocation(navigate, useLocation());

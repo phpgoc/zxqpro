@@ -40,3 +40,24 @@
 /*.read-the-docs {*/
 /*  color: #888;*/
 /*}*/
+
+div.divStyle {
+    display: flex;
+    align-items: flex-start;
+    width: 80%;
+    margin-bottom: 20px;
+}
+
+label.labelStyle {
+    width: 30%;
+    text-align: right;
+    margin-right: 10px;
+    margin-top: 5px;
+}
+
+.inputStyle{
+    width: 70%;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}

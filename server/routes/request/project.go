@@ -14,10 +14,11 @@ type ProjectDeleteRole struct {
 }
 
 type ProjectUpdate struct {
-	Id          uint   `json:"id" binding:"required"`
-	Name        string `json:"name" gorm:"unique;not null"`
-	Description string `json:"description"`
-	GitAddress  string `json:"git_address"`
+	Id          uint                      `json:"id" binding:"required"`
+	Name        string                    `json:"name" gorm:"unique;not null"`
+	Description string                    `json:"description"`
+	GitAddress  string                    `json:"git_address"`
+	Config      entity.NoOrmProjectConfig `json:"config"`
 }
 type ProjectUpdateStatus struct {
 	Id     uint                 `json:"id" binding:"required"`
