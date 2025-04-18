@@ -98,7 +98,6 @@ func UserLogout(c *gin.Context) {
 // @Router /user/info [get]
 func UserInfo(c *gin.Context) {
 	userId := middleware.GetUserIdFromAuthMiddleware(c)
-	utils.LogInfo(fmt.Sprintf("%d", userId))
 	user, err := dao.GetUserById(userId)
 	if err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))

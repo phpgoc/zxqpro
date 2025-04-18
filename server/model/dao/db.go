@@ -6,8 +6,9 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
-	"os"
 	"time"
+
+	"github.com/phpgoc/zxqpro/utils"
 
 	"gorm.io/gorm/logger"
 
@@ -27,20 +28,19 @@ func newSQLiteDialector(dsn string) gorm.Dialector {
 	}
 }
 
-var newLogger = logger.New(
-	log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
-	logger.Config{
-		SlowThreshold:             time.Second, // Slow SQL threshold
-		LogLevel:                  logger.Info, // Log level
-		IgnoreRecordNotFoundError: true,        // Ignore ErrRecordNotFound error for logger
-		ParameterizedQueries:      true,        // Don't include params in the SQL log
-		Colorful:                  false,       // Disable color
-	},
-)
-
 var Db *gorm.DB
 
 func InitDb() {
+	newLogger := logger.New(
+		log.New(utils.GormLogWriter, "\r\n", log.LstdFlags), // io writer
+		logger.Config{
+			SlowThreshold:             time.Second,        // Slow SQL threshold
+			LogLevel:                  utils.GormLogLevel, // Log level
+			IgnoreRecordNotFoundError: true,               // Ignore ErrRecordNotFound error for logger
+			ParameterizedQueries:      false,
+			Colorful:                  true, // Disable color
+		},
+	)
 	var err error
 	Db, err = gorm.Open(newSQLiteDialector("zxqpro.db"), &gorm.Config{
 		Logger: newLogger,

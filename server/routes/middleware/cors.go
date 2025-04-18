@@ -1,11 +1,9 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-contrib/cors"
-	"github.com/phpgoc/zxqpro/utils"
 )
 
 var allowedOrigins = map[string]bool{
@@ -16,10 +14,7 @@ var allowedOrigins = map[string]bool{
 
 var CorsConfig = cors.Config{
 	AllowOriginFunc: func(origin string) bool {
-		// 白名单：只允许指定域名
-
-		utils.LogWarn(fmt.Sprintf("origin: %s is %t", origin, allowedOrigins[origin]))
-
+		// utils.LogWarn(fmt.Sprintf("origin: %s is %t", origin, allowedOrigins[origin]))
 		return allowedOrigins[origin]
 	},
 	AllowAllOrigins:  false,

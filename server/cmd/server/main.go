@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/phpgoc/zxqpro/interfaces"
@@ -23,12 +24,12 @@ import (
 
 func main() {
 	utils.InitCobra()
-
-	router := routes.ApiRoutes()
-	err := utils.InitLog()
-	if err != nil {
-		return
+	if !utils.GinDebugModel {
+		gin.SetMode(gin.ReleaseMode)
 	}
+	gin.DefaultWriter = utils.GinLogWriter
+	router := routes.ApiRoutes()
+
 	interfaces.InitCache()
 	dao.InitDb()
 	go utils.CronTask()
@@ -53,7 +54,7 @@ func main() {
 	mux.Handle("/api/", router)
 	mux.Handle("/swagger/", router)
 	//_ = router.Run()
-	err = http.ListenAndServe(":8080", mux)
+	_ = http.ListenAndServe(fmt.Sprintf(":%d", utils.Port), mux)
 }
 
 // spaHandler 结构体定义
