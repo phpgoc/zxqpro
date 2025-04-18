@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 
+	"github.com/phpgoc/zxqpro/interfaces"
+
 	"github.com/phpgoc/zxqpro/routes/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -20,11 +22,14 @@ import (
 )
 
 func main() {
+	utils.InitCobra()
+
 	router := routes.ApiRoutes()
 	err := utils.InitLog()
 	if err != nil {
 		return
 	}
+	interfaces.InitCache()
 	dao.InitDb()
 	go utils.CronTask()
 

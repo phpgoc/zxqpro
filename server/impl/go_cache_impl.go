@@ -1,6 +1,8 @@
 package impl
 
 import (
+	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/patrickmn/go-cache"
@@ -32,7 +34,22 @@ func (g *GoCache) IsSet(key string) bool {
 func (g *GoCache) Get(key string, result interface{}) (res bool) {
 	value, found := g.cache.Get(key)
 	if found {
-		result = value
+		resultValue := reflect.ValueOf(result)
+		// 检查 result 是否为指针类型
+		if resultValue.Kind() != reflect.Ptr || resultValue.IsNil() {
+			fmt.Println("result must be a non-nil pointer")
+			return false
+		}
+		// 获取指针指向的值
+		resultElem := resultValue.Elem()
+		// 检查缓存值和 result 指向的值的类型是否匹配
+		valueType := reflect.TypeOf(value)
+		if resultElem.Type() != valueType {
+			fmt.Printf("missmatch type，cache type is  %v，expect is %v\n", valueType, resultElem.Type())
+			return false
+		}
+		// 将缓存值赋给 result 指向的内存地址
+		resultElem.Set(reflect.ValueOf(value))
 		return true
 	}
 	return false

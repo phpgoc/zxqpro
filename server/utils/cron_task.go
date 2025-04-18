@@ -47,7 +47,7 @@ var GitPathList stringSet
 func gitPull() chan struct{} {
 	// 实现 git pull 逻辑
 	c := cron.New()
-	_, err := c.AddFunc("*/30 * * * *", func() {
+	_, err := c.AddFunc(fmt.Sprintf("*/%d * * * *", GitPullInterval), func() {
 		//c := cron.New(cron.WithSeconds())
 		//_, err := c.AddFunc("*/10 *  * * * *", func() {
 		GitPathList.Each(func(value string) {

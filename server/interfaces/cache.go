@@ -3,15 +3,12 @@ package interfaces
 import (
 	"time"
 
+	"github.com/phpgoc/zxqpro/utils"
+
 	"github.com/phpgoc/zxqpro/impl"
 )
 
 type CacheImpl byte
-
-const (
-	CacheGoImpl CacheImpl = iota
-	CacheRedisImpl
-)
 
 type CacheInterface interface {
 	Set(key string, value interface{}, expiration time.Duration)
@@ -23,15 +20,12 @@ type CacheInterface interface {
 	GetAndRefresh(key string, expiration time.Duration) (interface{}, bool)
 }
 
-var Cache = cacheFactory(CacheRedisImpl)
+var Cache CacheInterface = impl.NewGoCache(time.Minute, time.Minute)
 
-func cacheFactory(i CacheImpl) CacheInterface {
-	switch i {
-	case CacheGoImpl:
-		return impl.NewGoCache(time.Minute, time.Minute)
-	case CacheRedisImpl:
-		return impl.NewRedisCache("localhost:6379", "", 0)
-	default:
-		return impl.NewGoCache(time.Minute, time.Minute)
+func InitCache() {
+	if utils.RedisAddr != "" {
+		Cache = impl.NewRedisCache(utils.RedisAddr, "", 0)
+	} else {
+		Cache = impl.NewGoCache(time.Minute, time.Minute)
 	}
 }
