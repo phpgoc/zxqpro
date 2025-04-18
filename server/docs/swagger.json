@@ -460,6 +460,38 @@
                 }
             }
         },
+        "/project/role_in": {
+            "get": {
+                "description": "project role",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "project role in",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/project/update": {
             "post": {
                 "description": "project update",

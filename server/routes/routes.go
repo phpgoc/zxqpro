@@ -57,6 +57,7 @@ func ApiRoutes() *gin.Engine {
 	api.POST("/project/update", ProjectUpdate)
 	api.POST("/project/update_status", ProjectUpdateStatus)
 	api.GET("/project/info", ProjectInfo)
+	api.GET("/project/role_in", ProjectRoleIn)
 
 	api.POST("/message/share_link", MessageShareLink)
 	api.GET("/message/receive_list", MessageReceiveList)

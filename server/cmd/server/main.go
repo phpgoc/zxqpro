@@ -55,7 +55,10 @@ func main() {
 	mux.Handle("/api/", router)
 	mux.Handle("/swagger/", router)
 	//_ = router.Run()
-	_ = http.ListenAndServe(fmt.Sprintf(":%d", my_runtime.Port), mux)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", my_runtime.Port), mux)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // spaHandler 结构体定义

@@ -70,3 +70,15 @@ func GetOneProject(projectId uint) (entity.Project, error) {
 	}
 	return project, nil
 }
+
+func GetRoleType(userId, projectId uint) (entity.RoleType, error) {
+	if IsAdmin(userId) {
+		return entity.RoleTypeAdmin, nil
+	}
+	role := entity.Role{}
+	res := my_runtime.Db.Where("user_id = ? and project_id = ?", userId, projectId).First(&role)
+	if res.Error != nil {
+		return entity.RoleTypeNone, res.Error
+	}
+	return role.RoleType, nil
+}

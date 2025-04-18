@@ -25,3 +25,7 @@ type ProjectInfo struct {
 	Config      entity.NoOrmProjectConfig `json:"config"`
 	Status      entity.ProjectStatus      `json:"status"`
 }
+
+type ProjectRole struct {
+	RoleType entity.RoleType `json:"role_type"`
+}

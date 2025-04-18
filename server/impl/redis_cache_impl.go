@@ -28,7 +28,7 @@ func NewRedisCache(addr string, password string, db int) *RedisCache {
 	return &RedisCache{client: client, ctx: ctx}
 }
 
-func (r RedisCache) Set(key string, value interface{}, expiration time.Duration) {
+func (r *RedisCache) Set(key string, value interface{}, expiration time.Duration) {
 	data, err := json.Marshal(value)
 	if err != nil {
 		utils.LogError(err.Error())
@@ -40,11 +40,11 @@ func (r RedisCache) Set(key string, value interface{}, expiration time.Duration)
 	}
 }
 
-func (r RedisCache) IsSet(key string) bool {
+func (r *RedisCache) IsSet(key string) bool {
 	return r.client.Exists(r.ctx, key).Val() > 0
 }
 
-func (r RedisCache) Get(key string, result interface{}) (res bool) {
+func (r *RedisCache) Get(key string, result interface{}) (res bool) {
 	val, err := r.client.Get(r.ctx, key).Result()
 	if err != nil {
 		result = nil
@@ -62,26 +62,26 @@ func (r RedisCache) Get(key string, result interface{}) (res bool) {
 	return
 }
 
-func (r RedisCache) Increment(key string, n int64) error {
+func (r *RedisCache) Increment(key string, n int64) error {
 	_, err := r.client.IncrBy(r.ctx, key, n).Result()
 	return err
 }
 
-func (r RedisCache) Decrement(key string, n int64) error {
+func (r *RedisCache) Decrement(key string, n int64) error {
 	_, err := r.client.DecrBy(r.ctx, key, n).Result()
 	return err
 }
 
-func (r RedisCache) Delete(key string) {
+func (r *RedisCache) Delete(key string) {
 	r.client.Del(r.ctx, key)
 }
 
-func (r RedisCache) GetAndRefresh(key string, expiration time.Duration) (interface{}, bool) {
-	rawVal, err := r.client.Get(r.ctx, key).Result()
-	if err != nil {
-		return rawVal, false
+func (r *RedisCache) GetAndRefresh(key string, result interface{}, expiration time.Duration) bool {
+	if r.IsSet(key) {
+		r.Get(key, result)
+		r.client.Expire(r.ctx, key, expiration)
+		return true
 	} else {
-		r.client.Set(r.ctx, key, rawVal, expiration)
-		return rawVal, true
+		return false
 	}
 }

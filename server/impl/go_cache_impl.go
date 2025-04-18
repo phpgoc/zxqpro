@@ -70,11 +70,12 @@ func (g *GoCache) Delete(key string) {
 	g.cache.Delete(key)
 }
 
-func (g *GoCache) GetAndRefresh(key string, expiration time.Duration) (interface{}, bool) {
+func (g *GoCache) GetAndRefresh(key string, result interface{}, expiration time.Duration) bool {
 	value, found := g.cache.Get(key)
 	if found {
-		// 如果找到值，使用 Set 方法刷新过期时间
-		g.cache.Set(key, value, expiration)
+		g.Set(key, value, expiration)
+		g.Get(key, result)
+		return true
 	}
-	return value, found
+	return false
 }

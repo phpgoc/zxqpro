@@ -27,7 +27,7 @@ var (
 	RedisAddr                = ""
 	GitPullInterval    uint8 = 10 // Minutes
 	Port                     = 8080
-	GormLogLevelString       = "d"
+	GormLogLevelString       = "i"
 	GinDebugModel            = true
 	ginLogFile               = ""
 	gormLogFile              = ""

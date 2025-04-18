@@ -13,6 +13,8 @@ const (
 	RoleTypeDeveloper
 	RoleTypeTester
 	RoleTypeAdmin
+
+	RoleTypeNone = 100
 )
 
 type Role struct {

@@ -1,8 +1,11 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/phpgoc/zxqpro/interfaces"
 	"github.com/phpgoc/zxqpro/my_runtime"
 
 	"github.com/gin-gonic/gin"
@@ -249,6 +252,33 @@ func ProjectInfo(c *gin.Context) {
 		Status:      project.Status,
 	}
 	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", projectInfo))
+}
+
+// ProjectRoleIn godoc
+// @Summary project role in
+// @Schemes
+// @Description project role
+// @Tags Project
+// @Accept */*
+// @Produce json
+// @Param CommonId query request.CommonId true "CommonId"
+// @Success 200 {object} response.CommonResponse[data=response.ProjectRole] "成功响应"
+// @Router /project/role_in [get]
+func ProjectRoleIn(c *gin.Context) {
+	var req request.CommonId
+	if success := utils.ValidateQuery(c, &req); !success {
+		return
+	}
+	userId := middleware.GetUserIdFromAuthMiddleware(c)
+	key := fmt.Sprintf("%s%d_%d", my_runtime.PREFIX_USERID_PROJECT_ROLE, userId, req.Id)
+	roleType := interfaces.GetOrSet(interfaces.Cache, key, func() entity.RoleType {
+		roleType, _ := dao.GetRoleType(userId, req.Id)
+		return roleType
+	}, time.Hour)
+
+	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", response.ProjectRole{
+		RoleType: roleType,
+	}))
 }
 
 func hasOwnPermission(c *gin.Context, projectId uint) bool {

@@ -544,6 +544,27 @@ paths:
       summary: project list
       tags:
       - Project
+  /project/role_in:
+    get:
+      consumes:
+      - '*/*'
+      description: project role
+      parameters:
+      - in: query
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: project role in
+      tags:
+      - Project
   /project/update:
     post:
       consumes:
