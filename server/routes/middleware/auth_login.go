@@ -4,10 +4,11 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/phpgoc/zxqpro/my_runtime"
+
 	"github.com/gin-gonic/gin"
 	"github.com/phpgoc/zxqpro/interfaces"
 	"github.com/phpgoc/zxqpro/pro_types"
-	"github.com/phpgoc/zxqpro/utils"
 )
 
 const (
@@ -25,7 +26,7 @@ func AuthLogin() gin.HandlerFunc {
 			c.Next()
 			return
 		}
-		cookie, err := c.Request.Cookie(utils.CookieName)
+		cookie, err := c.Request.Cookie(my_runtime.CookieName)
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{
 				"code":    UnauthorizedStatus,

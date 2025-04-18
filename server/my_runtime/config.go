@@ -1,12 +1,11 @@
-package utils
+package my_runtime
 
 import (
 	"errors"
 	"os"
 
-	"gorm.io/gorm/logger"
-
 	"github.com/spf13/cobra"
+	"gorm.io/gorm/logger"
 )
 
 var (

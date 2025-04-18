@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/phpgoc/zxqpro/cron"
+	"github.com/phpgoc/zxqpro/model/dao"
+	"github.com/phpgoc/zxqpro/my_runtime"
+
 	"github.com/phpgoc/zxqpro/interfaces"
 
 	"github.com/phpgoc/zxqpro/routes/middleware"
 
 	"github.com/gin-gonic/gin"
-
-	"github.com/phpgoc/zxqpro/model/dao"
 
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
@@ -19,20 +21,19 @@ import (
 	"github.com/phpgoc/zxqpro/routes"
 
 	"github.com/gobuffalo/packr/v2"
-	"github.com/phpgoc/zxqpro/utils"
 )
 
 func main() {
-	utils.InitCobra()
-	if !utils.GinDebugModel {
+	my_runtime.InitCobra()
+	if !my_runtime.GinDebugModel {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	gin.DefaultWriter = utils.GinLogWriter
+	gin.DefaultWriter = my_runtime.GinLogWriter // 需要在utils.InitCobra() 之后
 	router := routes.ApiRoutes()
 
 	interfaces.InitCache()
 	dao.InitDb()
-	go utils.CronTask()
+	go cron.MainTask() // 需要在 dao.InitDb() 之后
 
 	box := packr.New("static", "../../../static")
 	// router.StaticFS("/static", http.FileSystem(box))
@@ -54,7 +55,7 @@ func main() {
 	mux.Handle("/api/", router)
 	mux.Handle("/swagger/", router)
 	//_ = router.Run()
-	_ = http.ListenAndServe(fmt.Sprintf(":%d", utils.Port), mux)
+	_ = http.ListenAndServe(fmt.Sprintf(":%d", my_runtime.Port), mux)
 }
 
 // spaHandler 结构体定义

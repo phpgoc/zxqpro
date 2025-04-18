@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/phpgoc/zxqpro/my_runtime"
+
 	"github.com/phpgoc/zxqpro/routes/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -55,13 +57,13 @@ func AdminUpdatePassword(c *gin.Context) {
 		return
 	}
 	user := entity.User{}
-	result := dao.Db.Where("id = ?", req.UserId).First(&user)
+	result := my_runtime.Db.Where("id = ?", req.UserId).First(&user)
 	if result.Error != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, result.Error.Error()))
 		return
 	}
 	user.Password = dao.Md5Password(req.Password, user.ID)
-	if err := dao.Db.Save(&user).Error; err != nil {
+	if err := my_runtime.Db.Save(&user).Error; err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
@@ -85,7 +87,7 @@ func AdminCreateProject(c *gin.Context) {
 	}
 	// 判断id是否存在 没删除的
 	var user entity.User
-	result := dao.Db.Where("id = ?", req.OwnerID).Where("deleted_at IS NULL").First(&user)
+	result := my_runtime.Db.Where("id = ?", req.OwnerID).Where("deleted_at IS NULL").First(&user)
 	if result.Error != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, result.Error.Error()))
 		return
@@ -98,7 +100,7 @@ func AdminCreateProject(c *gin.Context) {
 		Status:      entity.ProjectStatusInActive,
 		Config:      entity.DefaultProjectConfig(),
 	}
-	if err := dao.Db.Create(&project).Error; err != nil {
+	if err := my_runtime.Db.Create(&project).Error; err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}

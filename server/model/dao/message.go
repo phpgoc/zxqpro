@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/phpgoc/zxqpro/model/entity"
+	"github.com/phpgoc/zxqpro/my_runtime"
 )
 
 func CreateMessage(createUserId uint, toUserId []uint, action entity.Action, link, content *string) error {
@@ -13,7 +14,7 @@ func CreateMessage(createUserId uint, toUserId []uint, action entity.Action, lin
 		Link:           link,
 		MessageContent: content,
 	}
-	result := Db.Create(&message)
+	result := my_runtime.Db.Create(&message)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -23,7 +24,7 @@ func CreateMessage(createUserId uint, toUserId []uint, action entity.Action, lin
 			MessageId: message.ID,
 			Read:      false,
 		}
-		result = Db.Create(&messageTo)
+		result = my_runtime.Db.Create(&messageTo)
 		if result.Error != nil {
 			return result.Error
 		}

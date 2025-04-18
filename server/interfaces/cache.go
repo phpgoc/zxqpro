@@ -3,7 +3,7 @@ package interfaces
 import (
 	"time"
 
-	"github.com/phpgoc/zxqpro/utils"
+	"github.com/phpgoc/zxqpro/my_runtime"
 
 	"github.com/phpgoc/zxqpro/impl"
 )
@@ -23,8 +23,8 @@ type CacheInterface interface {
 var Cache CacheInterface = impl.NewGoCache(time.Minute, time.Minute)
 
 func InitCache() {
-	if utils.RedisAddr != "" {
-		Cache = impl.NewRedisCache(utils.RedisAddr, "", 0)
+	if my_runtime.RedisAddr != "" {
+		Cache = impl.NewRedisCache(my_runtime.RedisAddr, "", 0)
 	} else {
 		Cache = impl.NewGoCache(time.Minute, time.Minute)
 	}

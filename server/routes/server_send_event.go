@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/phpgoc/zxqpro/my_runtime"
+
 	"github.com/phpgoc/zxqpro/interfaces"
 	"github.com/phpgoc/zxqpro/pro_types"
 
@@ -35,7 +37,7 @@ func ServerSideEvent(c *gin.Context) {
 		http.Error(c.Writer, "Streaming unsupported!", http.StatusInternalServerError)
 		return
 	}
-	cookie, err := c.Request.Cookie(utils.CookieName)
+	cookie, err := c.Request.Cookie(my_runtime.CookieName)
 	if err != nil {
 		_, _ = c.Writer.Write(joinMessage(utils.SSEMessage{
 			Code:    401,

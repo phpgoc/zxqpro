@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"runtime"
 	"time"
+
+	"github.com/phpgoc/zxqpro/my_runtime"
 )
 
 func writeLogFile(level string, log string, callerLevel int) {
 	// write now
 	_, filename, line, _ := runtime.Caller(callerLevel)
-	_, err := SelfLogWriter.WriteString(fmt.Sprintf("%s, %s\tfile:///%s:%d\t %s%s\n", level,
+	_, err := my_runtime.SelfLogWriter.WriteString(fmt.Sprintf("%s, %s\tfile:///%s:%d\t %s%s\n", level,
 		time.Now().Format("2006-01-02 15:04:05"),
 		filename, line,
 		log, Resets))

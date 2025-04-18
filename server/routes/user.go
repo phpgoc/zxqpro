@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/phpgoc/zxqpro/my_runtime"
+
 	"github.com/phpgoc/zxqpro/routes/middleware"
 
 	"github.com/phpgoc/zxqpro/model/dao"
@@ -41,7 +43,7 @@ func UserLogin(c *gin.Context) {
 		return
 	}
 	user := entity.User{Name: req.Name}
-	result := dao.Db.Where(user).First(&user)
+	result := my_runtime.Db.Where(user).First(&user)
 
 	if result.Error != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "用户不存在 或密码错误"))
@@ -68,7 +70,7 @@ func UserLogin(c *gin.Context) {
 		interfaces.Cache.Set(cookie, cookieStruct, 30*time.Minute)
 	}
 
-	c.SetCookie(utils.CookieName, cookie, 0, "/", "", false, true)
+	c.SetCookie(my_runtime.CookieName, cookie, 0, "/", "", false, true)
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
 
@@ -82,7 +84,7 @@ func UserLogin(c *gin.Context) {
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /user/logout [post]
 func UserLogout(c *gin.Context) {
-	cookie, _ := c.Request.Cookie(utils.CookieName)
+	cookie, _ := c.Request.Cookie(my_runtime.CookieName)
 	interfaces.Cache.Delete(cookie.Value)
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
@@ -135,7 +137,7 @@ func UserUpdate(c *gin.Context) {
 		Avatar:   req.Avatar,
 	}
 
-	result := dao.Db.Model(entity.User{}).Where("id = ?", userId).Updates(&user)
+	result := my_runtime.Db.Model(entity.User{}).Where("id = ?", userId).Updates(&user)
 	if result.RowsAffected == 1 {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 	} else {
@@ -169,7 +171,7 @@ func UserUpdatePassword(c *gin.Context) {
 	}
 	user := entity.User{Password: dao.Md5Password(req.NewPassword, userId)}
 
-	result := dao.Db.Model(entity.User{}).Where("id = ?", userId).Updates(&user)
+	result := my_runtime.Db.Model(entity.User{}).Where("id = ?", userId).Updates(&user)
 	if result.RowsAffected == 1 {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 	} else {
@@ -195,13 +197,13 @@ func UserList(g *gin.Context) {
 
 	var res response.UserList
 	if req.ProjectId == 0 {
-		model := dao.Db.Model(entity.User{})
+		model := my_runtime.Db.Model(entity.User{})
 		if !req.IncludeAdmin {
 			model = model.Where("id != ?", 1)
 		}
 		model.Select("id, name, user_name, email, avatar").Find(&res.List)
 	} else {
-		dao.Db.Model(entity.Role{}).Joins("User").Where("project_id = ?", req.ProjectId).Select("User.id, name, user_name, email, avatar, role_type").Find(&res.List)
+		my_runtime.Db.Model(entity.Role{}).Joins("User").Where("project_id = ?", req.ProjectId).Select("User.id, name, user_name, email, avatar, role_type").Find(&res.List)
 	}
 	g.JSON(http.StatusOK, response.CreateResponse(0, "ok", res))
 }

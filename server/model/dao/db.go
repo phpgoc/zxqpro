@@ -8,7 +8,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/phpgoc/zxqpro/utils"
+	"github.com/phpgoc/zxqpro/my_runtime"
 
 	"gorm.io/gorm/logger"
 
@@ -28,21 +28,19 @@ func newSQLiteDialector(dsn string) gorm.Dialector {
 	}
 }
 
-var Db *gorm.DB
-
 func InitDb() {
 	newLogger := logger.New(
-		log.New(utils.GormLogWriter, "\r\n", log.LstdFlags), // io writer
+		log.New(my_runtime.GormLogWriter, "\r\n", log.LstdFlags), // io writer
 		logger.Config{
-			SlowThreshold:             time.Second,        // Slow SQL threshold
-			LogLevel:                  utils.GormLogLevel, // Log level
-			IgnoreRecordNotFoundError: true,               // Ignore ErrRecordNotFound error for logger
+			SlowThreshold:             time.Second,             // Slow SQL threshold
+			LogLevel:                  my_runtime.GormLogLevel, // Log level
+			IgnoreRecordNotFoundError: true,                    // Ignore ErrRecordNotFound error for logger
 			ParameterizedQueries:      false,
 			Colorful:                  true, // Disable color
 		},
 	)
 	var err error
-	Db, err = gorm.Open(newSQLiteDialector("zxqpro.db"), &gorm.Config{
+	my_runtime.Db, err = gorm.Open(newSQLiteDialector("zxqpro.db"), &gorm.Config{
 		Logger: newLogger,
 	})
 	if err != nil {
@@ -50,13 +48,13 @@ func InitDb() {
 	}
 
 	// Migrate the schema
-	_ = Db.AutoMigrate(&entity.User{})
-	_ = Db.AutoMigrate(&entity.Project{}, &entity.TaskTimeEstimate{}, &entity.Task{})
-	_ = Db.AutoMigrate(&entity.Role{})
-	_ = Db.AutoMigrate(&entity.Message{}, &entity.MessageTo{})
+	_ = my_runtime.Db.AutoMigrate(&entity.User{})
+	_ = my_runtime.Db.AutoMigrate(&entity.Project{}, &entity.TaskTimeEstimate{}, &entity.Task{})
+	_ = my_runtime.Db.AutoMigrate(&entity.Role{})
+	_ = my_runtime.Db.AutoMigrate(&entity.Message{}, &entity.MessageTo{})
 	// 如果数据库没有数据就插入一条数据
 	var count int64
-	Db.Model(entity.User{}).Count(&count)
+	my_runtime.Db.Model(entity.User{}).Count(&count)
 	if count == 0 {
 		defaultAdmin := entity.User{
 			Name:     "admin",

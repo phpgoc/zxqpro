@@ -3,6 +3,8 @@ package routes
 import (
 	"net/http"
 
+	"github.com/phpgoc/zxqpro/my_runtime"
+
 	"github.com/gin-gonic/gin"
 	"github.com/phpgoc/zxqpro/model/dao"
 	"github.com/phpgoc/zxqpro/model/entity"
@@ -113,7 +115,7 @@ func ProjectList(c *gin.Context) {
 
 	if userId == 1 {
 		var projects []entity.Project
-		model := dao.Db.Model(entity.Project{}).Preload("Owner")
+		model := my_runtime.Db.Model(entity.Project{}).Preload("Owner")
 		if req.Status != 0 {
 			model = model.Where("status = ?", req.Status)
 		}
@@ -133,7 +135,7 @@ func ProjectList(c *gin.Context) {
 
 	} else {
 		var roles []entity.Role
-		model := dao.Db.Model(entity.Role{}).Preload("Project").Where("user_id = ?", userId).Preload("Project.Owner")
+		model := my_runtime.Db.Model(entity.Role{}).Preload("Project").Where("user_id = ?", userId).Preload("Project.Owner")
 		if req.Status != 0 {
 			model = model.Where("status = ?", req.Status)
 		}
@@ -252,7 +254,7 @@ func ProjectInfo(c *gin.Context) {
 func hasOwnPermission(c *gin.Context, projectId uint) bool {
 	userId := middleware.GetUserIdFromAuthMiddleware(c)
 	project := entity.Project{}
-	result := dao.Db.First(&project, projectId)
+	result := my_runtime.Db.First(&project, projectId)
 
 	if result.Error != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "项目不存在"))

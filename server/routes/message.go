@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/phpgoc/zxqpro/my_runtime"
+
 	"gorm.io/gorm/clause"
 
 	"github.com/gin-gonic/gin"
@@ -66,7 +68,7 @@ func MessageReceiveList(c *gin.Context) {
 	userId := middleware.GetUserIdFromAuthMiddleware(c)
 	var res response.MessageList
 	var messageToList []entity.MessageTo
-	model := dao.Db.Model(entity.MessageTo{}).Preload(clause.Associations).Preload("Message.CreateUser").Where("message_tos.user_id = ?", userId).Where("message_tos.read = ?", req.Read)
+	model := my_runtime.Db.Model(entity.MessageTo{}).Preload(clause.Associations).Preload("Message.CreateUser").Where("message_tos.user_id = ?", userId).Where("message_tos.read = ?", req.Read)
 
 	result := model.Count(&res.Total)
 
@@ -112,7 +114,7 @@ func MessageSendList(c *gin.Context) {
 	userId := middleware.GetUserIdFromAuthMiddleware(c)
 	var res response.MessageList
 	var messageList []entity.Message
-	model := dao.Db.Model(entity.Message{}).Where("create_user_id = ?", userId).Preload("ToList").Preload("ToList.User")
+	model := my_runtime.Db.Model(entity.Message{}).Where("create_user_id = ?", userId).Preload("ToList").Preload("ToList.User")
 	result := model.Count(&res.Total)
 	if result.Error != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, result.Error.Error()))
@@ -163,13 +165,13 @@ func MessageRead(c *gin.Context) {
 	}
 	userId := middleware.GetUserIdFromAuthMiddleware(c)
 	var messageTo entity.MessageTo
-	result := dao.Db.Model(entity.MessageTo{}).Where("id = ? and user_id = ?", req.Id, userId).First(&messageTo)
+	result := my_runtime.Db.Model(entity.MessageTo{}).Where("id = ? and user_id = ?", req.Id, userId).First(&messageTo)
 	if result.Error != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, result.Error.Error()))
 		return
 	}
 	messageTo.Read = true
-	dao.Db.Save(&messageTo)
+	my_runtime.Db.Save(&messageTo)
 
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
