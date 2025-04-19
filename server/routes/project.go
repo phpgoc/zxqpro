@@ -4,17 +4,17 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/phpgoc/zxqpro/model/service"
+
 	"github.com/phpgoc/zxqpro/interfaces"
 	"github.com/phpgoc/zxqpro/my_runtime"
 
 	"github.com/gin-gonic/gin"
 	"github.com/phpgoc/zxqpro/model/dao"
 	"github.com/phpgoc/zxqpro/model/entity"
-	"github.com/phpgoc/zxqpro/routes/middleware"
 	"github.com/phpgoc/zxqpro/routes/request"
 	"github.com/phpgoc/zxqpro/routes/response"
 	"github.com/phpgoc/zxqpro/utils"
-	"gorm.io/gorm"
 )
 
 // @BasePath /api
@@ -34,7 +34,7 @@ func ProjectCreateRole(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	if !hasOwnPermission(c, req.ProjectId) {
+	if !service.HasOwnPermission(c, req.ProjectId) {
 		return
 	}
 	if err := dao.CreateRole(req.UserId, req.ProjectId, req.RoleType); err != nil {
@@ -59,7 +59,7 @@ func ProjectDeleteRole(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	if !hasOwnPermission(c, req.ProjectId) {
+	if !service.HasOwnPermission(c, req.ProjectId) {
 		return
 	}
 	if err := dao.DeleteRole(req.UserId, req.ProjectId); err != nil {
@@ -84,7 +84,7 @@ func ProjectUpdateRole(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	if !hasOwnPermission(c, req.ProjectId) {
+	if !service.HasOwnPermission(c, req.ProjectId) {
 		return
 	}
 	if err := dao.UpdateRole(req.UserId, req.ProjectId, req.RoleType); err != nil {
@@ -110,56 +110,13 @@ func ProjectList(c *gin.Context) {
 		return
 	}
 
-	userId := middleware.GetUserIdFromAuthMiddleware(c)
+	userId := service.GetUserIdFromAuthMiddleware(c)
 
-	var result *gorm.DB
-	responseProjectList := response.ProjectList{}
-
-	if userId == 1 {
-		var projects []entity.Project
-		model := my_runtime.Db.Model(entity.Project{}).Preload("Owner")
-		if req.Status != 0 {
-			model = model.Where("status = ?", req.Status)
-		}
-
-		_ = model.Count(&responseProjectList.Total)
-		result = model.Offset((req.Page - 1) * req.PageSize).Limit(req.PageSize).Find(&projects)
-		for _, project := range projects {
-			responseProjectList.List = append(responseProjectList.List, response.Project{
-				ID:        project.ID,
-				Name:      project.Name,
-				RoleType:  entity.RoleTypeAdmin,
-				OwnerID:   project.OwnerID,
-				OwnerName: project.Owner.UserName,
-				Status:    project.Status,
-			})
-		}
-
-	} else {
-		var roles []entity.Role
-		model := my_runtime.Db.Model(entity.Role{}).Preload("Project").Where("user_id = ?", userId).Preload("Project.Owner")
-		if req.Status != 0 {
-			model = model.Where("status = ?", req.Status)
-		}
-		if req.RoleType != 0 {
-			model = model.Where("role_type = ?", req.RoleType)
-		}
-		_ = model.Count(&responseProjectList.Total)
-		result = model.Offset((req.Page - 1) * req.PageSize).Limit(req.PageSize).Find(&roles)
-		//		result = dao.Db.Preload("Project").Where("user_id = ?", userId).Find(&roles)
-
-		for _, role := range roles {
-			responseProjectList.List = append(responseProjectList.List, response.Project{
-				ID:        role.Project.ID,
-				Name:      role.Project.Name,
-				RoleType:  role.RoleType,
-				Status:    role.Project.Status,
-				OwnerID:   role.Project.OwnerID,
-				OwnerName: role.Project.Owner.UserName,
-			})
-		}
+	responseProjectList, err := service.GetProjectList(userId, req.Status, req.RoleType, req.Page, req.PageSize)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.CreateResponse(1, "error", nil))
+		return
 	}
-	_ = result
 
 	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", responseProjectList))
 }
@@ -179,7 +136,7 @@ func ProjectUpdate(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	if !hasOwnPermission(c, req.Id) {
+	if !service.HasOwnPermission(c, req.Id) {
 		return
 	}
 	project := entity.Project{
@@ -210,7 +167,7 @@ func ProjectUpdateStatus(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	if !hasOwnPermission(c, req.Id) {
+	if !service.HasOwnPermission(c, req.Id) {
 		return
 	}
 	if err := dao.UpdateProjectStatus(req.Id, req.Status); err != nil {
@@ -235,7 +192,7 @@ func ProjectInfo(c *gin.Context) {
 	if success := utils.ValidateQuery(c, &req); !success {
 		return
 	}
-	project, err := dao.GetOneProject(req.Id)
+	project, err := dao.GetProjectById(req.Id)
 	if err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
@@ -268,33 +225,14 @@ func ProjectRoleIn(c *gin.Context) {
 	if success := utils.ValidateQuery(c, &req); !success {
 		return
 	}
-	userId := middleware.GetUserIdFromAuthMiddleware(c)
-	key := utils.JoinCacheKey(my_runtime.PREFIX_USERID_PROJECT_ROLE, userId, req.Id)
+	userId := service.GetUserIdFromAuthMiddleware(c)
+	key := utils.JoinCacheKey(my_runtime.PrefixUseridProjectRole, userId, req.Id)
 	roleType := interfaces.GetOrSet(interfaces.Cache, key, func() entity.RoleType {
-		roleType, _ := dao.GetRoleType(userId, req.Id)
+		roleType, _ := service.GetRoleType(userId, req.Id)
 		return roleType
 	}, time.Hour)
 
 	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", response.ProjectRole{
 		RoleType: roleType,
 	}))
-}
-
-func hasOwnPermission(c *gin.Context, projectId uint) bool {
-	userId := middleware.GetUserIdFromAuthMiddleware(c)
-	project := entity.Project{}
-	result := my_runtime.Db.First(&project, projectId)
-
-	if result.Error != nil {
-		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "项目不存在"))
-		return false
-	}
-	if userId == 1 {
-		return true
-	}
-	if project.OwnerID != userId {
-		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "没有权限"))
-		return false
-	}
-	return true
 }

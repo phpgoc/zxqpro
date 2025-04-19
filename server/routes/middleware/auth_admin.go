@@ -2,11 +2,12 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/phpgoc/zxqpro/model/service"
 )
 
 func AuthAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userId := GetUserIdFromAuthMiddleware(c)
+		userId := service.GetUserIdFromAuthMiddleware(c)
 		if userId != 1 {
 			c.JSON(403, gin.H{
 				"code":    403,

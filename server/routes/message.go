@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/phpgoc/zxqpro/model/service"
+
 	"github.com/phpgoc/zxqpro/my_runtime"
 
 	"gorm.io/gorm/clause"
@@ -11,7 +13,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/phpgoc/zxqpro/model/dao"
 	"github.com/phpgoc/zxqpro/model/entity"
-	"github.com/phpgoc/zxqpro/routes/middleware"
 	"github.com/phpgoc/zxqpro/routes/request"
 	"github.com/phpgoc/zxqpro/routes/response"
 	"github.com/phpgoc/zxqpro/utils"
@@ -32,7 +33,7 @@ func MessageShareLink(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	userId := middleware.GetUserIdFromAuthMiddleware(c)
+	userId := service.GetUserIdFromAuthMiddleware(c)
 
 	if err := dao.CreateMessage(userId, []uint{req.ToUserId}, entity.ActionShareLink, &req.Link, nil); err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
@@ -65,7 +66,7 @@ func MessageReceiveList(c *gin.Context) {
 	if success := utils.ValidateQuery(c, &req); !success {
 		return
 	}
-	userId := middleware.GetUserIdFromAuthMiddleware(c)
+	userId := service.GetUserIdFromAuthMiddleware(c)
 	var res response.MessageList
 	var messageToList []entity.MessageTo
 	model := my_runtime.Db.Model(entity.MessageTo{}).Preload(clause.Associations).Preload("Message.CreateUser").Where("message_tos.user_id = ?", userId).Where("message_tos.read = ?", req.Read)
@@ -111,7 +112,7 @@ func MessageSendList(c *gin.Context) {
 	if success := utils.ValidateQuery(c, &req); !success {
 		return
 	}
-	userId := middleware.GetUserIdFromAuthMiddleware(c)
+	userId := service.GetUserIdFromAuthMiddleware(c)
 	var res response.MessageList
 	var messageList []entity.Message
 	model := my_runtime.Db.Model(entity.Message{}).Where("create_user_id = ?", userId).Preload("ToList").Preload("ToList.User")
@@ -163,7 +164,7 @@ func MessageRead(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	userId := middleware.GetUserIdFromAuthMiddleware(c)
+	userId := service.GetUserIdFromAuthMiddleware(c)
 	var messageTo entity.MessageTo
 	result := my_runtime.Db.Model(entity.MessageTo{}).Where("id = ? and user_id = ?", req.Id, userId).First(&messageTo)
 	if result.Error != nil {
@@ -191,7 +192,7 @@ func MessageManual(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	userId := middleware.GetUserIdFromAuthMiddleware(c)
+	userId := service.GetUserIdFromAuthMiddleware(c)
 
 	if err := dao.CreateMessage(userId, req.UserIds, entity.ActionManual, req.Link, &req.Content); err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))

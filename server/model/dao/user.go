@@ -24,7 +24,3 @@ func GetUserById(id uint) (entity.User, error) {
 	}
 	return user, nil
 }
-
-func IsAdmin(userId uint) bool {
-	return userId == 1
-}

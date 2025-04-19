@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/phpgoc/zxqpro/model/service"
+
 	"github.com/phpgoc/zxqpro/my_runtime"
 
 	"github.com/phpgoc/zxqpro/interfaces"
 	"github.com/phpgoc/zxqpro/pro_types"
 
-	"github.com/phpgoc/zxqpro/routes/middleware"
 	"github.com/phpgoc/zxqpro/utils"
 
 	"github.com/gin-gonic/gin"
@@ -84,7 +85,7 @@ func ServerSideEvent(c *gin.Context) {
 }
 
 func TestSendSelf(c *gin.Context) {
-	userId := middleware.GetUserIdFromAuthMiddleware(c)
+	userId := service.GetUserIdFromAuthMiddleware(c)
 	sseManager := c.MustGet("sseManager").(*utils.SSEManager)
 	sseManager.SendMessageToUser(userId, utils.SSEMessage{
 		Code:    0,

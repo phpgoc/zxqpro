@@ -8,16 +8,6 @@ import (
 	"github.com/phpgoc/zxqpro/utils"
 )
 
-func GetUserRoleInProject(userId, projectId uint) (entity.Role, error) {
-	res := entity.Role{}
-	err := my_runtime.Db.Model(&entity.Role{}).Preload("Project").Where("project_id = ? and user_id = ?", projectId, userId).First(&res).Error
-	if err != nil {
-		return res, err
-	} else {
-		return res, nil
-	}
-}
-
 func UpdateProject(projectId uint, project entity.Project) error {
 	originalProject := entity.Project{}
 	res := my_runtime.Db.Model(&entity.Project{}).Where("id = ?", projectId).First(&originalProject)
@@ -62,7 +52,7 @@ func UpdateProjectStatus(projectId uint, status entity.ProjectStatus) error {
 	return nil
 }
 
-func GetOneProject(projectId uint) (entity.Project, error) {
+func GetProjectById(projectId uint) (entity.Project, error) {
 	project := entity.Project{}
 	res := my_runtime.Db.Preload("Owner").Where("id = ?", projectId).First(&project)
 	if res.Error != nil {
@@ -71,14 +61,35 @@ func GetOneProject(projectId uint) (entity.Project, error) {
 	return project, nil
 }
 
-func GetRoleType(userId, projectId uint) (entity.RoleType, error) {
-	if IsAdmin(userId) {
-		return entity.RoleTypeAdmin, nil
+func GetProjectsForAdmin(status byte, page, pageSize int) ([]entity.Project, int64, error) {
+	var projects []entity.Project
+	var total int64
+	model := my_runtime.Db.Model(&entity.Project{}).Preload("Owner")
+	if status != 0 {
+		model = model.Where("status = ?", status)
 	}
-	role := entity.Role{}
-	res := my_runtime.Db.Where("user_id = ? and project_id = ?", userId, projectId).First(&role)
-	if res.Error != nil {
-		return entity.RoleTypeNone, res.Error
+	err := model.Count(&total).Error
+	if err != nil {
+		return nil, 0, err
 	}
-	return role.RoleType, nil
+	err = model.Offset((page - 1) * pageSize).Limit(pageSize).Find(&projects).Error
+	return projects, total, err
+}
+
+func GetProjectsForUser(userId uint, status, roleType byte, page, pageSize int) ([]entity.Role, int64, error) {
+	var roles []entity.Role
+	var total int64
+	model := my_runtime.Db.Model(&entity.Role{}).Preload("Project").Where("user_id = ?", userId).Preload("Project.Owner")
+	if status != 0 {
+		model = model.Where("status = ?", status)
+	}
+	if roleType != 0 {
+		model = model.Where("role_type = ?", roleType)
+	}
+	err := model.Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
+	err = model.Offset((page - 1) * pageSize).Limit(pageSize).Find(&roles).Error
+	return roles, total, err
 }

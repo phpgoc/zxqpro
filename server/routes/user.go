@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/phpgoc/zxqpro/my_runtime"
+	"github.com/phpgoc/zxqpro/model/service"
 
-	"github.com/phpgoc/zxqpro/routes/middleware"
+	"github.com/phpgoc/zxqpro/my_runtime"
 
 	"github.com/phpgoc/zxqpro/model/dao"
 	"github.com/phpgoc/zxqpro/model/entity"
@@ -99,7 +99,7 @@ func UserLogout(c *gin.Context) {
 // @Success 200 {object} response.CommonResponse{data=response.User} "成功响应"
 // @Router /user/info [get]
 func UserInfo(c *gin.Context) {
-	userId := middleware.GetUserIdFromAuthMiddleware(c)
+	userId := service.GetUserIdFromAuthMiddleware(c)
 	user, err := dao.GetUserById(userId)
 	if err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
@@ -130,7 +130,7 @@ func UserUpdate(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	userId := middleware.GetUserIdFromAuthMiddleware(c)
+	userId := service.GetUserIdFromAuthMiddleware(c)
 	user := entity.User{
 		Email:    &req.Email,
 		UserName: req.UserName,
@@ -160,7 +160,7 @@ func UserUpdatePassword(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	userId := middleware.GetUserIdFromAuthMiddleware(c)
+	userId := service.GetUserIdFromAuthMiddleware(c)
 	if req.OldPassword == req.NewPassword {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "新旧密码不能相同"))
 		return
