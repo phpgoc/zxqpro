@@ -10,3 +10,14 @@ func RandomString(length int) string {
 	}
 	return string(result)
 }
+
+func JoinCacheKey(key string, args ...interface{}) string {
+	if len(args) == 0 {
+		return key
+	}
+	for _, arg := range args {
+		key += "_" + arg.(string)
+	}
+	key += ":"
+	return key
+}

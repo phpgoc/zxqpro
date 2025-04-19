@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -270,7 +269,7 @@ func ProjectRoleIn(c *gin.Context) {
 		return
 	}
 	userId := middleware.GetUserIdFromAuthMiddleware(c)
-	key := fmt.Sprintf("%s%d_%d", my_runtime.PREFIX_USERID_PROJECT_ROLE, userId, req.Id)
+	key := utils.JoinCacheKey(my_runtime.PREFIX_USERID_PROJECT_ROLE, userId, req.Id)
 	roleType := interfaces.GetOrSet(interfaces.Cache, key, func() entity.RoleType {
 		roleType, _ := dao.GetRoleType(userId, req.Id)
 		return roleType
