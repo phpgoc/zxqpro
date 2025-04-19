@@ -594,6 +594,40 @@
                 }
             }
         },
+        "/task/create_top": {
+            "post": {
+                "description": "task create top",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Task"
+                ],
+                "summary": "task create top",
+                "parameters": [
+                    {
+                        "description": "AdminRegister",
+                        "name": "TaskCreateTop",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.TaskCreateTop"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponseWithoutData"
+                        }
+                    }
+                }
+            }
+        },
         "/user/info": {
             "get": {
                 "description": "user info",
@@ -1004,6 +1038,41 @@
                 },
                 "user_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "request.TaskCreateTop": {
+            "type": "object",
+            "required": [
+                "description",
+                "name",
+                "project_id",
+                "tester_id"
+            ],
+            "properties": {
+                "assign_users": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "expect_complete_time": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "project_id": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "tester_id": {
+                    "type": "integer",
+                    "minimum": 1
                 }
             }
         },

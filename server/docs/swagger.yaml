@@ -146,6 +146,31 @@ definitions:
       user_id:
         type: integer
     type: object
+  request.TaskCreateTop:
+    properties:
+      assign_users:
+        items:
+          type: integer
+        type: array
+      description:
+        type: string
+      expect_complete_time:
+        type: string
+      name:
+        maxLength: 20
+        type: string
+      project_id:
+        minimum: 1
+        type: integer
+      tester_id:
+        minimum: 1
+        type: integer
+    required:
+    - description
+    - name
+    - project_id
+    - tester_id
+    type: object
   request.UserLogin:
     properties:
       name:
@@ -631,6 +656,28 @@ paths:
       summary: project update status
       tags:
       - Project
+  /task/create_top:
+    post:
+      consumes:
+      - application/json
+      description: task create top
+      parameters:
+      - description: AdminRegister
+        in: body
+        name: TaskCreateTop
+        required: true
+        schema:
+          $ref: '#/definitions/request.TaskCreateTop'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/response.CommonResponseWithoutData'
+      summary: task create top
+      tags:
+      - Task
   /user/info:
     get:
       consumes:

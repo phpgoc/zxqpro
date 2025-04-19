@@ -33,7 +33,7 @@ type Task struct {
 	Project                Project        `json:"project" gorm:"foreignKey:ProjectId;references:ID"`
 	ParentId               uint           `json:"parent_id"` // 0表示顶级任务
 	ParentTask             *Task          `json:"parent_task" gorm:"foreignKey:ParentId;references:ID"`
-	HierarchyPath          uint           `json:"hierarchy_path"` // 以冒号结尾
+	HierarchyPath          string         `json:"hierarchy_path"` // 以冒号结尾
 	Status                 TaskStatus
 	StartedAt              time.Time          `json:"started_at"`
 	CompletedAt            time.Time          `json:"completed_at"`

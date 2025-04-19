@@ -65,6 +65,8 @@ func ApiRoutes() *gin.Engine {
 	api.POST("/message/read", MessageRead)
 	api.POST("/message/manual", MessageManual)
 
+	api.POST("/task/create_top", TaskCreateTop)
+
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	return router
 }
