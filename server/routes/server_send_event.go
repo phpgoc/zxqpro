@@ -1,8 +1,11 @@
 package routes
 
 import (
+	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/phpgoc/zxqpro/model/service"
 
@@ -62,8 +65,11 @@ func ServerSideEvent(c *gin.Context) {
 	userID := cookieData.ID
 
 	// 注册客户端
-	client := manager.RegisterClient(userID)
-	defer manager.UnregisterClient(userID)
+	timeNano := time.Now().UnixNano()
+	timeNanoStr := fmt.Sprintf("%d", timeNano)
+	uuid := base64.StdEncoding.EncodeToString([]byte(timeNanoStr))
+	client := manager.RegisterClient(userID, uuid)
+	defer manager.UnregisterClient(userID, uuid)
 
 	for {
 		select {

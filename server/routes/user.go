@@ -88,7 +88,7 @@ func UserLogout(c *gin.Context) {
 	userId := service.GetUserIDFromAuthMiddleware(c)
 	interfaces.Cache.Delete(cookie.Value)
 	sseManager := c.MustGet("sseManager").(*utils.SSEManager)
-	sseManager.UnregisterClient(userId)
+	sseManager.UnregisterUser(userId)
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
 

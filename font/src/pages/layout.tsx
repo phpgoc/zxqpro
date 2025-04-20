@@ -1,5 +1,11 @@
 import { Button, Layout, Menu } from "antd";
-import { HomeOutlined, MessageOutlined, SettingFilled, SettingOutlined, UsergroupAddOutlined } from "@ant-design/icons";
+import {
+  HomeOutlined,
+  MessageOutlined,
+  SettingFilled,
+  SettingOutlined,
+  UsergroupAddOutlined,
+} from "@ant-design/icons";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { BaseResponse, BaseResponseWithoutData } from "../types/response.ts";
 import getRequestAndSetNavigateLocation from "../services/axios.ts";
@@ -7,57 +13,61 @@ import { useUserContext } from "../context/userInfo.tsx";
 import { avatarUrl, isAdmin, serverUrl } from "../services/utils.ts";
 import UserSelect from "../components/userSelect.tsx";
 import { useContext, useEffect, useState } from "react";
-import MessageContext, { type MessageContextValue, SetMessageNumberContext } from "../context/message.tsx";
+import MessageContext, {
+  type MessageContextValue,
+  SetMessageNumberContext,
+} from "../context/message.tsx";
 import { SSEMessage } from "../types/message.ts";
 
 const { Header, Content } = Layout;
 
 export default function ZxqLayout() {
-
   const [messageNumber, setMessageNumber] = useState(1);
-  const items = [
+  const baseItems = [
     {
       key: "project",
       label: "Project",
-      icon: <HomeOutlined style={{ fontSize: "5vh", lineHeight: "6vh" }} />
+      icon: <HomeOutlined style={{ fontSize: "5vh", lineHeight: "6vh" }} />,
     },
     {
       key: "task",
       label: "Task",
       icon: (
         <UsergroupAddOutlined style={{ fontSize: "5vh", lineHeight: "6vh" }} />
-      )
+      ),
     },
     {
       key: "admin",
       label: "Admin",
-      icon: <SettingFilled style={{ fontSize: "5vh", lineHeight: "6vh" }} />
+      icon: <SettingFilled style={{ fontSize: "5vh", lineHeight: "6vh" }} />,
     },
     {
       key: "message",
       label: (
         <span style={{ alignItems: "center" }}>
           Message
-          {messageNumber > 0 && (
+          {(messageNumber > 0 && (
             <span
               style={{
-                color: messageNumber > 0 ? "#ff4d4f" : "inherit" // 红色警示色
+                color: messageNumber > 0 ? "#ff4d4f" : "inherit", // 红色警示色
               }}
             >
               ({messageNumber})
             </span>
-          ) || ("(0)")}
+          )) ||
+            "(0)"}
         </span>
       ),
-      icon: <MessageOutlined style={{ fontSize: "5vh", lineHeight: "6vh" }} />
+      icon: <MessageOutlined style={{ fontSize: "5vh", lineHeight: "6vh" }} />,
     },
     {
       key: "setting",
       label: "Setting",
-      icon: <SettingOutlined style={{ fontSize: "5vh", lineHeight: "6vh" }} />
-    }
+      icon: <SettingOutlined style={{ fontSize: "5vh", lineHeight: "6vh" }} />,
+    },
   ];
-  const [sharedUserId, setSharedUserId] = useState<number|null>(0);
+
+  const [sharedUserId, setSharedUserId] = useState<number | null>(0);
 
   const navigate = useNavigate();
   const lct = useLocation();
@@ -65,9 +75,13 @@ export default function ZxqLayout() {
   const currentPath = useLocation().pathname;
 
   const messageContext = useContext(MessageContext);
-  const { middleMessageApi, bottomRightMessageApi } = messageContext as MessageContextValue;
+  const { middleMessageApi, bottomRightMessageApi } =
+    messageContext as MessageContextValue;
   const { user } = useUserContext();
   const avatarSrc = avatarUrl(user.avatar);
+  const items = !isAdmin(user.id) // 假设user.isAdmin判断是否为管理员
+    ? baseItems.filter((_, index) => index !== 2) // 过滤掉管理员项
+    : baseItems; // 管理员显示
 
   function logout() {
     request.post<BaseResponse>("user/logout").then((res) => {
@@ -77,45 +91,45 @@ export default function ZxqLayout() {
     });
   }
 
-
-
   function handleSelectChange(newUserId: number) {
     // setSharedUserId(newUserId);
     // link: window.location.href,
 
-    request.post<BaseResponseWithoutData>("message/share_link", {
-      to_user_id: newUserId,
-      link: location.pathname
-    }).then((res) => {
-      if (res.data.code == 0) {
-        middleMessageApi.success("分享成功").then();
-      } else {
-        middleMessageApi.error("分享失败").then();
-      }
-    });
-    setSharedUserId(null)
+    request
+      .post<BaseResponseWithoutData>("message/share_link", {
+        to_user_id: newUserId,
+        link: location.pathname,
+      })
+      .then((res) => {
+        if (res.data.code == 0) {
+          middleMessageApi.success("分享成功").then();
+        } else {
+          middleMessageApi.error("分享失败").then();
+        }
+      });
+    setSharedUserId(null);
   }
 
   useEffect(() => {
     if (!user || Object.keys(user).length === 0) {
       navigate("/");
-    } else {
-      if (!isAdmin(user.id)) {
-        delete items[2];
-      }
     }
 
-    request.get("message/receive_list", {
-      params: {
-        page: 1,
-        page_size: 1
-      }
-    }).then((res) => {
-      if (res.data.code == 0) {
-        setMessageNumber(res.data.data.total);
-      }
+    request
+      .get("message/receive_list", {
+        params: {
+          page: 1,
+          page_size: 1,
+        },
+      })
+      .then((res) => {
+        if (res.data.code == 0) {
+          setMessageNumber(res.data.data.total);
+        }
+      });
+    const eventSource = new EventSource(serverUrl() + "api/sse", {
+      withCredentials: true,
     });
-    const eventSource = new EventSource(serverUrl() + "api/sse", { withCredentials: true });
 
     eventSource.onmessage = (event) => {
       const sseMessage = JSON.parse(event.data) as SSEMessage;
@@ -126,25 +140,32 @@ export default function ZxqLayout() {
         }
         return;
       }
-      setMessageNumber((prev) => (prev + 1));
-      bottomRightMessageApi.success({
-        content: <>
-          {sseMessage.message}
-          {sseMessage.link ? (
+      setMessageNumber((prev) => prev + 1);
+      bottomRightMessageApi
+        .success({
+          content: (
             <>
-              <br />
-              &nbsp;{/* 空格 */}
-              <a href={sseMessage.link!} onClick={(e) => {
-                e.preventDefault(); // 阻止默认跳转
-                window.location.href = sseMessage.link!; // 直接跳转
-              }}>
-                点击前往
-              </a>
+              {sseMessage.message}
+              {sseMessage.link ? (
+                <>
+                  <br />
+                  &nbsp;{/* 空格 */}
+                  <a
+                    href={sseMessage.link!}
+                    onClick={(e) => {
+                      e.preventDefault(); // 阻止默认跳转
+                      window.location.href = sseMessage.link!; // 直接跳转
+                    }}
+                  >
+                    点击前往
+                  </a>
+                </>
+              ) : null}
             </>
-          ) : null}
-        </>,
-        duration: 30
-      }).then();
+          ),
+          duration: 30,
+        })
+        .then();
     };
     return () => {
       eventSource.close();
@@ -164,14 +185,14 @@ export default function ZxqLayout() {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          padding: "0 1vw" // 左右内边距，让内容不贴边
+          padding: "0 1vw", // 左右内边距，让内容不贴边
         }}
       >
         <div
           style={{
             height: "100%",
             width: "80%", // 左边元素占据50%宽度
-            background: "linear-gradient(90deg, #1890FF 0%, #40a9ff 100%)"
+            background: "linear-gradient(90deg, #1890FF 0%, #40a9ff 100%)",
           }}
         >
           <Menu
@@ -210,7 +231,9 @@ export default function ZxqLayout() {
             flexWrap: "wrap", // 允许宽度不足时换行
           }}
         >
-          <div style={{ flex: 1 }}> {/* 新增flex:1让UserSelect区域合理占据空间，避免挤压其他元素 */}
+          <div style={{ flex: 1 }}>
+            {" "}
+            {/* 新增flex:1让UserSelect区域合理占据空间，避免挤压其他元素 */}
             <UserSelect
               userId={sharedUserId}
               onChange={handleSelectChange}
@@ -219,7 +242,9 @@ export default function ZxqLayout() {
               placeholder={"Share Link To"}
             />
           </div>
-          <div style={{ display: "flex", gap: 10 }}> {/* 补充display: flex让gap生效 */}
+          <div style={{ display: "flex", gap: 10 }}>
+            {" "}
+            {/* 补充display: flex让gap生效 */}
             <img
               src={avatarSrc}
               alt="User Avatar"
@@ -234,14 +259,14 @@ export default function ZxqLayout() {
             size="middle"
             style={{
               position: "absolute",
-              right:20,
-              top:20,
+              right: 20,
+              top: 20,
               backgroundColor: "#fff",
               color: "#1890FF",
               border: "none",
               fontWeight: 600,
               padding: "8px 16px",
-              borderRadius: 24
+              borderRadius: 24,
             }}
             onClick={logout}
           >
@@ -250,7 +275,6 @@ export default function ZxqLayout() {
         </div>
       </Header>
       <Content style={{ padding: "20px 24px 0" }}>
-
         <SetMessageNumberContext value={setMessageNumber}>
           <Outlet />
         </SetMessageNumberContext>
