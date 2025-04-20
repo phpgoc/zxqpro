@@ -28,6 +28,7 @@ import ProjectTasks from "./pages/project/tasks";
 import ProjectView from "./pages/project/view";
 import ProjectEdit from "./pages/project/edit";
 import Help from "./pages/setting/help.tsx";
+import { NotFound } from "./NotFound.tsx";
 
 function App() {
   const [middleMessageApi, middleMessageHolder] = message.useMessage({
@@ -55,6 +56,7 @@ function App() {
         {middleMessageHolder}
         {bottomRightMessageHolder}
         <Routes>
+          <Route path="*" element={<NotFound />} />
           <Route index element={<IndexPage />} />
           <Route path={"/set_host"} element={<SetHost />} />
           <Route path={"/"} element={<ZxqLayout />}>
