@@ -7,9 +7,9 @@ import (
 	"github.com/phpgoc/zxqpro/my_runtime"
 )
 
-func CreateMessage(createUserId uint, toUserId []uint, action entity.Action, link, content *string) error {
+func CreateMessage(createUserID uint, toUserID []uint, action entity.Action, link, content *string) error {
 	message := entity.Message{
-		CreateUserId:   createUserId,
+		CreateUserID:   createUserID,
 		Action:         action,
 		Link:           link,
 		MessageContent: content,
@@ -18,10 +18,10 @@ func CreateMessage(createUserId uint, toUserId []uint, action entity.Action, lin
 	if result.Error != nil {
 		return result.Error
 	}
-	for _, id := range toUserId {
+	for _, id := range toUserID {
 		messageTo := entity.MessageTo{
-			UserId:    id,
-			MessageId: message.ID,
+			UserID:    id,
+			MessageID: message.ID,
 			Read:      false,
 		}
 		result = my_runtime.Db.Create(&messageTo)

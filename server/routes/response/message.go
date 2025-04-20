@@ -1,7 +1,7 @@
 package response
 
 type Message struct {
-	Id       uint    `json:"id"`
+	ID       uint    `json:"id"`
 	UserName string  `json:"user_name"`
 	Message  string  `json:"message"`
 	Link     *string `json:"link"`
@@ -15,5 +15,5 @@ type MessageList struct {
 }
 
 type MessageRead struct {
-	Id uint `json:"id" binding:"required"`
+	ID uint `json:"id" binding:"required"`
 }

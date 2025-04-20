@@ -26,7 +26,7 @@ func CreateResponseWithoutData(code int, message string) CommonResponseWithoutDa
 	}
 }
 
-type CommonIdAndName struct {
-	ID   int    `json:"id"`
+type CommonIDAndName struct {
+	ID   uint   `json:"id"`
 	Name string `json:"name"`
 }

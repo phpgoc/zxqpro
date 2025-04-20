@@ -6,9 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ValidateJson(g *gin.Context, req interface{}) bool {
-	if err := g.ShouldBindJSON(req); err != nil {
-		g.JSON(http.StatusOK, gin.H{
+func ValidateJson(c *gin.Context, req interface{}) bool {
+	if err := c.ShouldBindJSON(req); err != nil {
+		c.JSON(http.StatusOK, gin.H{
 			"code":    400,
 			"message": err.Error(),
 		})
@@ -17,9 +17,9 @@ func ValidateJson(g *gin.Context, req interface{}) bool {
 	return true
 }
 
-func ValidateQuery(g *gin.Context, req interface{}) bool {
-	if err := g.ShouldBindQuery(req); err != nil {
-		g.JSON(http.StatusOK, gin.H{
+func ValidateQuery(c *gin.Context, req interface{}) bool {
+	if err := c.ShouldBindQuery(req); err != nil {
+		c.JSON(http.StatusOK, gin.H{
 			"code":    400,
 			"message": err.Error(),
 		})

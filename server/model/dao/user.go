@@ -16,7 +16,7 @@ func CreateUser(user *entity.User) error {
 	return result.Error
 }
 
-func GetUserById(id uint) (entity.User, error) {
+func GetUserByID(id uint) (entity.User, error) {
 	var user entity.User
 	result := my_runtime.Db.First(&user, id)
 	if result.Error != nil {

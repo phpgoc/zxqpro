@@ -99,8 +99,8 @@ func UserLogout(c *gin.Context) {
 // @Success 200 {object} response.CommonResponse{data=response.User} "成功响应"
 // @Router /user/info [get]
 func UserInfo(c *gin.Context) {
-	userId := service.GetUserIdFromAuthMiddleware(c)
-	user, err := dao.GetUserById(userId)
+	userID := service.GetUserIDFromAuthMiddleware(c)
+	user, err := dao.GetUserByID(userID)
 	if err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
@@ -130,14 +130,14 @@ func UserUpdate(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	userId := service.GetUserIdFromAuthMiddleware(c)
+	userID := service.GetUserIDFromAuthMiddleware(c)
 	user := entity.User{
 		Email:    &req.Email,
 		UserName: req.UserName,
 		Avatar:   req.Avatar,
 	}
 
-	result := my_runtime.Db.Model(entity.User{}).Where("id = ?", userId).Updates(&user)
+	result := my_runtime.Db.Model(entity.User{}).Where("id = ?", userID).Updates(&user)
 	if result.RowsAffected == 1 {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 	} else {
@@ -160,7 +160,7 @@ func UserUpdatePassword(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	userId := service.GetUserIdFromAuthMiddleware(c)
+	userID := service.GetUserIDFromAuthMiddleware(c)
 	if req.OldPassword == req.NewPassword {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "新旧密码不能相同"))
 		return
@@ -169,9 +169,9 @@ func UserUpdatePassword(c *gin.Context) {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "两次新密码不一致"))
 		return
 	}
-	user := entity.User{Password: dao.Md5Password(req.NewPassword, userId)}
+	user := entity.User{Password: dao.Md5Password(req.NewPassword, userID)}
 
-	result := my_runtime.Db.Model(entity.User{}).Where("id = ?", userId).Updates(&user)
+	result := my_runtime.Db.Model(entity.User{}).Where("id = ?", userID).Updates(&user)
 	if result.RowsAffected == 1 {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 	} else {
@@ -196,14 +196,14 @@ func UserList(g *gin.Context) {
 	}
 
 	var res response.UserList
-	if req.ProjectId == 0 {
+	if req.ProjectID == 0 {
 		model := my_runtime.Db.Model(entity.User{})
 		if !req.IncludeAdmin {
 			model = model.Where("id != ?", 1)
 		}
 		model.Select("id, name, user_name, email, avatar").Find(&res.List)
 	} else {
-		my_runtime.Db.Model(entity.Role{}).Joins("User").Where("project_id = ?", req.ProjectId).Select("User.id, name, user_name, email, avatar, role_type").Find(&res.List)
+		my_runtime.Db.Model(entity.Role{}).Joins("User").Where("project_id = ?", req.ProjectID).Select("User.id, name, user_name, email, avatar, role_type").Find(&res.List)
 	}
 	g.JSON(http.StatusOK, response.CreateResponse(0, "ok", res))
 }

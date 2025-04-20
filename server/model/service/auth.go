@@ -5,12 +5,12 @@ import (
 	"github.com/phpgoc/zxqpro/my_runtime"
 )
 
-func IsAdmin(userId uint) bool {
-	return userId == 1
+func IsAdmin(userID uint) bool {
+	return userID == 1
 }
 
-func GetUserIdFromAuthMiddleware(c *gin.Context) uint {
+func GetUserIDFromAuthMiddleware(c *gin.Context) uint {
 	// 不需要处理异常，一定有
-	userId, _ := c.Get(my_runtime.UserIdInContextKey)
-	return userId.(uint)
+	userID, _ := c.Get(my_runtime.UserIDInContextKey)
+	return userID.(uint)
 }

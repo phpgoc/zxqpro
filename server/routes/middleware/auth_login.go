@@ -57,7 +57,7 @@ func AuthLogin() gin.HandlerFunc {
 				return
 			}
 		}
-		c.Set(my_runtime.UserIdInContextKey, cookieData.ID)
+		c.Set(my_runtime.UserIDInContextKey, cookieData.ID)
 		// 验证通过，继续处理请求
 		c.Next()
 	}

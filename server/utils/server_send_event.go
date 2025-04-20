@@ -24,39 +24,39 @@ func NewSSEManager() *SSEManager {
 }
 
 // RegisterClient 注册 SSE 客户端
-func (m *SSEManager) RegisterClient(userId uint) chan SSEMessage {
+func (m *SSEManager) RegisterClient(userID uint) chan SSEMessage {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	if _, exists := m.clients[userId]; !exists {
-		m.clients[userId] = make(chan SSEMessage)
+	if _, exists := m.clients[userID]; !exists {
+		m.clients[userID] = make(chan SSEMessage)
 	}
-	return m.clients[userId]
+	return m.clients[userID]
 }
 
 // UnregisterClient 注销 SSE 客户端
-func (m *SSEManager) UnregisterClient(userId uint) {
+func (m *SSEManager) UnregisterClient(userID uint) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	if client, exists := m.clients[userId]; exists {
+	if client, exists := m.clients[userID]; exists {
 		close(client)
-		delete(m.clients, userId)
+		delete(m.clients, userID)
 	}
 }
 
 // SendMessageToUser 向指定用户发送消息
-func (m *SSEManager) SendMessageToUser(userId uint, sseMessage SSEMessage) {
+func (m *SSEManager) SendMessageToUser(userID uint, sseMessage SSEMessage) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	if client, exists := m.clients[userId]; exists {
+	if client, exists := m.clients[userID]; exists {
 		client <- sseMessage
 	}
 }
 
-func (m *SSEManager) SendMessageToUsers(userIds []uint, sseMessage SSEMessage) {
+func (m *SSEManager) SendMessageToUsers(userIDs []uint, sseMessage SSEMessage) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	for _, userId := range userIds {
-		if client, exists := m.clients[userId]; exists {
+	for _, userID := range userIDs {
+		if client, exists := m.clients[userID]; exists {
 			client <- sseMessage
 		}
 	}

@@ -33,16 +33,16 @@ func MessageShareLink(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	userId := service.GetUserIdFromAuthMiddleware(c)
+	userID := service.GetUserIDFromAuthMiddleware(c)
 
-	if err := dao.CreateMessage(userId, []uint{req.ToUserId}, entity.ActionShareLink, &req.Link, nil); err != nil {
+	if err := dao.CreateMessage(userID, []uint{req.ToUserID}, entity.ActionShareLink, &req.Link, nil); err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
 	sseManager := c.MustGet("sseManager").(*utils.SSEManager)
-	user, _ := dao.GetUserById(userId)
-	toUser, _ := dao.GetUserById(req.ToUserId)
-	sseManager.SendMessageToUser(req.ToUserId,
+	user, _ := dao.GetUserByID(userID)
+	toUser, _ := dao.GetUserByID(req.ToUserID)
+	sseManager.SendMessageToUser(req.ToUserID,
 		utils.SSEMessage{
 			Message: dao.JoinReceiveMessage(user.UserName, toUser.UserName, entity.ActionShareLink, nil),
 			Link:    &(req.Link),
@@ -66,10 +66,10 @@ func MessageReceiveList(c *gin.Context) {
 	if success := utils.ValidateQuery(c, &req); !success {
 		return
 	}
-	userId := service.GetUserIdFromAuthMiddleware(c)
+	userID := service.GetUserIDFromAuthMiddleware(c)
 	var res response.MessageList
 	var messageToList []entity.MessageTo
-	model := my_runtime.Db.Model(entity.MessageTo{}).Preload(clause.Associations).Preload("Message.CreateUser").Where("message_tos.user_id = ?", userId).Where("message_tos.read = ?", req.Read)
+	model := my_runtime.Db.Model(entity.MessageTo{}).Preload(clause.Associations).Preload("Message.CreateUser").Where("message_tos.user_id = ?", userID).Where("message_tos.read = ?", req.Read)
 
 	result := model.Count(&res.Total)
 
@@ -86,7 +86,7 @@ func MessageReceiveList(c *gin.Context) {
 	}
 	for _, messageTo := range messageToList {
 		res.List = append(res.List, response.Message{
-			Id:       messageTo.ID,
+			ID:       messageTo.ID,
 			Link:     messageTo.Message.Link,
 			UserName: messageTo.Message.CreateUser.UserName,
 			Message:  dao.JoinReceiveMessage(messageTo.Message.CreateUser.UserName, messageTo.User.UserName, messageTo.Message.Action, messageTo.Message.MessageContent),
@@ -112,10 +112,10 @@ func MessageSendList(c *gin.Context) {
 	if success := utils.ValidateQuery(c, &req); !success {
 		return
 	}
-	userId := service.GetUserIdFromAuthMiddleware(c)
+	userID := service.GetUserIDFromAuthMiddleware(c)
 	var res response.MessageList
 	var messageList []entity.Message
-	model := my_runtime.Db.Model(entity.Message{}).Where("create_user_id = ?", userId).Preload("ToList").Preload("ToList.User")
+	model := my_runtime.Db.Model(entity.Message{}).Where("create_user_id = ?", userID).Preload("ToList").Preload("ToList.User")
 	result := model.Count(&res.Total)
 	if result.Error != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, result.Error.Error()))
@@ -138,7 +138,7 @@ func MessageSendList(c *gin.Context) {
 		}
 		joinedNames := strings.Join(names, ",")
 		res.List = append(res.List, response.Message{
-			Id:       message.ID,
+			ID:       message.ID,
 			UserName: joinedNames,
 			Link:     message.Link,
 			Message:  dao.JoinSendMessage(message.CreateUser.UserName, joinedNames, message.Action, message.MessageContent),
@@ -164,9 +164,9 @@ func MessageRead(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	userId := service.GetUserIdFromAuthMiddleware(c)
+	userID := service.GetUserIDFromAuthMiddleware(c)
 	var messageTo entity.MessageTo
-	result := my_runtime.Db.Model(entity.MessageTo{}).Where("id = ? and user_id = ?", req.Id, userId).First(&messageTo)
+	result := my_runtime.Db.Model(entity.MessageTo{}).Where("id = ? and user_id = ?", req.ID, userID).First(&messageTo)
 	if result.Error != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, result.Error.Error()))
 		return
@@ -192,17 +192,17 @@ func MessageManual(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	userId := service.GetUserIdFromAuthMiddleware(c)
+	userID := service.GetUserIDFromAuthMiddleware(c)
 
-	if err := dao.CreateMessage(userId, req.UserIds, entity.ActionManual, req.Link, &req.Content); err != nil {
+	if err := dao.CreateMessage(userID, req.UserIDs, entity.ActionManual, req.Link, &req.Content); err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
 
 	sseManager := c.MustGet("sseManager").(*utils.SSEManager)
-	user, _ := dao.GetUserById(userId)
-	for _, id := range req.UserIds {
-		toUser, _ := dao.GetUserById(id)
+	user, _ := dao.GetUserByID(userID)
+	for _, id := range req.UserIDs {
+		toUser, _ := dao.GetUserByID(id)
 		sseManager.SendMessageToUser(id,
 			utils.SSEMessage{
 				Code:    0,

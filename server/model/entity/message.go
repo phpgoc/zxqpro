@@ -12,20 +12,20 @@ const (
 type Message struct {
 	ID             uint `gorm:"primarykey"`
 	CreatedAt      time.Time
-	CreateUserId   uint
-	CreateUser     User `gorm:"foreignKey:CreateUserId;references:ID"`
+	CreateUserID   uint
+	CreateUser     User `gorm:"foreignKey:CreateUserID;references:ID"`
 	MessageContent *string
-	ToList         []MessageTo `gorm:"foreignKey:MessageId"`
+	ToList         []MessageTo `gorm:"foreignKey:MessageID"`
 	Action         Action
 	Link           *string
 }
 
 type MessageTo struct {
 	ID        uint    `gorm:"primarykey"`
-	UserId    uint    `gorm:"index:idx_user_read_message,priority:1"`
-	User      User    `gorm:"foreignKey:UserId;references:ID"`
-	MessageId uint    `gorm:"index:idx_user_read_message,priority:3"`
-	Message   Message `gorm:"foreignKey:MessageId;references:ID"`
+	UserID    uint    `gorm:"index:idx_user_read_message,priority:1"`
+	User      User    `gorm:"foreignKey:UserID;references:ID"`
+	MessageID uint    `gorm:"index:idx_user_read_message,priority:3"`
+	Message   Message `gorm:"foreignKey:MessageID;references:ID"`
 	Read      bool    `gorm:"index:idx_user_read_message,priority:2"`
 	ReadAt    time.Time
 }

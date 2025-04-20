@@ -1,7 +1,7 @@
 package request
 
 type MessageShareLink struct {
-	ToUserId uint   `json:"to_user_id" binding:"required"`
+	ToUserID uint   `json:"to_user_id" binding:"required"`
 	Link     string `json:"link" binding:"required"`
 }
 
@@ -12,11 +12,11 @@ type MessageList struct {
 }
 
 type MessageRead struct {
-	Id uint `json:"id" binding:"required"`
+	ID uint `json:"id" binding:"required"`
 }
 
 type ManualMessage struct {
-	UserIds []uint  `json:"user_ids" binding:"required"`
+	UserIDs []uint  `json:"user_ids" binding:"required"`
 	Content string  `json:"content" binding:"required"`
 	Link    *string `json:"link"`
 }

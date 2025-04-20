@@ -59,11 +59,11 @@ func ServerSideEvent(c *gin.Context) {
 		return
 	}
 
-	userId := cookieData.ID
+	userID := cookieData.ID
 
 	// 注册客户端
-	client := manager.RegisterClient(userId)
-	defer manager.UnregisterClient(userId)
+	client := manager.RegisterClient(userID)
+	defer manager.UnregisterClient(userID)
 
 	for {
 		select {
@@ -85,9 +85,9 @@ func ServerSideEvent(c *gin.Context) {
 }
 
 func TestSendSelf(c *gin.Context) {
-	userId := service.GetUserIdFromAuthMiddleware(c)
+	userID := service.GetUserIDFromAuthMiddleware(c)
 	sseManager := c.MustGet("sseManager").(*utils.SSEManager)
-	sseManager.SendMessageToUser(userId, utils.SSEMessage{
+	sseManager.SendMessageToUser(userID, utils.SSEMessage{
 		Code:    0,
 		Message: "test message",
 	})

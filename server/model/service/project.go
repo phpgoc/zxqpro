@@ -10,40 +10,40 @@ import (
 	"github.com/phpgoc/zxqpro/routes/response"
 )
 
-func HasOwnPermission(c *gin.Context, projectId uint) bool {
-	userId := GetUserIdFromAuthMiddleware(c)
+func HasOwnPermission(c *gin.Context, projectID uint) bool {
+	userID := GetUserIDFromAuthMiddleware(c)
 	project := entity.Project{}
-	result := my_runtime.Db.First(&project, projectId)
+	result := my_runtime.Db.First(&project, projectID)
 
 	if result.Error != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "项目不存在"))
 		return false
 	}
-	if userId == 1 {
+	if userID == 1 {
 		return true
 	}
-	if project.OwnerID != userId {
+	if project.OwnerID != userID {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "没有权限"))
 		return false
 	}
 	return true
 }
 
-func GetRoleType(userId, projectId uint) (entity.RoleType, error) {
-	if IsAdmin(userId) {
+func GetRoleType(userID, projectID uint) (entity.RoleType, error) {
+	if IsAdmin(userID) {
 		return entity.RoleTypeAdmin, nil
 	}
 	role := entity.Role{}
-	res := my_runtime.Db.Where("user_id = ? and project_id = ?", userId, projectId).First(&role)
+	res := my_runtime.Db.Where("user_id = ? and project_id = ?", userID, projectID).First(&role)
 	if res.Error != nil {
 		return entity.RoleTypeNone, res.Error
 	}
 	return role.RoleType, nil
 }
 
-func GetUserRoleInProject(userId, projectId uint) (entity.Role, error) {
+func GetUserRoleInProject(userID, projectID uint) (entity.Role, error) {
 	res := entity.Role{}
-	err := my_runtime.Db.Model(&entity.Role{}).Preload("Project").Where("project_id = ? and user_id = ?", projectId, userId).First(&res).Error
+	err := my_runtime.Db.Model(&entity.Role{}).Preload("Project").Where("project_id = ? and user_id = ?", projectID, userID).First(&res).Error
 	if err != nil {
 		return res, err
 	} else {
@@ -51,10 +51,10 @@ func GetUserRoleInProject(userId, projectId uint) (entity.Role, error) {
 	}
 }
 
-func GetProjectList(userId uint, status, roleType byte, page, pageSize int) (response.ProjectList, error) {
+func GetProjectList(userID uint, status, roleType byte, page, pageSize int) (response.ProjectList, error) {
 	var responseProjectList response.ProjectList
 	var err error
-	if userId == 1 {
+	if userID == 1 {
 		projects, total, err := dao.GetProjectsForAdmin(status, page, pageSize)
 		if err != nil {
 			return responseProjectList, err
@@ -71,7 +71,7 @@ func GetProjectList(userId uint, status, roleType byte, page, pageSize int) (res
 			})
 		}
 	} else {
-		roles, total, err := dao.GetProjectsForUser(userId, status, roleType, page, pageSize)
+		roles, total, err := dao.GetProjectsForUser(userID, status, roleType, page, pageSize)
 		if err != nil {
 			return responseProjectList, err
 		}

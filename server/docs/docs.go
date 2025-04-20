@@ -639,6 +639,72 @@ const docTemplate = `{
                 }
             }
         },
+        "/task/info": {
+            "get": {
+                "description": "task info",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Task"
+                ],
+                "summary": "task",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/task/update_top": {
+            "post": {
+                "description": "task update top",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Task"
+                ],
+                "summary": "task update top",
+                "parameters": [
+                    {
+                        "description": "AdminRegister",
+                        "name": "TaskUpdateTop",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.TaskUpdateTop"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponseWithoutData"
+                        }
+                    }
+                }
+            }
+        },
         "/user/info": {
             "get": {
                 "description": "user info",
@@ -886,6 +952,23 @@ const docTemplate = `{
                 "RoleTypeAdmin"
             ]
         },
+        "entity.TaskStatus": {
+            "type": "integer",
+            "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "x-enum-varnames": [
+                "TaskStatusCreated",
+                "TaskStarted",
+                "TaskStatusCompleted",
+                "TaskStatusArchived",
+                "TaskFailed"
+            ]
+        },
         "request.AdminCreateProject": {
             "type": "object",
             "required": [
@@ -1080,6 +1163,47 @@ const docTemplate = `{
                 "project_id": {
                     "type": "integer",
                     "minimum": 1
+                },
+                "tester_id": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "request.TaskUpdateTop": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "assign_users": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "expect_complete_time": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "status": {
+                    "maximum": 5,
+                    "minimum": 1,
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/entity.TaskStatus"
+                        }
+                    ]
                 },
                 "tester_id": {
                     "type": "integer",

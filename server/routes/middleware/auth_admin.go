@@ -7,8 +7,8 @@ import (
 
 func AuthAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userId := service.GetUserIdFromAuthMiddleware(c)
-		if userId != 1 {
+		userID := service.GetUserIDFromAuthMiddleware(c)
+		if userID != 1 {
 			c.JSON(403, gin.H{
 				"code":    403,
 				"message": "Forbidden",

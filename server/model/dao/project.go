@@ -8,9 +8,9 @@ import (
 	"github.com/phpgoc/zxqpro/utils"
 )
 
-func UpdateProject(projectId uint, project entity.Project) error {
+func UpdateProject(projectID uint, project entity.Project) error {
 	originalProject := entity.Project{}
-	res := my_runtime.Db.Model(&entity.Project{}).Where("id = ?", projectId).First(&originalProject)
+	res := my_runtime.Db.Model(&entity.Project{}).Where("id = ?", projectID).First(&originalProject)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -30,7 +30,7 @@ func UpdateProject(projectId uint, project entity.Project) error {
 		my_runtime.GitPathList.Add(project.GitAddress)
 	}
 
-	res = my_runtime.Db.Model(&entity.Project{}).Where("id = ?", projectId).Updates(project)
+	res = my_runtime.Db.Model(&entity.Project{}).Where("id = ?", projectID).Updates(project)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -40,9 +40,9 @@ func UpdateProject(projectId uint, project entity.Project) error {
 	return nil
 }
 
-func UpdateProjectStatus(projectId uint, status entity.ProjectStatus) error {
+func UpdateProjectStatus(projectID uint, status entity.ProjectStatus) error {
 	// todo 如果要更新状态为已完成，检查是否所有的任务都已完成
-	res := my_runtime.Db.Model(&entity.Project{}).Where("id = ?", projectId).Update("status", status)
+	res := my_runtime.Db.Model(&entity.Project{}).Where("id = ?", projectID).Update("status", status)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -52,9 +52,9 @@ func UpdateProjectStatus(projectId uint, status entity.ProjectStatus) error {
 	return nil
 }
 
-func GetProjectById(projectId uint) (entity.Project, error) {
+func GetProjectByID(projectID uint) (entity.Project, error) {
 	project := entity.Project{}
-	res := my_runtime.Db.Preload("Owner").Where("id = ?", projectId).First(&project)
+	res := my_runtime.Db.Preload("Owner").Where("id = ?", projectID).First(&project)
 	if res.Error != nil {
 		return project, res.Error
 	}
@@ -76,10 +76,10 @@ func GetProjectsForAdmin(status byte, page, pageSize int) ([]entity.Project, int
 	return projects, total, err
 }
 
-func GetProjectsForUser(userId uint, status, roleType byte, page, pageSize int) ([]entity.Role, int64, error) {
+func GetProjectsForUser(userID uint, status, roleType byte, page, pageSize int) ([]entity.Role, int64, error) {
 	var roles []entity.Role
 	var total int64
-	model := my_runtime.Db.Model(&entity.Role{}).Preload("Project").Where("user_id = ?", userId).Preload("Project.Owner")
+	model := my_runtime.Db.Model(&entity.Role{}).Preload("Project").Where("user_id = ?", userID).Preload("Project.Owner")
 	if status != 0 {
 		model = model.Where("status = ?", status)
 	}

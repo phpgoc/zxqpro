@@ -57,7 +57,7 @@ func AdminUpdatePassword(c *gin.Context) {
 		return
 	}
 	user := entity.User{}
-	result := my_runtime.Db.Where("id = ?", req.UserId).First(&user)
+	result := my_runtime.Db.Where("id = ?", req.UserID).First(&user)
 	if result.Error != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, result.Error.Error()))
 		return

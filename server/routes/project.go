@@ -34,10 +34,10 @@ func ProjectCreateRole(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	if !service.HasOwnPermission(c, req.ProjectId) {
+	if !service.HasOwnPermission(c, req.ProjectID) {
 		return
 	}
-	if err := dao.CreateRole(req.UserId, req.ProjectId, req.RoleType); err != nil {
+	if err := dao.CreateRole(req.UserID, req.ProjectID, req.RoleType); err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
@@ -59,10 +59,10 @@ func ProjectDeleteRole(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	if !service.HasOwnPermission(c, req.ProjectId) {
+	if !service.HasOwnPermission(c, req.ProjectID) {
 		return
 	}
-	if err := dao.DeleteRole(req.UserId, req.ProjectId); err != nil {
+	if err := dao.DeleteRole(req.UserID, req.ProjectID); err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
@@ -84,10 +84,10 @@ func ProjectUpdateRole(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	if !service.HasOwnPermission(c, req.ProjectId) {
+	if !service.HasOwnPermission(c, req.ProjectID) {
 		return
 	}
-	if err := dao.UpdateRole(req.UserId, req.ProjectId, req.RoleType); err != nil {
+	if err := dao.UpdateRole(req.UserID, req.ProjectID, req.RoleType); err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
@@ -110,9 +110,9 @@ func ProjectList(c *gin.Context) {
 		return
 	}
 
-	userId := service.GetUserIdFromAuthMiddleware(c)
+	userID := service.GetUserIDFromAuthMiddleware(c)
 
-	responseProjectList, err := service.GetProjectList(userId, req.Status, req.RoleType, req.Page, req.PageSize)
+	responseProjectList, err := service.GetProjectList(userID, req.Status, req.RoleType, req.Page, req.PageSize)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.CreateResponse(1, "error", nil))
 		return
@@ -136,7 +136,7 @@ func ProjectUpdate(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	if !service.HasOwnPermission(c, req.Id) {
+	if !service.HasOwnPermission(c, req.ID) {
 		return
 	}
 	project := entity.Project{
@@ -145,7 +145,7 @@ func ProjectUpdate(c *gin.Context) {
 		GitAddress:  req.GitAddress,
 		Config:      req.Config,
 	}
-	if err := dao.UpdateProject(req.Id, project); err != nil {
+	if err := dao.UpdateProject(req.ID, project); err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
@@ -167,10 +167,10 @@ func ProjectUpdateStatus(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	if !service.HasOwnPermission(c, req.Id) {
+	if !service.HasOwnPermission(c, req.ID) {
 		return
 	}
-	if err := dao.UpdateProjectStatus(req.Id, req.Status); err != nil {
+	if err := dao.UpdateProjectStatus(req.ID, req.Status); err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
@@ -184,15 +184,15 @@ func ProjectUpdateStatus(c *gin.Context) {
 // @Tags Project
 // @Accept */*
 // @Produce json
-// @Param CommonId query request.CommonId true "CommonId"
+// @Param CommonID query request.CommonID true "CommonID"
 // @Success 200 {object} response.CommonResponse[data=response.ProjectInfo] "成功响应"
 // @Router /project/info [get]
 func ProjectInfo(c *gin.Context) {
-	var req request.CommonId
+	var req request.CommonID
 	if success := utils.ValidateQuery(c, &req); !success {
 		return
 	}
-	project, err := dao.GetProjectById(req.Id)
+	project, err := dao.GetProjectByID(req.ID)
 	if err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
@@ -217,18 +217,18 @@ func ProjectInfo(c *gin.Context) {
 // @Tags Project
 // @Accept */*
 // @Produce json
-// @Param CommonId query request.CommonId true "CommonId"
+// @Param CommonID query request.CommonID true "CommonID"
 // @Success 200 {object} response.CommonResponse[data=response.ProjectRole] "成功响应"
 // @Router /project/role_in [get]
 func ProjectRoleIn(c *gin.Context) {
-	var req request.CommonId
+	var req request.CommonID
 	if success := utils.ValidateQuery(c, &req); !success {
 		return
 	}
-	userId := service.GetUserIdFromAuthMiddleware(c)
-	key := utils.JoinCacheKey(my_runtime.PrefixUseridProjectRole, userId, req.Id)
+	userID := service.GetUserIDFromAuthMiddleware(c)
+	key := utils.JoinCacheKey(my_runtime.PrefixUseridProjectRole, userID, req.ID)
 	roleType := interfaces.GetOrSet(interfaces.Cache, key, func() entity.RoleType {
-		roleType, _ := service.GetRoleType(userId, req.Id)
+		roleType, _ := service.GetRoleType(userID, req.ID)
 		return roleType
 	}, time.Hour)
 

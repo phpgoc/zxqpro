@@ -19,6 +19,6 @@ type UserUpdatePassword struct {
 }
 
 type UserList struct {
-	ProjectId    uint `form:"project_id" binding:"min=0"`
+	ProjectID    uint `form:"project_id" binding:"min=0"`
 	IncludeAdmin bool `form:"include_admin"`
 }
