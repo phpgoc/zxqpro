@@ -85,7 +85,10 @@ func UserLogin(c *gin.Context) {
 // @Router /user/logout [post]
 func UserLogout(c *gin.Context) {
 	cookie, _ := c.Request.Cookie(my_runtime.CookieName)
+	userId := service.GetUserIDFromAuthMiddleware(c)
 	interfaces.Cache.Delete(cookie.Value)
+	sseManager := c.MustGet("sseManager").(*utils.SSEManager)
+	sseManager.UnregisterClient(userId)
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
 

@@ -57,7 +57,7 @@ export default function ZxqLayout() {
       icon: <SettingOutlined style={{ fontSize: "5vh", lineHeight: "6vh" }} />
     }
   ];
-  const [sharedUserId, setSharedUserId] = useState(0);
+  const [sharedUserId, setSharedUserId] = useState<number|null>(0);
 
   const navigate = useNavigate();
   const lct = useLocation();
@@ -80,7 +80,7 @@ export default function ZxqLayout() {
 
 
   function handleSelectChange(newUserId: number) {
-    setSharedUserId(newUserId);
+    // setSharedUserId(newUserId);
     // link: window.location.href,
 
     request.post<BaseResponseWithoutData>("message/share_link", {
@@ -93,6 +93,7 @@ export default function ZxqLayout() {
         middleMessageApi.error("分享失败").then();
       }
     });
+    setSharedUserId(null)
   }
 
   useEffect(() => {

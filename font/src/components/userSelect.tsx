@@ -13,7 +13,7 @@ export default function UserSelect({
   filterSelf = false,
                                      placeholder = "Select User"
 }: {
-  userId: number;
+  userId: number|null;
   onChange: (newUserId: number) => void;
   projectId?: number;
   includeAdmin?: boolean;
@@ -50,8 +50,11 @@ export default function UserSelect({
   return (
     <Select
       placeholder={placeholder}
-      onChange={onChange}
-      onClear={() => onChange(0)}
+      onChange={
+        onChange
+      }
+      value = {userId}
+      // onClear={() => onChange(-1)}
       style={{ width: 200 }}
     >
       {userList.map((user) => (
