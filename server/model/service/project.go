@@ -41,16 +41,6 @@ func GetRoleType(userID, projectID uint) (entity.RoleType, error) {
 	return role.RoleType, nil
 }
 
-func GetUserRoleInProject(userID, projectID uint) (entity.Role, error) {
-	res := entity.Role{}
-	err := my_runtime.Db.Model(&entity.Role{}).Preload("Project").Where("project_id = ? and user_id = ?", projectID, userID).First(&res).Error
-	if err != nil {
-		return res, err
-	} else {
-		return res, nil
-	}
-}
-
 func GetProjectList(userID uint, status, roleType byte, page, pageSize int) (response.ProjectList, error) {
 	var responseProjectList response.ProjectList
 	var err error

@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/phpgoc/zxqpro/cron"
 	"github.com/phpgoc/zxqpro/model/dao"
@@ -49,20 +48,6 @@ func main() {
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		err := v.RegisterValidation("complexPassword", request.ComplexPasswordValidator)
-		if err != nil {
-			panic(err)
-		}
-		err = v.RegisterValidation("myDate", func(fl validator.FieldLevel) bool {
-			str := fl.Field().String()
-			t, err := time.Parse("2006-01-02", str)
-			if err != nil {
-				return false
-			}
-			// 将解析后的时间赋值给结构体字段
-			fieldPtr := fl.Field().Addr().Interface().(**time.Time)
-			*fieldPtr = &t
-			return true
-		})
 		if err != nil {
 			panic(err)
 		}

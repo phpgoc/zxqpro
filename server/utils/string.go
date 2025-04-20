@@ -1,6 +1,9 @@
 package utils
 
-import "math/rand"
+import (
+	"fmt"
+	"math/rand"
+)
 
 func RandomString(length int) string {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -16,7 +19,7 @@ func JoinCacheKey(key string, args ...interface{}) string {
 		return key
 	}
 	for _, arg := range args {
-		key += "_" + arg.(string)
+		key += "_" + fmt.Sprintf("%v", arg)
 	}
 	key += ":"
 	return key

@@ -7,7 +7,7 @@ import (
 )
 
 type TaskOneForList struct {
-	ID                 int               `json:"id"`
+	ID                 uint              `json:"id"`
 	Name               string            `json:"name"`
 	CreateUser         CommonIDAndName   `json:"create_user"`
 	ExpectCompleteTime *time.Time        `json:"expect_complete_time"`

@@ -10,7 +10,7 @@ type TaskCreateTop struct {
 	ProjectID          uint    `json:"project_id" binding:"required,min=1"`
 	Name               string  `json:"name" binding:"required,max=20"`
 	Description        string  `json:"description" binding:"required"`
-	ExpectCompleteTime *string `json:"expect_complete_time" datetime:"datetime=2006-01-02"`
+	ExpectCompleteTime *string `json:"expect_complete_time" binding:"omitempty"`
 	AssignUsers        []uint  `json:"assign_users"`
 	TesterID           uint    `json:"tester_id" binding:"required,min=1"`
 }
@@ -19,7 +19,7 @@ type TaskUpdateTop struct {
 	ID                 uint               `json:"id" binding:"required,min=1"`
 	Name               *string            `json:"name" binding:"omitempty,max=20"`
 	Description        *string            `json:"description" binding:"omitempty"`
-	ExpectCompleteTime *time.Time         `json:"expect_complete_time" binding:"omitempty,datetime"`
+	ExpectCompleteTime *string            `json:"expect_complete_time" binding:"omitempty"`
 	AssignUsers        []uint             `json:"assign_users"  binding:"omitempty"`
 	TesterID           *uint              `json:"tester_id"  binding:"omitempty,min=1"`
 	Status             *entity.TaskStatus `json:"status" binding:"omitempty,min=1,max=5"`

@@ -40,30 +40,15 @@ func CanAssignSelfToTop(userID, projectID uint) bool {
 	return project.Config.JoinBySelf && (roleTypeInProject == entity.RoleTypeOwner || roleTypeInProject == entity.RoleTypeProducter || roleTypeInProject == entity.RoleTypeDeveloper)
 }
 
-func CanCreateTopTask(userID, projectID uint) bool {
-	if IsAdmin(userID) {
-		return true
-	}
-	role, err := GetUserRoleInProject(userID, projectID)
-	if err != nil {
-		return false
-	}
-	if role.RoleType == entity.RoleTypeOwner || role.RoleType == entity.RoleTypeAdmin {
-		return true
-	} else {
-		return false
-	}
-}
-
 func CanBeAssignedDeveloper(userID, projectID uint) bool {
 	if IsAdmin(userID) {
 		return false
 	}
-	role, err := GetUserRoleInProject(userID, projectID)
+	role, err := GetRoleType(userID, projectID)
 	if err != nil {
 		return false
 	}
-	if role.RoleType == entity.RoleTypeOwner || role.RoleType == entity.RoleTypeDeveloper || role.RoleType == entity.RoleTypeProducter {
+	if role == entity.RoleTypeOwner || role == entity.RoleTypeDeveloper || role == entity.RoleTypeProducter {
 		return true
 	} else {
 		return false
@@ -74,15 +59,70 @@ func CanBeAssignedTester(userID, projectID uint) bool {
 	if IsAdmin(userID) {
 		return false
 	}
-	role, err := GetUserRoleInProject(userID, projectID)
+	role, err := GetRoleType(userID, projectID)
 	if err != nil {
 		return false
 	}
-	if role.RoleType == entity.RoleTypeOwner || role.RoleType == entity.RoleTypeTester || role.RoleType == entity.RoleTypeProducter {
+	if role == entity.RoleTypeOwner || role == entity.RoleTypeTester || role == entity.RoleTypeProducter {
 		return true
 	} else {
 		return false
 	}
+}
+
+// GetChildrenTaskList 只包括儿子，不包括孙子
+func GetChildrenTaskList(taskID uint) ([]response.TaskOneForList, error) {
+	var tasks []entity.Task
+	err := my_runtime.Db.Preload("CreateUser").Preload("TestUser").Preload("TopTaskAssignUsers").Where("parent_id = ?", taskID).Find(&tasks).Error
+	if err != nil {
+		return nil, err
+	}
+	var testUser *response.CommonIDAndName
+	var topTaskAssignUsers []response.CommonIDAndName
+	var subAssignUser *response.CommonIDAndName
+	var taskList []response.TaskOneForList
+	for _, task := range tasks {
+		testUser = nil
+		subAssignUser = nil
+		topTaskAssignUsers = make([]response.CommonIDAndName, 0)
+		if task.TesterID != 0 {
+			testUser = &response.CommonIDAndName{
+				ID:   task.TesterID,
+				Name: task.Tester.Name,
+			}
+		}
+		if task.AssignUserID != 0 {
+			subAssignUser = &response.CommonIDAndName{
+				ID:   task.AssignUserID,
+				Name: task.AssignUser.Name,
+			}
+		}
+		for _, u := range task.TopTaskAssignUsers {
+			if !CanBeAssignedDeveloper(u.ID, task.ID) {
+				return nil, errors.New(fmt.Sprintf("%d cannot be assigned to develper", u.ID))
+			}
+			topTaskAssignUsers = append(topTaskAssignUsers, response.CommonIDAndName{
+				ID:   u.ID,
+				Name: u.Name,
+			})
+		}
+
+		taskList = append(taskList, response.TaskOneForList{
+			ID:   task.ID,
+			Name: task.Name,
+			CreateUser: response.CommonIDAndName{
+				ID:   task.CreateUserID,
+				Name: task.CreateUser.Name,
+			},
+			Status:             task.Status,
+			TestUser:           testUser,
+			CompletedAt:        task.CompletedAt,
+			SubAssignUser:      subAssignUser,
+			TopTaskAssignUsers: topTaskAssignUsers,
+			ExpectCompleteTime: task.ExpectCompleteTime,
+		})
+	}
+	return taskList, nil
 }
 
 func TaskCreateTop(userID uint, req request.TaskCreateTop) error {
@@ -98,9 +138,7 @@ func TaskCreateTop(userID uint, req request.TaskCreateTop) error {
 	if !CanCreateTop(userID, req.ProjectID) {
 		return errors.New("无权限")
 	}
-	//if req.AssignUsers == nil || len(req.AssignUsers) == 0 {
-	//	return errors.New("AssignUsers不能为空")
-	//}
+	// 可以为空的，为空也不会进入循环
 	for _, u := range req.AssignUsers {
 		if !CanBeAssignedDeveloper(u, req.ProjectID) {
 			return errors.New(fmt.Sprintf("%d cannot be assigned to develper", u))
@@ -134,7 +172,72 @@ func TaskCreateTop(userID uint, req request.TaskCreateTop) error {
 	return err
 }
 
-func TaskUpdateTop(id uint, req request.TaskUpdateTop) error {
+func TaskUpdateTop(userID uint, req request.TaskUpdateTop) error {
+	var expectCompleteTime *time.Time = nil
+	if req.ExpectCompleteTime != nil {
+		t, err := time.Parse("2006-01-02", *req.ExpectCompleteTime)
+		if err != nil {
+			return errors.New("ExpectCompleteTime格式错误")
+		}
+		expectCompleteTime = &time.Time{}
+		*expectCompleteTime = t
+	}
+	var task entity.Task
+	var err error
+	if err = my_runtime.Db.Preload("TopTaskAssignUsers").Where("id = ?", req.ID).First(&task).Error; err != nil {
+		return err
+	}
+	if !IsAdmin(userID) && task.CreateUserID != userID {
+		return errors.New("you are not the owner of this task")
+	}
+	var updateTask map[string]interface{} = make(map[string]interface{})
+	if req.Name != nil {
+		updateTask["Name"] = *req.Name
+	}
+	if req.Description != nil {
+		updateTask["Description"] = *req.Description
+	}
+	if req.ExpectCompleteTime != nil {
+		updateTask["ExpectCompleteTime"] = expectCompleteTime
+	}
+	if req.Status != nil {
+		if *req.Status == entity.TaskStatusCompleted || *req.Status == entity.TaskStatusArchived {
+			// 空的逻辑正常，可以完成或关闭吧
+			childTasks, _ := GetChildrenTaskList(task.ID)
+			allArchived := true
+			for _, childTask := range childTasks {
+				allArchived = allArchived && childTask.Status == entity.TaskStatusArchived
+			}
+			if !allArchived {
+				return errors.New("there are child tasks that are not archived")
+			}
+		}
+		updateTask["Status"] = *req.Status
+	}
+
+	if req.TesterID != nil {
+		if !CanBeAssignedTester(*req.TesterID, task.ProjectID) {
+			return errors.New(fmt.Sprintf("%d cannot be assigned to tester", *req.TesterID))
+		}
+		updateTask["TesterID"] = *req.TesterID
+	}
+	if req.AssignUsers != nil {
+		for _, u := range req.AssignUsers {
+			if !CanBeAssignedDeveloper(u, task.ProjectID) {
+				return errors.New(fmt.Sprintf("%d cannot be assigned to develper", u))
+			}
+		}
+		var users []entity.User
+		// 根据 user_id 查询对应的 User 对象
+		if err := my_runtime.Db.Find(&users, req.AssignUsers).Error; err != nil {
+			return err
+		}
+		updateTask["TopTaskAssignUsers"] = users
+	}
+	if err := my_runtime.Db.Model(&task).Updates(updateTask).Error; err != nil {
+		return err
+	}
+
 	return nil
 }
 
