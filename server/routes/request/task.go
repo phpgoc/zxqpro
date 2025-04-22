@@ -42,9 +42,3 @@ type TaskUpdateSub struct {
 	TesterID               *uint              `json:"tester_id" binding:"required,min=0"`
 	Status                 *entity.TaskStatus `json:"status" binding:"min=1,max=5"`
 }
-
-type TaskTimeEstimateCreate struct {
-	TaskID                  uint           `json:"task_id" binding:"required,min=1"`
-	TaskDuration            *time.Duration `json:"task_duration"`             // 预计完成时间
-	EstimatedCompletionTime *time.Time     `json:"estimated_completion_time"` // 预计完成时间
-}

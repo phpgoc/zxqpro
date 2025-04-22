@@ -1,6 +1,10 @@
 package request
 
-import "github.com/phpgoc/zxqpro/model/entity"
+import (
+	"time"
+
+	"github.com/phpgoc/zxqpro/model/entity"
+)
 
 type ProjectUpsertRole struct {
 	UserID    uint            `json:"user_id"`
@@ -34,4 +38,10 @@ type ProjectList struct {
 	PageSize int  `form:"page_size" bindings:"min=1,max=100" default:"10"`
 	Status   byte `form:"status" bindings:"min=0,max=4" default:"0"`
 	RoleType byte `form:"role_type" bindings:"min=0,max=5" default:"0"`
+}
+
+type TaskTimeEstimateCreate struct {
+	TaskID                  uint           `json:"task_id" binding:"required,min=1"`
+	TaskDuration            *time.Duration `json:"task_duration"`             // 预计完成时间
+	EstimatedCompletionTime *time.Time     `json:"estimated_completion_time"` // 预计完成时间
 }
