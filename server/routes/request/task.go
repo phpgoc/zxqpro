@@ -7,12 +7,12 @@ import (
 )
 
 type TaskCreateTop struct {
-	ProjectID          uint    `json:"project_id" binding:"required,min=1"`
-	Name               string  `json:"name" binding:"required,max=20"`
-	Description        string  `json:"description" binding:"required"`
-	ExpectCompleteTime *string `json:"expect_complete_time" binding:"omitempty"`
+	ProjectID          uint    `json:"project_id" binding:"required,min=1" default:"1"`
+	Name               string  `json:"name" binding:"required,max=20" default:"任务名称"`
+	Description        string  `json:"description" binding:"required" default:"任务描述"`
+	ExpectCompleteTime *string `json:"expect_complete_time" binding:"omitempty" default:"2006-01-02"`
 	AssignUsers        []uint  `json:"assign_users"`
-	TesterID           uint    `json:"tester_id" binding:"required,min=1"`
+	TesterID           uint    `json:"tester_id" binding:"required,min=1" default:"1"`
 }
 
 type TaskUpdateTop struct {

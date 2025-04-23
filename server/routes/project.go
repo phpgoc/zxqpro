@@ -236,3 +236,26 @@ func ProjectRoleIn(c *gin.Context) {
 		RoleType: roleType,
 	}))
 }
+
+// ProjectTaskList godoc
+// @Summary project task_list
+// @Description project task_list
+// @Tags Project
+// @Accept */*
+// @Produce json
+// @Param ProjectTaskList body request.ProjectTaskList true "ProjectTaskList"
+// @Success 200 {object} response.CommonResponse[data=response.TaskList] "成功响应"
+// @Router /project/task_list [post]
+func ProjectTaskList(c *gin.Context) {
+	var req request.ProjectTaskList
+	if success := utils.ValidateJson(c, &req); !success {
+		return
+	}
+
+	taskList, err := service.GetTaskList(req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.CreateResponse(1, "error", nil))
+		return
+	}
+	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", taskList))
+}

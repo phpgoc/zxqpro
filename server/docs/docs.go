@@ -503,6 +503,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/project/task_list": {
+            "post": {
+                "description": "project task_list",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "project task_list",
+                "parameters": [
+                    {
+                        "description": "ProjectTaskList",
+                        "name": "ProjectTaskList",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ProjectTaskList"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/project/update": {
             "post": {
                 "description": "project update",
@@ -1067,6 +1101,23 @@ const docTemplate = `{
                 }
             }
         },
+        "request.OrderBy": {
+            "type": "object",
+            "required": [
+                "desc",
+                "field"
+            ],
+            "properties": {
+                "desc": {
+                    "description": "排序方向，必填",
+                    "type": "boolean"
+                },
+                "field": {
+                    "description": "排序字段，必填",
+                    "type": "string"
+                }
+            }
+        },
         "request.ProjectDeleteRole": {
             "type": "object",
             "properties": {
@@ -1075,6 +1126,55 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "request.ProjectTaskList": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "create_user_id": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "id": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "order_list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.OrderBy"
+                    }
+                },
+                "page": {
+                    "type": "integer",
+                    "default": 1,
+                    "minimum": 1
+                },
+                "page_size": {
+                    "type": "integer",
+                    "default": 10,
+                    "maximum": 100,
+                    "minimum": 1
+                },
+                "status": {
+                    "default": 0,
+                    "maximum": 4,
+                    "minimum": 0,
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/entity.TaskStatus"
+                        }
+                    ]
+                },
+                "top_status": {
+                    "type": "integer",
+                    "default": 0,
+                    "maximum": 2,
+                    "minimum": 0
                 }
             }
         },
@@ -1151,21 +1251,26 @@ const docTemplate = `{
                     }
                 },
                 "description": {
-                    "type": "string"
+                    "type": "string",
+                    "default": "任务描述"
                 },
                 "expect_complete_time": {
-                    "type": "string"
+                    "type": "string",
+                    "default": "2006-01-02"
                 },
                 "name": {
                     "type": "string",
+                    "default": "任务名称",
                     "maxLength": 20
                 },
                 "project_id": {
                     "type": "integer",
+                    "default": 1,
                     "minimum": 1
                 },
                 "tester_id": {
                     "type": "integer",
+                    "default": 1,
                     "minimum": 1
                 }
             }

@@ -3,6 +3,9 @@ package service
 import (
 	"net/http"
 
+	"github.com/phpgoc/zxqpro/routes/request"
+	"gorm.io/gorm/clause"
+
 	"github.com/gin-gonic/gin"
 	"github.com/phpgoc/zxqpro/model/dao"
 	"github.com/phpgoc/zxqpro/model/entity"
@@ -78,4 +81,97 @@ func GetProjectList(userID uint, status, roleType byte, page, pageSize int) (res
 		}
 	}
 	return responseProjectList, err
+}
+
+//type TaskOneForList struct {
+//	ID                 uint              `json:"id"`
+//	Name               string            `json:"name"`
+//	CreateUser         CommonIDAndName   `json:"create_user"`
+//	ExpectCompleteTime *time.Time        `json:"expect_complete_time"`
+//	Status             entity.TaskStatus `json:"status"`
+//	TestUser           *CommonIDAndName  `json:"test_user"`
+//	SubAssignUser      *CommonIDAndName  `json:"sub_assign_user"`           // 如果是顶级任务，不使用这个字典，非顶级任务，指定的用户是一对一的。顶级任务是一对多的
+//	TopTaskAssignUsers []CommonIDAndName `json:"top_task_assign_user_list"` // 顶级任务使用这个，即使只有一个人，也要使用这个
+//	CompletedAt        *time.Time        `json:"completed_at"`
+//}
+
+func GetTaskList(req request.ProjectTaskList) (res response.TaskList, err error) {
+	orderValidList := []string{"id", "expect_complete_time", "test_user_id", "completed_at"}
+	if err = request.IsAllValidOrder(req.OrderList, orderValidList); err != nil {
+		return res, err
+	}
+
+	var taskList []entity.Task
+	model := my_runtime.Db.Model(&entity.Task{}).Preload(clause.Associations).Where("project_id = ?", req.ID)
+	if req.CreateUserID != 0 {
+		model = model.Where("create_user_id = ?", req.CreateUserID)
+	}
+	if req.Status != 0 {
+		model = model.Where("status = ?", req.Status)
+	}
+	if req.TopStatus != 0 {
+		if req.TopStatus == 1 {
+			model = model.Where("parent_id = ?", 0)
+		} else {
+			model = model.Where("parent_id != ?", 0)
+		}
+	}
+	for _, order := range req.OrderList {
+		if order.Desc {
+			model = model.Order(order.Field + " desc")
+		} else {
+			model = model.Order(order.Field + " asc")
+		}
+	}
+	err = model.Count(&res.Total).Error
+	if err != nil {
+		return res, err
+	}
+	err = model.Limit(req.PageSize).Offset((req.Page - 1) * req.PageSize).Find(&taskList).Error
+	var testUser *response.CommonIDAndName = nil
+	var subAssignUser *response.CommonIDAndName = nil
+	var topTaskAssignUsers []response.CommonIDAndName
+	for _, task := range taskList {
+		if task.TesterID != 0 {
+			testUser = &response.CommonIDAndName{
+				ID:   task.TesterID,
+				Name: task.Tester.UserName,
+			}
+		} else {
+			testUser = nil
+		}
+		if task.AssignUserID != 0 {
+			subAssignUser = &response.CommonIDAndName{
+				ID:   task.AssignUserID,
+				Name: task.AssignUser.UserName,
+			}
+		} else {
+			subAssignUser = nil
+		}
+		if task.TopTaskAssignUsers != nil {
+			topTaskAssignUsers = make([]response.CommonIDAndName, 0)
+			for _, user := range task.TopTaskAssignUsers {
+				topTaskAssignUsers = append(topTaskAssignUsers, response.CommonIDAndName{
+					ID:   user.ID,
+					Name: user.UserName,
+				})
+			}
+		}
+		res.List = append(res.List, response.TaskOneForList{
+			ID:   task.ID,
+			Name: task.Name,
+			CreateUser: response.CommonIDAndName{
+				ID:   task.CreateUserID,
+				Name: task.CreateUser.UserName,
+			},
+			ExpectCompleteTime: task.ExpectCompleteTime,
+			Status:             task.Status,
+			TestUser:           testUser,
+			SubAssignUser:      subAssignUser,
+			TopTaskAssignUsers: topTaskAssignUsers,
+			CompletedAt:        task.CompletedAt,
+		})
+	}
+
+	return res, err
 }

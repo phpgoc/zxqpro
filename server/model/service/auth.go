@@ -11,6 +11,6 @@ func IsAdmin(userID uint) bool {
 
 func GetUserIDFromAuthMiddleware(c *gin.Context) uint {
 	// 不需要处理异常，一定有
-	userID, _ := c.Get(my_runtime.UserIDInContextKey)
+	userID := c.MustGet(my_runtime.UserIDInContextKey)
 	return userID.(uint)
 }

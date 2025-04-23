@@ -45,3 +45,13 @@ type TaskTimeEstimateCreate struct {
 	TaskDuration            *time.Duration `json:"task_duration"`             // 预计完成时间
 	EstimatedCompletionTime *time.Time     `json:"estimated_completion_time"` // 预计完成时间
 }
+
+type ProjectTaskList struct {
+	ID           uint              `json:"id" form:"id" binding:"required,min=1"`
+	Page         int               `json:"page" form:"page"  binding:"min=1" default:"1"`
+	PageSize     int               `json:"page_size" form:"page_size" binding:"min=1,max=100" default:"10"`
+	Status       entity.TaskStatus `json:"status" form:"status" binding:"min=0,max=4" default:"0"`
+	TopStatus    byte              `json:"top_status" form:"top_status" binding:"min=0,max=2" default:"0"`
+	CreateUserID uint              `json:"create_user_id" form:"create_user_id" binding:"min=0"`
+	OrderList    []OrderBy         `json:"order_list" form:"order_list"`
+}
