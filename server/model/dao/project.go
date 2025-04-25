@@ -5,40 +5,7 @@ import (
 
 	"github.com/phpgoc/zxqpro/model/entity"
 	"github.com/phpgoc/zxqpro/my_runtime"
-	"github.com/phpgoc/zxqpro/utils"
 )
-
-func UpdateProject(projectID uint, project entity.Project) error {
-	originalProject := entity.Project{}
-	res := my_runtime.Db.Model(&entity.Project{}).Where("id = ?", projectID).First(&originalProject)
-	if res.Error != nil {
-		return res.Error
-	}
-
-	if originalProject.GitAddress == "" && project.GitAddress != "" {
-		if !utils.IsGitRepository(project.GitAddress) {
-			return errors.New("not a git repository")
-		}
-		// 如果新的GitAddress不为空，而原来的为空，做一些操作
-		project.Status = entity.ProjectStatusActive
-		my_runtime.GitPathList.Add(project.GitAddress)
-	} else if originalProject.GitAddress != project.GitAddress {
-		if !utils.IsGitRepository(project.GitAddress) {
-			return errors.New("not a git repository")
-		}
-		my_runtime.GitPathList.Remove(originalProject.GitAddress)
-		my_runtime.GitPathList.Add(project.GitAddress)
-	}
-
-	res = my_runtime.Db.Model(&entity.Project{}).Where("id = ?", projectID).Updates(project)
-	if res.Error != nil {
-		return res.Error
-	}
-	if res.RowsAffected != 1 {
-		return errors.New("not found")
-	}
-	return nil
-}
 
 func UpdateProjectStatus(projectID uint, status entity.ProjectStatus) error {
 	// todo 如果要更新状态为已完成，检查是否所有的任务都已完成

@@ -61,25 +61,26 @@ func TaskUpdateTop(c *gin.Context) {
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
 
-// TaskInfo  godoc
-// @Summary task
+// TaskAssignTop  godoc
+// @Summary task assign top
 // @Schemes
-// @Description task info
+// @Description task assign top
 // @Tags Task
-// @Accept */*
+// @Accept json
 // @Produce json
-// @Param CommonID query request.CommonID true "CommonID"
-// @Success 200 {object} response.CommonResponse[data=response.TaskInfo] "成功响应"
-// @Router /task/info [get]
-func TaskInfo(c *gin.Context) {
+// @Param TaskAssignTop body request.CommonID true "AdminRegister"
+// @Success 200 {object} response.CommonResponseWithoutData "成功响应"
+// @Router /task/assign_top [post]
+func TaskAssignTop(c *gin.Context) {
 	var req request.CommonID
-	if success := utils.ValidateQuery(c, &req); !success {
+	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	taskInfo, err := service.TaskInfo(req.ID)
+	userID := service.GetUserIDFromAuthMiddleware(c)
+	err := service.TaskAssignSelfToTop(userID, req.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
-	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", taskInfo))
+	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }

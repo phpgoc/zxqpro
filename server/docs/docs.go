@@ -639,6 +639,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/task/assign_top": {
+            "post": {
+                "description": "task assign top",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Task"
+                ],
+                "summary": "task assign top",
+                "parameters": [
+                    {
+                        "description": "AdminRegister",
+                        "name": "TaskAssignTop",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CommonID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponseWithoutData"
+                        }
+                    }
+                }
+            }
+        },
         "/task/create_top": {
             "post": {
                 "description": "task create top",
@@ -673,7 +707,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/task/info": {
+        "/task/public_info": {
             "get": {
                 "description": "task info",
                 "consumes": [
@@ -1051,6 +1085,18 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "request.CommonID": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "minimum": 1
                 }
             }
         },
@@ -1466,11 +1512,11 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
+	Version:          "0.1.0",
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "",
+	Title:            "Mini Redmine API",
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

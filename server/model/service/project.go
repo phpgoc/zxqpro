@@ -1,7 +1,10 @@
 package service
 
 import (
+	"errors"
 	"net/http"
+
+	"github.com/phpgoc/zxqpro/utils"
 
 	"github.com/phpgoc/zxqpro/routes/request"
 	"gorm.io/gorm/clause"
@@ -174,4 +177,39 @@ func GetTaskList(req request.ProjectTaskList) (res response.TaskList, err error)
 	}
 
 	return res, err
+}
+
+func UpdateProject(projectID uint, project entity.Project) error {
+	originalProject := entity.Project{}
+	res := my_runtime.Db.Model(&entity.Project{}).Where("id = ?", projectID).First(&originalProject)
+	if res.Error != nil {
+		return res.Error
+	}
+
+	if originalProject.GitAddress == "" && project.GitAddress != "" {
+		if !utils.IsGitRepository(project.GitAddress) {
+			return errors.New("not a git repository")
+		}
+		// 如果新的GitAddress不为空，而原来的为空，做一些操作
+		project.Status = entity.ProjectStatusActive
+		my_runtime.GitPathList.Add(project.GitAddress)
+	} else if originalProject.GitAddress != project.GitAddress {
+		if project.GitAddress == "" {
+			my_runtime.GitPathList.Remove(originalProject.GitAddress)
+		} else if !utils.IsGitRepository(project.GitAddress) {
+			return errors.New("not a git repository")
+		} else {
+			my_runtime.GitPathList.Remove(originalProject.GitAddress)
+			my_runtime.GitPathList.Add(project.GitAddress)
+		}
+	}
+
+	res = my_runtime.Db.Model(&entity.Project{}).Where("id = ?", projectID).Updates(project)
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected != 1 {
+		return errors.New("not found")
+	}
+	return nil
 }

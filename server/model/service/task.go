@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/phpgoc/zxqpro/utils"
+
 	"github.com/phpgoc/zxqpro/routes/response"
 
-	"github.com/phpgoc/zxqpro/model/dao"
 	"github.com/phpgoc/zxqpro/model/entity"
 	"github.com/phpgoc/zxqpro/my_runtime"
 	"github.com/phpgoc/zxqpro/routes/request"
@@ -22,22 +23,6 @@ func CanCreateTop(userID, projectID uint) bool {
 		return false
 	}
 	return roleTypeInProject == entity.RoleTypeOwner || roleTypeInProject == entity.RoleTypeProducter
-}
-
-func CanAssignSelfToTop(userID, projectID uint) bool {
-	if IsAdmin(userID) {
-		return false
-	}
-	roleTypeInProject, err := GetRoleType(userID, projectID)
-	if err != nil {
-		return false
-	}
-
-	project, _ := dao.GetProjectByID(projectID)
-	if project.OwnerID == userID {
-		return true
-	}
-	return project.Config.JoinBySelf && (roleTypeInProject == entity.RoleTypeOwner || roleTypeInProject == entity.RoleTypeProducter || roleTypeInProject == entity.RoleTypeDeveloper)
 }
 
 func CanBeAssignedDeveloper(userID, projectID uint) bool {
@@ -191,7 +176,13 @@ func TaskUpdateTop(userID uint, req request.TaskUpdateTop) error {
 	if !IsAdmin(userID) && task.CreateUserID != userID {
 		return errors.New("you are not the owner of this task")
 	}
-	var updateTask map[string]interface{} = make(map[string]interface{})
+	if task.ExpectCompleteTime != nil && req.ExpectCompleteTime != nil {
+		return errors.New("can not update expect_complete_time after first set")
+	}
+	if task.ExpectCompleteDuration != nil && req.ExpectCompleteTime != nil {
+		return errors.New("can not update expect_complete_duration after first set")
+	}
+	updateTask := make(map[string]interface{})
 	if req.Name != nil {
 		updateTask["Name"] = *req.Name
 	}
@@ -298,4 +289,48 @@ func TaskInfo(id uint) (response.TaskInfo, error) {
 		StepList:             task.Steps,
 	}
 	return taskInfo, nil
+}
+
+func TaskAssignSelfToTop(userID, TaskID uint) error {
+	if IsAdmin(userID) {
+		return errors.New("admin can not assign self to top task")
+	}
+
+	var task entity.Task
+	if err := my_runtime.Db.Preload("Project").Preload("TopTaskAssignUsers").First(&task, TaskID).Error; err != nil {
+		return err
+	}
+	if task.ParentID != 0 {
+		return errors.New("task is not top task")
+	}
+
+	if task.Project.Config.JoinBySelf == false {
+		return errors.New("project self assign to top task is disabled")
+	}
+
+	roleTypeInProject, err := GetRoleType(userID, task.ProjectID)
+	if err != nil {
+		return err
+	}
+
+	// 所有者和 产品经理都可以将自己分配到顶级任务中。 create user 也可以
+	// create user 理论不该显示这个接口，但是为了兼容性，这里不做限制。
+	if roleTypeInProject == entity.RoleTypeNone || roleTypeInProject == entity.RoleTypeTester {
+		return errors.New("you are not allowed to assign self to top task")
+	}
+	var userIDs []uint
+	for _, user := range task.TopTaskAssignUsers {
+		userIDs = append(userIDs, user.ID)
+	}
+	if utils.Contains(userIDs, userID) {
+		return errors.New("you have already assigned to this task")
+	}
+	var user entity.User
+	_ = my_runtime.Db.First(&user, userID).Error
+	task.TopTaskAssignUsers = append(task.TopTaskAssignUsers, user)
+	if err = my_runtime.Db.Save(&task).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

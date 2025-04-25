@@ -1,7 +1,9 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "title": "Mini Redmine API",
+        "contact": {},
+        "version": "0.1.0"
     },
     "paths": {
         "/admin/create_project": {
@@ -628,6 +630,40 @@
                 }
             }
         },
+        "/task/assign_top": {
+            "post": {
+                "description": "task assign top",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Task"
+                ],
+                "summary": "task assign top",
+                "parameters": [
+                    {
+                        "description": "AdminRegister",
+                        "name": "TaskAssignTop",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CommonID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponseWithoutData"
+                        }
+                    }
+                }
+            }
+        },
         "/task/create_top": {
             "post": {
                 "description": "task create top",
@@ -662,7 +698,7 @@
                 }
             }
         },
-        "/task/info": {
+        "/task/public_info": {
             "get": {
                 "description": "task info",
                 "consumes": [
@@ -1040,6 +1076,18 @@
                 },
                 "user_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "request.CommonID": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "minimum": 1
                 }
             }
         },

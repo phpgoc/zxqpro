@@ -145,7 +145,7 @@ func ProjectUpdate(c *gin.Context) {
 		GitAddress:  req.GitAddress,
 		Config:      req.Config,
 	}
-	if err := dao.UpdateProject(req.ID, project); err != nil {
+	if err := service.UpdateProject(req.ID, project); err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
@@ -254,7 +254,7 @@ func ProjectTaskList(c *gin.Context) {
 
 	taskList, err := service.GetTaskList(req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, response.CreateResponse(1, "error", nil))
+		c.JSON(http.StatusInternalServerError, response.CreateResponse(1, err.Error(), nil))
 		return
 	}
 	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", taskList))

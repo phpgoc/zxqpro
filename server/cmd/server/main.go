@@ -23,6 +23,9 @@ import (
 	"github.com/gobuffalo/packr/v2"
 )
 
+// @title Mini Redmine API
+// @version 0.1.0
+
 func main() {
 	my_runtime.InitCobra()
 	if !my_runtime.GinDebugModel {
