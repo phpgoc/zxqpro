@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/phpgoc/zxqpro/routes/response"
+
 	"github.com/gin-gonic/gin"
 	"github.com/patrickmn/go-cache"
 	"github.com/phpgoc/zxqpro/interfaces"
@@ -90,6 +92,28 @@ func (s *UserService) UpdatePassword(userID uint, req request.UserUpdatePassword
 		return errors.New("旧密码错误")
 	}
 	return s.userDAO.UpdatePassword(&user, s.userDAO.Sha1Password(req.NewPassword, userID))
+}
+
+func (s *UserService) List(includeAdmin bool) (*response.UserList, error) {
+	var res response.UserList
+	var err error
+	var users []entity.User
+
+	users, err = s.userDAO.ListUsers(includeAdmin)
+	if err != nil {
+		return nil, err
+	}
+	for _, user := range users {
+		res.List = append(res.List, response.User{
+			ID:       user.ID,
+			Name:     user.Name,
+			UserName: user.UserName,
+			Email:    user.Email,
+			Avatar:   user.Avatar,
+		})
+	}
+
+	return &res, nil
 }
 
 func generateCookie(user entity.User) string {

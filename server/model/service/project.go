@@ -15,11 +15,13 @@ import (
 
 type ProjectService struct {
 	projectDAO *dao.ProjectDAO
+	roleDAO    *dao.RoleDAO
 }
 
-func NewProjectService(projectDAO *dao.ProjectDAO) *ProjectService {
+func NewProjectService(projectDAO *dao.ProjectDAO, roleDAO *dao.RoleDAO) *ProjectService {
 	return &ProjectService{
 		projectDAO: projectDAO,
+		roleDAO:    roleDAO,
 	}
 }
 
@@ -236,4 +238,23 @@ func (s *ProjectService) ProjectInfo(projectID uint) (*response.ProjectInfo, err
 
 func (s *ProjectService) UpdateProjectStatus(projectID uint, status entity.ProjectStatus) error {
 	return s.projectDAO.UpdateProjectStatus(projectID, status)
+}
+
+func (s *ProjectService) UserList(projectID uint) (*response.UserList, error) {
+	roles, err := s.roleDAO.GetAllUserByProjectID(projectID)
+	if err != nil {
+		return nil, err
+	}
+	res := &response.UserList{}
+	for _, role := range roles {
+		res.List = append(res.List, response.User{
+			ID:       role.UserID,
+			Name:     role.User.Name,
+			UserName: role.User.UserName,
+			Avatar:   role.User.Avatar,
+			Email:    role.User.Email,
+			RoleType: role.RoleType,
+		})
+	}
+	return res, nil
 }

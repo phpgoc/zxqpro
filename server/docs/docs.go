@@ -639,6 +639,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/project/user_list": {
+            "get": {
+                "description": "user_list",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "user_list",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/task/assign_top": {
             "post": {
                 "description": "task assign top",
@@ -825,12 +857,6 @@ const docTemplate = `{
                     {
                         "type": "boolean",
                         "name": "include_admin",
-                        "in": "query"
-                    },
-                    {
-                        "minimum": 0,
-                        "type": "integer",
-                        "name": "project_id",
                         "in": "query"
                     }
                 ],

@@ -274,3 +274,26 @@ func (h *ProjectHandler) ProjectTaskList(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", taskList))
 }
+
+// UserList
+// @Summary  user_list
+// @Description user_list
+// @Tags Project
+// @Accept */*
+// @Produce json
+// @Param CommonID query request.CommonID true "CommonID"
+// @Success 200 {object} response.CommonResponse[data=response.UserList] "成功响应"
+// @Router /project/user_list [get]
+func (h *ProjectHandler) UserList(c *gin.Context) {
+	var req request.CommonID
+	if success := utils.ValidateQuery(c, &req); !success {
+		return
+	}
+	res, err := h.projectService.UserList(req.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.CreateResponse(1, "error", nil))
+		return
+	}
+
+	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", res))
+}

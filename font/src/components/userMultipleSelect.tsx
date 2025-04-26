@@ -21,7 +21,7 @@ export default function UserMultipleSelect({
   const [options, setOptions] = useState<{ label: string; value: number }[]>([]);
   const {user} = useUserContext()
   useEffect(() => {
-    let url = `user/list?project_id=${projectId}`
+    let url = `project/user_list?id=${projectId}`
     if (includeAdmin) {
       url += "&include_admin=1";
     }

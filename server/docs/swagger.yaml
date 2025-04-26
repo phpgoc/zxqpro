@@ -781,6 +781,27 @@ paths:
       summary: project update status
       tags:
       - Project
+  /project/user_list:
+    get:
+      consumes:
+      - '*/*'
+      description: user_list
+      parameters:
+      - in: query
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: user_list
+      tags:
+      - Project
   /task/assign_top:
     post:
       consumes:
@@ -897,10 +918,6 @@ paths:
       - in: query
         name: include_admin
         type: boolean
-      - in: query
-        minimum: 0
-        name: project_id
-        type: integer
       produces:
       - application/json
       responses:

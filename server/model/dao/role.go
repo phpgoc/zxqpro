@@ -15,6 +15,15 @@ func NewRoleDAO(db *gorm.DB) *RoleDAO {
 	return &RoleDAO{db: db}
 }
 
+func (d *RoleDAO) GetAllUserByProjectID(projectID uint) ([]entity.Role, error) {
+	var roles []entity.Role
+	result := d.db.Preload("User").Where("project_id = ?", projectID).Find(&roles)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return roles, nil
+}
+
 func CreateRole(userID, roleID uint, roleType entity.RoleType) error {
 	role := entity.Role{
 		UserID:    userID,

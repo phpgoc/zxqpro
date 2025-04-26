@@ -88,7 +88,7 @@ func (i *ipRateLimiter) cleanupOldHours() {
 	}
 }
 
-// RateLimitMiddleware 创建一个 Gin 中间件来实现 IP 访问频率限制
+// RateLimit RateLimitMiddleware 创建一个 Gin 中间件来实现 IP 访问频率限制
 func RateLimit(reqPerHour int) gin.HandlerFunc {
 	limiter := newIPRateLimiter(reqPerHour)
 	return func(c *gin.Context) {

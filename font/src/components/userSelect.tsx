@@ -25,8 +25,13 @@ export default function UserSelect({
   const [userList, setUserList] = useState<UserInfo[]>([]);
   const {user} = useUserContext()
   useEffect(() => {
-    let url = `user/list?project_id=${projectId}`
-    if (includeAdmin) {
+    let url = `project/user_list?id=${projectId}`
+    if (projectId == 0){
+      url = "user/list"
+      if (includeAdmin) {
+        url += "?include_admin=1";
+      }
+    }else if (includeAdmin) {
       url += "&include_admin=1";
     }
     request

@@ -162,21 +162,15 @@ func (h *UserHandler) UpdatePassword(c *gin.Context) {
 // @Param page query request.UserList true "List"
 // @Success 200 {object} response.CommonResponse[data=response.UserList] "成功响应"
 // @Router /user/list [get]
-func (h *UserHandler) List(g *gin.Context) {
+func (h *UserHandler) List(c *gin.Context) {
 	var req request.UserList
-	if success := utils.ValidateQuery(g, &req); !success {
+	if success := utils.ValidateQuery(c, &req); !success {
 		return
 	}
-
-	var res response.UserList
-	if req.ProjectID == 0 {
-		model := my_runtime.Db.Model(entity.User{})
-		if !req.IncludeAdmin {
-			model = model.Where("id != ?", 1)
-		}
-		model.Select("id, name, user_name, email, avatar").Find(&res.List)
-	} else {
-		my_runtime.Db.Model(entity.Role{}).Joins("User").Where("project_id = ?", req.ProjectID).Select("User.id, name, user_name, email, avatar, role_type").Find(&res.List)
+	list, err := h.userService.List(req.IncludeAdmin)
+	if err != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
+		return
 	}
-	g.JSON(http.StatusOK, response.CreateResponse(0, "ok", res))
+	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", list))
 }

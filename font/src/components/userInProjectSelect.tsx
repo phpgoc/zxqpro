@@ -15,7 +15,7 @@ const   UserInProjectSelect = forwardRef<UserInProjectMethods,{id:number}> (( {i
   const [userList, setUserList] = useState<UserInfo[]>([]);
   useEffect(() => {
     request
-      .get(`user/list?project_id=${id}`)
+      .get(`project/user_list?id=${id}`)
       .then((res) => {
         if (res.data.code === 0) {
           const unsortedUserList = res.data.data.list as UserInfo[];

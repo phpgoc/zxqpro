@@ -96,7 +96,7 @@ export default function ProjectEdit() {
         if (allResponse.data.code === 0) {
           const allUsers = allResponse.data.data.list as UserInfo[];
 
-          const inProjectResponse = await request.get(`user/list?project_id=${projectNumericId}`);
+          const inProjectResponse = await request.get(`project/user_list?id=${projectNumericId}`);
           if (inProjectResponse.data.code === 0) {
             const inProjectUsers = inProjectResponse.data.data.list as UserInfo[];
 

@@ -73,3 +73,14 @@ func (d *UserDAO) GetByEntity(user *entity.User) (entity.User, error) {
 	}
 	return *user, nil
 }
+
+// ListUsers 列出无项目关联的用户
+func (d *UserDAO) ListUsers(includeAdmin bool) ([]entity.User, error) {
+	var users []entity.User
+	model := d.db.Model(&entity.User{})
+	if !includeAdmin {
+		model = model.Where("id != ?", 1)
+	}
+	err := model.Find(&users).Error
+	return users, err
+}

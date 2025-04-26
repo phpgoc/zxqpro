@@ -55,7 +55,7 @@ func ApiRoutes() *gin.Engine {
 	api.POST("/user/update_password", userHandler.UpdatePassword)
 	api.GET("/user/list", userHandler.List)
 
-	projectHandler := NewProjectHandler(service.NewProjectService(dao.NewProjectDAO(my_runtime.Db)))
+	projectHandler := NewProjectHandler(service.NewProjectService(dao.NewProjectDAO(my_runtime.Db), dao.NewRoleDAO(my_runtime.Db)))
 
 	api.POST("/project/create_role", projectHandler.ProjectCreateRole)
 	api.POST("/project/delete_role", projectHandler.ProjectDeleteRole)
@@ -66,6 +66,7 @@ func ApiRoutes() *gin.Engine {
 	api.GET("/project/info", projectHandler.ProjectInfo)
 	api.GET("/project/role_in", projectHandler.ProjectRoleIn)
 	api.POST("/project/task_list", projectHandler.ProjectTaskList)
+	api.GET("/project/user_list", projectHandler.UserList)
 
 	api.POST("/message/share_link", MessageShareLink)
 	api.GET("/message/receive_list", MessageReceiveList)
@@ -73,7 +74,7 @@ func ApiRoutes() *gin.Engine {
 	api.POST("/message/read", MessageRead)
 	api.POST("/message/manual", MessageManual)
 
-	taskHandler := NewTaskHandler(service.NewTaskService(dao.NewTaskDAO(my_runtime.Db), service.NewProjectService(dao.NewProjectDAO(my_runtime.Db))))
+	taskHandler := NewTaskHandler(service.NewTaskService(dao.NewTaskDAO(my_runtime.Db), service.NewProjectService(dao.NewProjectDAO(my_runtime.Db), dao.NewRoleDAO(my_runtime.Db))))
 	api.POST("/task/create_top", taskHandler.TaskCreateTop)
 	api.POST("/task/update_top", taskHandler.TaskUpdateTop)
 	api.POST("/task/assign_top", taskHandler.TaskAssignTop)
