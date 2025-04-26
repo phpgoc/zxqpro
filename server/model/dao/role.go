@@ -3,7 +3,17 @@ package dao
 import (
 	"github.com/phpgoc/zxqpro/model/entity"
 	"github.com/phpgoc/zxqpro/my_runtime"
+	"gorm.io/gorm"
 )
+
+type RoleDAO struct {
+	db *gorm.DB
+}
+
+// NewRoleDAO 创建一个新的 RoleDAO 实例
+func NewRoleDAO(db *gorm.DB) *RoleDAO {
+	return &RoleDAO{db: db}
+}
 
 func CreateRole(userID, roleID uint, roleType entity.RoleType) error {
 	role := entity.Role{

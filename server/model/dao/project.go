@@ -3,11 +3,24 @@ package dao
 import (
 	"errors"
 
+	"gorm.io/gorm"
+
 	"github.com/phpgoc/zxqpro/model/entity"
 	"github.com/phpgoc/zxqpro/my_runtime"
 )
 
-func UpdateProjectStatus(projectID uint, status entity.ProjectStatus) error {
+type ProjectDAO struct {
+	db *gorm.DB
+}
+
+// NewProjectDAO 创建一个新的 ProjectDAO 实例
+func NewProjectDAO(db *gorm.DB) *ProjectDAO {
+	return &ProjectDAO{
+		db: db,
+	}
+}
+
+func (d *ProjectDAO) UpdateProjectStatus(projectID uint, status entity.ProjectStatus) error {
 	// todo 如果要更新状态为已完成，检查是否所有的任务都已完成
 	res := my_runtime.Db.Model(&entity.Project{}).Where("id = ?", projectID).Update("status", status)
 	if res.Error != nil {
@@ -19,7 +32,7 @@ func UpdateProjectStatus(projectID uint, status entity.ProjectStatus) error {
 	return nil
 }
 
-func GetProjectByID(projectID uint) (entity.Project, error) {
+func (d *ProjectDAO) GetProjectByID(projectID uint) (entity.Project, error) {
 	project := entity.Project{}
 	res := my_runtime.Db.Preload("Owner").Where("id = ?", projectID).First(&project)
 	if res.Error != nil {
@@ -28,7 +41,7 @@ func GetProjectByID(projectID uint) (entity.Project, error) {
 	return project, nil
 }
 
-func GetProjectsForAdmin(status byte, page, pageSize int) ([]entity.Project, int64, error) {
+func (d *ProjectDAO) GetProjectsForAdmin(status byte, page, pageSize int) ([]entity.Project, int64, error) {
 	var projects []entity.Project
 	var total int64
 	model := my_runtime.Db.Model(&entity.Project{}).Preload("Owner")
@@ -43,7 +56,7 @@ func GetProjectsForAdmin(status byte, page, pageSize int) ([]entity.Project, int
 	return projects, total, err
 }
 
-func GetProjectsForUser(userID uint, status, roleType byte, page, pageSize int) ([]entity.Role, int64, error) {
+func (d *ProjectDAO) GetProjectsForUser(userID uint, status, roleType byte, page, pageSize int) ([]entity.Role, int64, error) {
 	var roles []entity.Role
 	var total int64
 	model := my_runtime.Db.Model(&entity.Role{}).Preload("Project").Where("user_id = ?", userID).Preload("Project.Owner")

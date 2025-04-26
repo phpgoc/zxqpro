@@ -17,6 +17,16 @@ import (
 	"github.com/phpgoc/zxqpro/utils"
 )
 
+type ProjectHandler struct {
+	projectService *service.ProjectService // 注入 service 实例
+}
+
+func NewProjectHandler(projectService *service.ProjectService) *ProjectHandler {
+	return &ProjectHandler{
+		projectService: projectService,
+	}
+}
+
 // @BasePath /api
 
 // ProjectCreateRole  godoc
@@ -29,15 +39,18 @@ import (
 // @Param ProjectUpsertRole body request.ProjectUpsertRole true "AdminRegister"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /project/create_role [post]
-func ProjectCreateRole(c *gin.Context) {
+func (h *ProjectHandler) ProjectCreateRole(c *gin.Context) {
 	var req request.ProjectUpsertRole
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	if !service.HasOwnPermission(c, req.ProjectID) {
+	userId := service.GetUserIDFromAuthMiddleware(c)
+	var err error
+	if err = h.projectService.HasOwnPermission(userId, req.ProjectID); err != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
-	if err := dao.CreateRole(req.UserID, req.ProjectID, req.RoleType); err != nil {
+	if err = dao.CreateRole(req.UserID, req.ProjectID, req.RoleType); err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
@@ -54,12 +67,15 @@ func ProjectCreateRole(c *gin.Context) {
 // @Param ProjectDeleteRole body request.ProjectDeleteRole true "ProjectDeleteRole"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /project/delete_role [post]
-func ProjectDeleteRole(c *gin.Context) {
+func (h *ProjectHandler) ProjectDeleteRole(c *gin.Context) {
 	var req request.ProjectDeleteRole
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	if !service.HasOwnPermission(c, req.ProjectID) {
+	userId := service.GetUserIDFromAuthMiddleware(c)
+	var err error
+	if err = h.projectService.HasOwnPermission(userId, req.ProjectID); err != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
 	if err := dao.DeleteRole(req.UserID, req.ProjectID); err != nil {
@@ -79,12 +95,15 @@ func ProjectDeleteRole(c *gin.Context) {
 // @Param ProjectUpsertRole body request.ProjectUpsertRole true "AdminRegister"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /project/update_role [post]
-func ProjectUpdateRole(c *gin.Context) {
+func (h *ProjectHandler) ProjectUpdateRole(c *gin.Context) {
 	var req request.ProjectUpsertRole
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	if !service.HasOwnPermission(c, req.ProjectID) {
+	userId := service.GetUserIDFromAuthMiddleware(c)
+	var err error
+	if err = h.projectService.HasOwnPermission(userId, req.ProjectID); err != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
 	if err := dao.UpdateRole(req.UserID, req.ProjectID, req.RoleType); err != nil {
@@ -104,7 +123,7 @@ func ProjectUpdateRole(c *gin.Context) {
 // @Param ProjectList query request.ProjectList true "ProjectList"
 // @Success 200 {object} response.ProjectList "成功响应"
 // @Router /project/list [get]
-func ProjectList(c *gin.Context) {
+func (h *ProjectHandler) ProjectList(c *gin.Context) {
 	var req request.ProjectList
 	if success := utils.ValidateQuery(c, &req); !success {
 		return
@@ -112,7 +131,7 @@ func ProjectList(c *gin.Context) {
 
 	userID := service.GetUserIDFromAuthMiddleware(c)
 
-	responseProjectList, err := service.GetProjectList(userID, req.Status, req.RoleType, req.Page, req.PageSize)
+	responseProjectList, err := h.projectService.GetProjectList(userID, req.Status, req.RoleType, req.Page, req.PageSize)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.CreateResponse(1, "error", nil))
 		return
@@ -131,12 +150,15 @@ func ProjectList(c *gin.Context) {
 // @Param ProjectUpdate body request.ProjectUpdate true "ProjectUpdate"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /project/update [post]
-func ProjectUpdate(c *gin.Context) {
+func (h *ProjectHandler) ProjectUpdate(c *gin.Context) {
 	var req request.ProjectUpdate
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	if !service.HasOwnPermission(c, req.ID) {
+	userId := service.GetUserIDFromAuthMiddleware(c)
+	var err error
+	if err = h.projectService.HasOwnPermission(userId, req.ID); err != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
 	project := entity.Project{
@@ -145,7 +167,7 @@ func ProjectUpdate(c *gin.Context) {
 		GitAddress:  req.GitAddress,
 		Config:      req.Config,
 	}
-	if err := service.UpdateProject(req.ID, project); err != nil {
+	if err := h.projectService.UpdateProject(req.ID, project); err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
@@ -162,15 +184,18 @@ func ProjectUpdate(c *gin.Context) {
 // @Param ProjectUpdateStatus body request.ProjectUpdateStatus true "ProjectUpdateStatus"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /project/update_status [post]
-func ProjectUpdateStatus(c *gin.Context) {
+func (h *ProjectHandler) ProjectUpdateStatus(c *gin.Context) {
 	var req request.ProjectUpdateStatus
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	if !service.HasOwnPermission(c, req.ID) {
+	userId := service.GetUserIDFromAuthMiddleware(c)
+	var err error
+	if err = h.projectService.HasOwnPermission(userId, req.ID); err != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
-	if err := dao.UpdateProjectStatus(req.ID, req.Status); err != nil {
+	if err := h.projectService.UpdateProjectStatus(req.ID, req.Status); err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
@@ -187,25 +212,15 @@ func ProjectUpdateStatus(c *gin.Context) {
 // @Param CommonID query request.CommonID true "CommonID"
 // @Success 200 {object} response.CommonResponse[data=response.ProjectInfo] "成功响应"
 // @Router /project/info [get]
-func ProjectInfo(c *gin.Context) {
+func (h *ProjectHandler) ProjectInfo(c *gin.Context) {
 	var req request.CommonID
 	if success := utils.ValidateQuery(c, &req); !success {
 		return
 	}
-	project, err := dao.GetProjectByID(req.ID)
+	projectInfo, err := h.projectService.ProjectInfo(req.ID)
 	if err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
-	}
-	projectInfo := response.ProjectInfo{
-		ID:          project.ID,
-		Name:        project.Name,
-		OwnerID:     project.OwnerID,
-		OwnerName:   project.Owner.UserName,
-		Description: project.Description,
-		GitAddress:  project.GitAddress,
-		Config:      project.Config,
-		Status:      project.Status,
 	}
 	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", projectInfo))
 }
@@ -220,7 +235,7 @@ func ProjectInfo(c *gin.Context) {
 // @Param CommonID query request.CommonID true "CommonID"
 // @Success 200 {object} response.CommonResponse[data=response.ProjectRole] "成功响应"
 // @Router /project/role_in [get]
-func ProjectRoleIn(c *gin.Context) {
+func (h *ProjectHandler) ProjectRoleIn(c *gin.Context) {
 	var req request.CommonID
 	if success := utils.ValidateQuery(c, &req); !success {
 		return
@@ -228,7 +243,7 @@ func ProjectRoleIn(c *gin.Context) {
 	userID := service.GetUserIDFromAuthMiddleware(c)
 	key := utils.JoinCacheKey(my_runtime.PrefixUseridProjectRole, userID, req.ID)
 	roleType := interfaces.GetOrSet(interfaces.Cache, key, func() entity.RoleType {
-		roleType, _ := service.GetRoleType(userID, req.ID)
+		roleType, _ := h.projectService.GetRoleType(userID, req.ID)
 		return roleType
 	}, time.Hour)
 
@@ -246,13 +261,13 @@ func ProjectRoleIn(c *gin.Context) {
 // @Param ProjectTaskList body request.ProjectTaskList true "ProjectTaskList"
 // @Success 200 {object} response.CommonResponse[data=response.TaskList] "成功响应"
 // @Router /project/task_list [post]
-func ProjectTaskList(c *gin.Context) {
+func (h *ProjectHandler) ProjectTaskList(c *gin.Context) {
 	var req request.ProjectTaskList
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
 
-	taskList, err := service.GetTaskList(req)
+	taskList, err := h.projectService.GetTaskList(req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.CreateResponse(1, err.Error(), nil))
 		return

@@ -2,40 +2,42 @@ package service
 
 import (
 	"errors"
-	"net/http"
-
-	"github.com/phpgoc/zxqpro/utils"
 
 	"github.com/phpgoc/zxqpro/routes/request"
+	"github.com/phpgoc/zxqpro/utils"
 	"gorm.io/gorm/clause"
 
-	"github.com/gin-gonic/gin"
 	"github.com/phpgoc/zxqpro/model/dao"
 	"github.com/phpgoc/zxqpro/model/entity"
 	"github.com/phpgoc/zxqpro/my_runtime"
 	"github.com/phpgoc/zxqpro/routes/response"
 )
 
-func HasOwnPermission(c *gin.Context, projectID uint) bool {
-	userID := GetUserIDFromAuthMiddleware(c)
-	project := entity.Project{}
-	result := my_runtime.Db.First(&project, projectID)
-
-	if result.Error != nil {
-		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "项目不存在"))
-		return false
-	}
-	if userID == 1 {
-		return true
-	}
-	if project.OwnerID != userID {
-		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "没有权限"))
-		return false
-	}
-	return true
+type ProjectService struct {
+	projectDAO *dao.ProjectDAO
 }
 
-func GetRoleType(userID, projectID uint) (entity.RoleType, error) {
+func NewProjectService(projectDAO *dao.ProjectDAO) *ProjectService {
+	return &ProjectService{
+		projectDAO: projectDAO,
+	}
+}
+
+func (s *ProjectService) HasOwnPermission(userID, projectID uint) error {
+	project, err := s.projectDAO.GetProjectByID(projectID)
+	if err != nil {
+		return err
+	}
+	if IsAdmin(userID) {
+		return nil
+	}
+	if project.OwnerID != userID {
+		return errors.New("没有权限")
+	}
+	return nil
+}
+
+func (s *ProjectService) GetRoleType(userID, projectID uint) (entity.RoleType, error) {
 	if IsAdmin(userID) {
 		return entity.RoleTypeAdmin, nil
 	}
@@ -47,11 +49,11 @@ func GetRoleType(userID, projectID uint) (entity.RoleType, error) {
 	return role.RoleType, nil
 }
 
-func GetProjectList(userID uint, status, roleType byte, page, pageSize int) (response.ProjectList, error) {
+func (s *ProjectService) GetProjectList(userID uint, status, roleType byte, page, pageSize int) (response.ProjectList, error) {
 	var responseProjectList response.ProjectList
 	var err error
 	if userID == 1 {
-		projects, total, err := dao.GetProjectsForAdmin(status, page, pageSize)
+		projects, total, err := s.projectDAO.GetProjectsForAdmin(status, page, pageSize)
 		if err != nil {
 			return responseProjectList, err
 		}
@@ -67,7 +69,7 @@ func GetProjectList(userID uint, status, roleType byte, page, pageSize int) (res
 			})
 		}
 	} else {
-		roles, total, err := dao.GetProjectsForUser(userID, status, roleType, page, pageSize)
+		roles, total, err := s.projectDAO.GetProjectsForUser(userID, status, roleType, page, pageSize)
 		if err != nil {
 			return responseProjectList, err
 		}
@@ -98,7 +100,7 @@ func GetProjectList(userID uint, status, roleType byte, page, pageSize int) (res
 //	CompletedAt        *time.Time        `json:"completed_at"`
 //}
 
-func GetTaskList(req request.ProjectTaskList) (res response.TaskList, err error) {
+func (s *ProjectService) GetTaskList(req request.ProjectTaskList) (res response.TaskList, err error) {
 	orderValidList := []string{"id", "expect_complete_time", "test_user_id", "completed_at"}
 	if err = request.IsAllValidOrder(req.OrderList, orderValidList); err != nil {
 		return res, err
@@ -179,7 +181,7 @@ func GetTaskList(req request.ProjectTaskList) (res response.TaskList, err error)
 	return res, err
 }
 
-func UpdateProject(projectID uint, project entity.Project) error {
+func (s *ProjectService) UpdateProject(projectID uint, project entity.Project) error {
 	originalProject := entity.Project{}
 	res := my_runtime.Db.Model(&entity.Project{}).Where("id = ?", projectID).First(&originalProject)
 	if res.Error != nil {
@@ -212,4 +214,26 @@ func UpdateProject(projectID uint, project entity.Project) error {
 		return errors.New("not found")
 	}
 	return nil
+}
+
+func (s *ProjectService) ProjectInfo(projectID uint) (*response.ProjectInfo, error) {
+	project, err := s.projectDAO.GetProjectByID(projectID)
+	if err != nil {
+		return nil, err
+	}
+	projectInfo := response.ProjectInfo{
+		ID:          project.ID,
+		Name:        project.Name,
+		OwnerID:     project.OwnerID,
+		OwnerName:   project.Owner.UserName,
+		Description: project.Description,
+		GitAddress:  project.GitAddress,
+		Config:      project.Config,
+		Status:      project.Status,
+	}
+	return &projectInfo, nil
+}
+
+func (s *ProjectService) UpdateProjectStatus(projectID uint, status entity.ProjectStatus) error {
+	return s.projectDAO.UpdateProjectStatus(projectID, status)
 }

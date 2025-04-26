@@ -4,6 +4,9 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/phpgoc/zxqpro/docs"
+	"github.com/phpgoc/zxqpro/model/dao"
+	"github.com/phpgoc/zxqpro/model/service"
+	"github.com/phpgoc/zxqpro/my_runtime"
 	"github.com/phpgoc/zxqpro/routes/middleware"
 	"github.com/phpgoc/zxqpro/utils"
 )
@@ -50,15 +53,17 @@ func ApiRoutes() *gin.Engine {
 	api.POST("/user/update_password", UserUpdatePassword)
 	api.GET("/user/list", UserList)
 
-	api.POST("/project/create_role", ProjectCreateRole)
-	api.POST("/project/delete_role", ProjectDeleteRole)
-	api.POST("/project/update_role", ProjectUpdateRole)
-	api.GET("/project/list", ProjectList)
-	api.POST("/project/update", ProjectUpdate)
-	api.POST("/project/update_status", ProjectUpdateStatus)
-	api.GET("/project/info", ProjectInfo)
-	api.GET("/project/role_in", ProjectRoleIn)
-	api.POST("/project/task_list", ProjectTaskList)
+	projectHandler := NewProjectHandler(service.NewProjectService(dao.NewProjectDAO(my_runtime.Db)))
+
+	api.POST("/project/create_role", projectHandler.ProjectCreateRole)
+	api.POST("/project/delete_role", projectHandler.ProjectDeleteRole)
+	api.POST("/project/update_role", projectHandler.ProjectUpdateRole)
+	api.GET("/project/list", projectHandler.ProjectList)
+	api.POST("/project/update", projectHandler.ProjectUpdate)
+	api.POST("/project/update_status", projectHandler.ProjectUpdateStatus)
+	api.GET("/project/info", projectHandler.ProjectInfo)
+	api.GET("/project/role_in", projectHandler.ProjectRoleIn)
+	api.POST("/project/task_list", projectHandler.ProjectTaskList)
 
 	api.POST("/message/share_link", MessageShareLink)
 	api.GET("/message/receive_list", MessageReceiveList)
@@ -66,10 +71,11 @@ func ApiRoutes() *gin.Engine {
 	api.POST("/message/read", MessageRead)
 	api.POST("/message/manual", MessageManual)
 
-	api.POST("/task/create_top", TaskCreateTop)
-	api.POST("/task/update_top", TaskUpdateTop)
-	api.POST("/task/assign_top", TaskAssignTop)
-	api.GET("/task/public_info", TaskPublicInfo)
+	taskHandler := NewTaskHandler(service.NewTaskService(dao.NewTaskDAO(my_runtime.Db), service.NewProjectService(dao.NewProjectDAO(my_runtime.Db))))
+	api.POST("/task/create_top", taskHandler.TaskCreateTop)
+	api.POST("/task/update_top", taskHandler.TaskUpdateTop)
+	api.POST("/task/assign_top", taskHandler.TaskAssignTop)
+	api.GET("/task/public_info", taskHandler.TaskPublicInfo)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	return router

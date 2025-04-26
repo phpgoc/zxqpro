@@ -11,7 +11,7 @@ type TaskTimeEstimateDAO struct {
 	db *gorm.DB
 }
 
-// NewTaskTimeEstimateDAO 创建一个新的 entity.TaskTimeEstimateDAO 实例
+// NewTaskTimeEstimateDAO 创建一个新的 entity.taskTimeEstimateDAO 实例
 func NewTaskTimeEstimateDAO(db *gorm.DB) *TaskTimeEstimateDAO {
 	return &TaskTimeEstimateDAO{
 		db: db,
@@ -47,13 +47,13 @@ func (d *TaskTimeEstimateDAO) GetTaskTimeEstimateCountByUserAndTask(userID, task
 }
 
 // UpdateTaskTimeEstimate 更新 entity.TaskTimeEstimate 记录
-//func (dao *TaskTimeEstimateDAO) UpdateTaskTimeEstimate(estimate *entity.TaskTimeEstimate) error {
+//func (dao *taskTimeEstimateDAO) UpdateTaskTimeEstimate(estimate *entity.TaskTimeEstimate) error {
 //	result := dao.db.Save(estimate)
 //	return result.Error
 //}
 
 // DeleteTaskTimeEstimate 根据 ID 删除 entity.TaskTimeEstimate 记录
-//func (dao *TaskTimeEstimateDAO) DeleteTaskTimeEstimate(id uint) error {
+//func (dao *taskTimeEstimateDAO) DeleteTaskTimeEstimate(id uint) error {
 //	result := dao.db.Delete(&entity.TaskTimeEstimate{}, id)
 //	return result.Error
 //}

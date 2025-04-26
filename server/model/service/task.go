@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/phpgoc/zxqpro/model/dao"
+
 	"github.com/phpgoc/zxqpro/utils"
 
 	"github.com/phpgoc/zxqpro/routes/response"
@@ -14,22 +16,34 @@ import (
 	"github.com/phpgoc/zxqpro/routes/request"
 )
 
-func CanCreateTop(userID, projectID uint) bool {
+type TaskService struct {
+	taskDAO        *dao.TaskDAO
+	projectService *ProjectService
+}
+
+func NewTaskService(taskDAO *dao.TaskDAO, projectService *ProjectService) *TaskService {
+	return &TaskService{
+		taskDAO:        taskDAO,
+		projectService: projectService,
+	}
+}
+
+func (s *TaskService) CanCreateTop(userID, projectID uint) bool {
 	if IsAdmin(userID) {
 		return true
 	}
-	roleTypeInProject, err := GetRoleType(userID, projectID)
+	roleTypeInProject, err := s.projectService.GetRoleType(userID, projectID)
 	if err != nil {
 		return false
 	}
 	return roleTypeInProject == entity.RoleTypeOwner || roleTypeInProject == entity.RoleTypeProducter
 }
 
-func CanBeAssignedDeveloper(userID, projectID uint) bool {
+func (s *TaskService) CanBeAssignedDeveloper(userID, projectID uint) bool {
 	if IsAdmin(userID) {
 		return false
 	}
-	role, err := GetRoleType(userID, projectID)
+	role, err := s.projectService.GetRoleType(userID, projectID)
 	if err != nil {
 		return false
 	}
@@ -40,11 +54,11 @@ func CanBeAssignedDeveloper(userID, projectID uint) bool {
 	}
 }
 
-func CanBeAssignedTester(userID, projectID uint) bool {
+func (s *TaskService) CanBeAssignedTester(userID, projectID uint) bool {
 	if IsAdmin(userID) {
 		return false
 	}
-	role, err := GetRoleType(userID, projectID)
+	role, err := s.projectService.GetRoleType(userID, projectID)
 	if err != nil {
 		return false
 	}
@@ -56,7 +70,7 @@ func CanBeAssignedTester(userID, projectID uint) bool {
 }
 
 // GetChildrenTaskList 只包括儿子，不包括孙子
-func GetChildrenTaskList(taskID uint) ([]response.TaskOneForList, error) {
+func (s *TaskService) GetChildrenTaskList(taskID uint) ([]response.TaskOneForList, error) {
 	var tasks []entity.Task
 	err := my_runtime.Db.Preload("CreateUser").Preload("TestUser").Preload("TopTaskAssignUsers").Where("parent_id = ?", taskID).Find(&tasks).Error
 	if err != nil {
@@ -83,7 +97,7 @@ func GetChildrenTaskList(taskID uint) ([]response.TaskOneForList, error) {
 			}
 		}
 		for _, u := range task.TopTaskAssignUsers {
-			if !CanBeAssignedDeveloper(u.ID, task.ID) {
+			if !s.CanBeAssignedDeveloper(u.ID, task.ID) {
 				return nil, errors.New(fmt.Sprintf("%d cannot be assigned to develper", u.ID))
 			}
 			topTaskAssignUsers = append(topTaskAssignUsers, response.CommonIDAndName{
@@ -110,7 +124,7 @@ func GetChildrenTaskList(taskID uint) ([]response.TaskOneForList, error) {
 	return taskList, nil
 }
 
-func TaskCreateTop(userID uint, req request.TaskCreateTop) error {
+func (s *TaskService) TaskCreateTop(userID uint, req request.TaskCreateTop) error {
 	var expectCompleteTime *time.Time = nil
 	if req.ExpectCompleteTime != nil {
 		t, err := time.Parse("2006-01-02", *req.ExpectCompleteTime)
@@ -120,17 +134,17 @@ func TaskCreateTop(userID uint, req request.TaskCreateTop) error {
 		expectCompleteTime = &time.Time{}
 		*expectCompleteTime = t
 	}
-	if !CanCreateTop(userID, req.ProjectID) {
+	if !s.CanCreateTop(userID, req.ProjectID) {
 		return errors.New("无权限")
 	}
 	// 可以为空的，为空也不会进入循环
 	for _, u := range req.AssignUsers {
-		if !CanBeAssignedDeveloper(u, req.ProjectID) {
+		if !s.CanBeAssignedDeveloper(u, req.ProjectID) {
 			return errors.New(fmt.Sprintf("%d cannot be assigned to develper", u))
 		}
 	}
 
-	if !CanBeAssignedTester(req.TesterID, req.ProjectID) {
+	if !s.CanBeAssignedTester(req.TesterID, req.ProjectID) {
 		return errors.New(fmt.Sprintf("%d cannot be assigned to tester", req.TesterID))
 	}
 	var users []entity.User
@@ -158,7 +172,7 @@ func TaskCreateTop(userID uint, req request.TaskCreateTop) error {
 	return err
 }
 
-func TaskUpdateTop(userID uint, req request.TaskUpdateTop) error {
+func (s *TaskService) TaskUpdateTop(userID uint, req request.TaskUpdateTop) error {
 	var expectCompleteTime *time.Time = nil
 	if req.ExpectCompleteTime != nil {
 		t, err := time.Parse("2006-01-02", *req.ExpectCompleteTime)
@@ -195,7 +209,7 @@ func TaskUpdateTop(userID uint, req request.TaskUpdateTop) error {
 	if req.Status != nil {
 		if *req.Status == entity.TaskStatusCompleted || *req.Status == entity.TaskStatusArchived {
 			// 空的逻辑正常，可以完成或关闭吧
-			childTasks, _ := GetChildrenTaskList(task.ID)
+			childTasks, _ := s.GetChildrenTaskList(task.ID)
 			allArchived := true
 			for _, childTask := range childTasks {
 				allArchived = allArchived && childTask.Status == entity.TaskStatusArchived
@@ -208,14 +222,14 @@ func TaskUpdateTop(userID uint, req request.TaskUpdateTop) error {
 	}
 
 	if req.TesterID != nil {
-		if !CanBeAssignedTester(*req.TesterID, task.ProjectID) {
+		if !s.CanBeAssignedTester(*req.TesterID, task.ProjectID) {
 			return errors.New(fmt.Sprintf("%d cannot be assigned to tester", *req.TesterID))
 		}
 		updateTask["TesterID"] = *req.TesterID
 	}
 	if req.AssignUsers != nil {
 		for _, u := range req.AssignUsers {
-			if !CanBeAssignedDeveloper(u, task.ProjectID) {
+			if !s.CanBeAssignedDeveloper(u, task.ProjectID) {
 				return errors.New(fmt.Sprintf("%d cannot be assigned to develper", u))
 			}
 		}
@@ -233,7 +247,7 @@ func TaskUpdateTop(userID uint, req request.TaskUpdateTop) error {
 	return nil
 }
 
-func TaskInfo(id uint) (response.TaskInfo, error) {
+func (s *TaskService) TaskInfo(id uint) (response.TaskInfo, error) {
 	// 没有权限问题，任何人都可以查看任务信息
 	var task entity.Task
 	err := my_runtime.Db.Preload("CreateUser").Preload("AssignUser").Preload("Tester").Preload("Steps").Preload("Steps.Developer").Preload("Project").Preload("TopTaskAssignUsers").Where("id = ?", id).First(&task).Error
@@ -291,7 +305,7 @@ func TaskInfo(id uint) (response.TaskInfo, error) {
 	return taskInfo, nil
 }
 
-func TaskAssignSelfToTop(userID, TaskID uint) error {
+func (s *TaskService) TaskAssignSelfToTop(userID, TaskID uint) error {
 	if IsAdmin(userID) {
 		return errors.New("admin can not assign self to top task")
 	}
@@ -308,7 +322,7 @@ func TaskAssignSelfToTop(userID, TaskID uint) error {
 		return errors.New("project self assign to top task is disabled")
 	}
 
-	roleTypeInProject, err := GetRoleType(userID, task.ProjectID)
+	roleTypeInProject, err := s.projectService.GetRoleType(userID, task.ProjectID)
 	if err != nil {
 		return err
 	}
