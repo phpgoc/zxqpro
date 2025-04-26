@@ -1031,10 +1031,10 @@ const docTemplate = `{
             ],
             "x-enum-varnames": [
                 "TaskStatusCreated",
-                "TaskStarted",
+                "TaskStatusStarted",
                 "TaskStatusCompleted",
                 "TaskStatusArchived",
-                "TaskFailed"
+                "TaskStatusFailed"
             ]
         },
         "request.AdminCreateProject": {

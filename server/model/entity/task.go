@@ -10,10 +10,10 @@ type TaskStatus byte
 
 const (
 	TaskStatusCreated TaskStatus = iota + 1
-	TaskStarted
+	TaskStatusStarted
 	TaskStatusCompleted
 	TaskStatusArchived
-	TaskFailed
+	TaskStatusFailed
 )
 
 type Task struct {
@@ -40,26 +40,4 @@ type Task struct {
 	ArchivedAt             *time.Time         `json:"archived_at"`
 	Steps                  []Step             `json:"steps" gorm:"foreignKey:TaskID;references:ID"`               // 一对多关系
 	TaskTimeEstimates      []TaskTimeEstimate `json:"task_time_estimates" gorm:"foreignKey:TaskID;references:ID"` // 一对多关系
-}
-
-type TaskTimeEstimate struct {
-	ID                      uint           `json:"id" gorm:"primaryKey"`
-	CreatedAt               time.Time      `json:"created_at"`
-	UserID                  uint           `json:"user_id" gorm:"not null"`
-	User                    User           `json:"user" gorm:"foreignKey:UserID;references:ID"`
-	TaskID                  uint           `json:"task_id" gorm:"not null"`
-	TaskDuration            *time.Duration `json:"task_duration"`             // 预计完成时间
-	EstimatedCompletionTime *time.Time     `json:"estimated_completion_time"` // 预计完成时间
-}
-
-type Step struct {
-	gorm.Model
-	TaskID      uint     `json:"task_id" gorm:"not null"`
-	Description string   `json:"description"`
-	Percent     *byte    `json:"percent"`
-	DeveloperID uint     `json:"developer_id"`
-	Developer   User     `json:"developer" gorm:"foreignKey:DeveloperID;references:ID"`
-	TesterID    uint     `json:"tester_id"`
-	Tester      *User    `json:"tester" gorm:"foreignKey:TesterID;references:ID"`
-	Commits     []string `json:"commits" gorm:"type:text"` // 提交的commit id
 }

@@ -147,7 +147,7 @@ func TaskCreateTop(userID uint, req request.TaskCreateTop) error {
 		CreateUserID:       userID,
 		TopTaskAssignUsers: users,
 		ExpectCompleteTime: expectCompleteTime,
-		Status:             entity.TaskStarted, // 顶级任务没有创建后的状态，直接就开始了，非顶级任务才有
+		Status:             entity.TaskStatusStarted, // 顶级任务没有创建后的状态，直接就开始了，非顶级任务才有
 	}
 	err := my_runtime.Db.Create(&task).Error
 	if err != nil {

@@ -47,10 +47,10 @@ definitions:
     type: integer
     x-enum-varnames:
     - TaskStatusCreated
-    - TaskStarted
+    - TaskStatusStarted
     - TaskStatusCompleted
     - TaskStatusArchived
-    - TaskFailed
+    - TaskStatusFailed
   request.AdminCreateProject:
     properties:
       description:
