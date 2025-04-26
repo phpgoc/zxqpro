@@ -274,14 +274,14 @@ definitions:
     type: object
   request.UserLogin:
     properties:
+      long_login:
+        type: boolean
       name:
         default: admin
         type: string
       password:
         default: Aa123456
         type: string
-      use_mobile:
-        type: boolean
     required:
     - name
     - password
@@ -954,7 +954,7 @@ paths:
       - application/json
       description: user update1
       parameters:
-      - description: UserUpdate
+      - description: Update
         in: body
         name: user
         required: true
@@ -976,7 +976,7 @@ paths:
       - application/json
       description: user update_password
       parameters:
-      - description: UserUpdatePassword
+      - description: UpdatePassword
         in: body
         name: user
         required: true

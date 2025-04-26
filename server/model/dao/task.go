@@ -27,7 +27,7 @@ func (d *TaskDAO) CreateTask(task *entity.Task) error {
 // GetTaskByID 根据 ID 获取任务
 func (d *TaskDAO) GetTaskByID(id uint) (*entity.Task, error) {
 	var task entity.Task
-	result := d.db.Preload("CreateUser").Preload("AssignUser").Preload("Tester").Preload("Project").Preload("ParentTask").Preload("Steps").Preload("TaskTimeEstimates").Preload("TopTaskAssignUsers").First(&task, id)
+	result := d.db.Preload("Create").Preload("AssignUser").Preload("Tester").Preload("Project").Preload("ParentTask").Preload("Steps").Preload("TaskTimeEstimates").Preload("TopTaskAssignUsers").First(&task, id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, nil
@@ -60,4 +60,12 @@ func (d *TaskDAO) UpdateTask(task *entity.Task) error {
 func (d *TaskDAO) DeleteTask(id uint) error {
 	result := d.db.Delete(&entity.Task{}, id)
 	return result.Error
+}
+
+func (d *TaskDAO) GetChildrenTasksByParentID(parentID uint) ([]entity.Task, error) {
+	var tasks []entity.Task
+	// 预加载所有需要的关联数据（与原Service中的Preload一致）
+	err := d.db.Preload("Create").Preload("Tester").Preload("AssignUser").Preload("TopTaskAssignUsers").
+		Where("parent_id = ?", parentID).Find(&tasks).Error
+	return tasks, err
 }

@@ -35,23 +35,25 @@ func ApiRoutes() *gin.Engine {
 	docs.SwaggerInfo.BasePath = "/api"
 	admin := api.Group("/admin")
 	admin.Use(middleware.AuthAdmin())
-	admin.POST("/register", AdminRegister)
-	admin.POST("update_password", AdminUpdatePassword)
-	admin.POST("create_project", AdminCreateProject)
+	adminHandler := NewAdminHandler(service.NewAdminService(dao.NewUserDAO(my_runtime.Db)))
+	admin.POST("/register", adminHandler.AdminRegister)
+	admin.POST("update_password", adminHandler.AdminUpdatePassword)
+	admin.POST("create_project", adminHandler.AdminCreateProject)
 	admin.POST("/reset_rate_limit", AdminResetRateLimit)
 
-	api.POST("/user/login", middleware.RateLimit(10), UserLogin)
+	userHandler := NewUserHandler(service.NewUserService(dao.NewUserDAO(my_runtime.Db)))
+	api.POST("/user/login", middleware.RateLimit(10), userHandler.UserLogin)
 
 	// 这个接口不是不需要验证登录，而是单独验证，在验证错误时不能返回json，这是不符合sse规范的
 	router.GET("/api/sse", ServerSideEvent)
 
 	api.GET("/sse/test", TestSendSelf)
 
-	api.POST("/user/logout", UserLogout)
-	api.GET("/user/info", UserInfo)
-	api.POST("/user/update", UserUpdate)
-	api.POST("/user/update_password", UserUpdatePassword)
-	api.GET("/user/list", UserList)
+	api.POST("/user/logout", userHandler.Logout)
+	api.GET("/user/info", userHandler.Info)
+	api.POST("/user/update", userHandler.Update)
+	api.POST("/user/update_password", userHandler.UpdatePassword)
+	api.GET("/user/list", userHandler.List)
 
 	projectHandler := NewProjectHandler(service.NewProjectService(dao.NewProjectDAO(my_runtime.Db)))
 

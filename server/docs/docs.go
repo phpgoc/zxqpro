@@ -916,7 +916,7 @@ const docTemplate = `{
                 "summary": "user update",
                 "parameters": [
                     {
-                        "description": "UserUpdate",
+                        "description": "Update",
                         "name": "user",
                         "in": "body",
                         "required": true,
@@ -950,7 +950,7 @@ const docTemplate = `{
                 "summary": "user update_password",
                 "parameters": [
                     {
-                        "description": "UserUpdatePassword",
+                        "description": "UpdatePassword",
                         "name": "user",
                         "in": "body",
                         "required": true,
@@ -1369,6 +1369,9 @@ const docTemplate = `{
                 "password"
             ],
             "properties": {
+                "long_login": {
+                    "type": "boolean"
+                },
                 "name": {
                     "type": "string",
                     "default": "admin"
@@ -1376,9 +1379,6 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "default": "Aa123456"
-                },
-                "use_mobile": {
-                    "type": "boolean"
                 }
             }
         },

@@ -11,20 +11,23 @@ import { useUserContext } from "../context/userInfo.tsx";
 interface LoginForm {
   name: string;
   password: string;
-  use_mobile: boolean;
+  long_login: boolean;
 }
 
 const LoginPage = () => {
   const [form] = Form.useForm<LoginForm>();
-
+  form.setFieldsValue({
+    long_login: false, // 手动设置 Checkbox 为未选中
+  });
   const navigate = useNavigate();
   let request = getRequestAndSetNavigateLocation(navigate, useLocation());
 
   const messageContext = useContext(MessageContext);
   const { middleMessageApi } = messageContext as MessageContextValue;
-  const {updateUser} = useUserContext()
+  const { updateUser } = useUserContext();
 
   const submit = async (values: LoginForm) => {
+    console.log(values);
     request
       .post<BaseResponseWithoutData>("user/login", JSON.stringify(values))
       .then((res) => {
@@ -62,10 +65,10 @@ const LoginPage = () => {
     form.resetFields();
   };
 
-
-
   return (
-    <div style={{ maxWidth: 400, margin: "0 auto", padding: 24 ,fontSize:"35px" }}>
+    <div
+      style={{ maxWidth: 400, margin: "0 auto", padding: 24, fontSize: "35px" }}
+    >
       <h2 style={{ textAlign: "center", marginBottom: 32 }}>登录</h2>
 
       <Form
@@ -91,10 +94,10 @@ const LoginPage = () => {
           <Input.Password placeholder="请输入密码" />
         </Form.Item>
 
-        <Form.Item name="use_mobile" valuePropName="checked" label="长期登录">
+        <Form.Item name="long_login" valuePropName="checked" label="长期登录">
           <Checkbox />
         </Form.Item>
-        <a onClick={()=>navigate("/set_host")} >设置host</a>
+        <a onClick={() => navigate("/set_host")}>设置host</a>
 
         <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
           <Space>

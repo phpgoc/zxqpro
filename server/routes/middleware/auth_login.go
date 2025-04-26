@@ -46,7 +46,7 @@ func AuthLogin() gin.HandlerFunc {
 			return
 		}
 
-		if !cookieData.UseMobile {
+		if !cookieData.LongLogin {
 			has := interfaces.Cache.GetAndRefresh(cookieValue, &cookieData, 30*time.Minute)
 			if !has {
 				c.JSON(InternalErrorStatus, gin.H{

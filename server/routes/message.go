@@ -69,7 +69,7 @@ func MessageReceiveList(c *gin.Context) {
 	userID := service.GetUserIDFromAuthMiddleware(c)
 	var res response.MessageList
 	var messageToList []entity.MessageTo
-	model := my_runtime.Db.Model(entity.MessageTo{}).Preload(clause.Associations).Preload("Message.CreateUser").Where("message_tos.user_id = ?", userID).Where("message_tos.read = ?", req.Read)
+	model := my_runtime.Db.Model(entity.MessageTo{}).Preload(clause.Associations).Preload("Message.Create").Where("message_tos.user_id = ?", userID).Where("message_tos.read = ?", req.Read)
 
 	result := model.Count(&res.Total)
 

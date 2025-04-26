@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/phpgoc/zxqpro/model/service"
+
 	"github.com/phpgoc/zxqpro/my_runtime"
 
 	"github.com/phpgoc/zxqpro/routes/middleware"
@@ -15,6 +17,16 @@ import (
 	"github.com/phpgoc/zxqpro/routes/response"
 	"github.com/phpgoc/zxqpro/utils"
 )
+
+type AdminHandler struct {
+	adminService *service.AdminService
+}
+
+func NewAdminHandler(adminService *service.AdminService) *AdminHandler {
+	return &AdminHandler{
+		adminService: adminService,
+	}
+}
 
 // @BasePath /api
 
@@ -28,17 +40,18 @@ import (
 // @Param AdminRegister body request.AdminRegister true "AdminRegister"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /admin/register [post]
-func AdminRegister(g *gin.Context) {
+func (h *AdminHandler) AdminRegister(c *gin.Context) {
 	var req request.AdminRegister
-	if success := utils.ValidateJson(g, &req); !success {
+	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	user := entity.User{Name: req.Name, UserName: req.Name, Password: req.Password}
-	if err := dao.CreateUser(&user); err != nil {
-		g.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
+	err := h.adminService.Create(req)
+	if err != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
-	g.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
+
+	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
 
 // AdminUpdatePassword  godoc
@@ -51,19 +64,13 @@ func AdminRegister(g *gin.Context) {
 // @Param AdminUpdatePassword body request.AdminUpdatePassword true "AdminUpdatePassword"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /admin/update_password [post]
-func AdminUpdatePassword(c *gin.Context) {
+func (h *AdminHandler) AdminUpdatePassword(c *gin.Context) {
 	var req request.AdminUpdatePassword
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	user := entity.User{}
-	result := my_runtime.Db.Where("id = ?", req.UserID).First(&user)
-	if result.Error != nil {
-		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, result.Error.Error()))
-		return
-	}
-	user.Password = dao.Md5Password(req.Password, user.ID)
-	if err := my_runtime.Db.Save(&user).Error; err != nil {
+	err := h.adminService.UpdatePassword(req)
+	if err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
@@ -80,7 +87,7 @@ func AdminUpdatePassword(c *gin.Context) {
 // @Param AdminCreateProject body request.AdminCreateProject true "AdminCreateProject"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /admin/create_project [post]
-func AdminCreateProject(c *gin.Context) {
+func (h *AdminHandler) AdminCreateProject(c *gin.Context) {
 	var req request.AdminCreateProject
 	if success := utils.ValidateJson(c, &req); !success {
 		return

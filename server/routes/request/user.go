@@ -3,7 +3,7 @@ package request
 type UserLogin struct {
 	Name      string `json:"name" binding:"required" default:"admin"`
 	Password  string `json:"password" binding:"required" default:"Aa123456"`
-	UseMobile bool   `json:"use_mobile" binding:"omitempty"`
+	LongLogin bool   `json:"long_login" binding:"omitempty"`
 }
 
 type UserUpdate struct {

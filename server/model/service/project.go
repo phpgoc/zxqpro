@@ -91,7 +91,7 @@ func (s *ProjectService) GetProjectList(userID uint, status, roleType byte, page
 //type TaskOneForList struct {
 //	ID                 uint              `json:"id"`
 //	Name               string            `json:"name"`
-//	CreateUser         CommonIDAndName   `json:"create_user"`
+//	Create         CommonIDAndName   `json:"create_user"`
 //	ExpectCompleteTime *time.Time        `json:"expect_complete_time"`
 //	Status             entity.TaskStatus `json:"status"`
 //	TestUser           *CommonIDAndName  `json:"test_user"`

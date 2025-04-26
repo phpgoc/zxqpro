@@ -1,12 +1,12 @@
-package dao
+package service
 
 import (
-	"crypto/md5"
 	"database/sql"
-	"encoding/hex"
-	"fmt"
 	"log"
 	"time"
+
+	"github.com/phpgoc/zxqpro/model/dao"
+	"github.com/phpgoc/zxqpro/routes/request"
 
 	"github.com/phpgoc/zxqpro/my_runtime"
 
@@ -57,18 +57,6 @@ func InitDb() {
 	var count int64
 	my_runtime.Db.Model(entity.User{}).Count(&count)
 	if count == 0 {
-		defaultAdmin := entity.User{
-			Name:     "admin",
-			Password: "Aa123456",
-		}
-		_ = CreateUser(&defaultAdmin)
+		_ = NewAdminService(dao.NewUserDAO(my_runtime.Db)).Create(request.AdminRegister{Name: "admin", Password: "Aa123456"})
 	}
-}
-
-func Md5Password(password string, id uint) string {
-	combined := fmt.Sprintf("%s%d", password, id)
-	// 计算 MD5 哈希值
-	hash := md5.Sum([]byte(combined))
-	// 将哈希值转换为十六进制字符串
-	return hex.EncodeToString(hash[:])
 }

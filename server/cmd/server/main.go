@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/phpgoc/zxqpro/cron"
-	"github.com/phpgoc/zxqpro/model/dao"
-	"github.com/phpgoc/zxqpro/my_runtime"
-
 	"github.com/phpgoc/zxqpro/interfaces"
+	"github.com/phpgoc/zxqpro/model/service"
+
+	"github.com/phpgoc/zxqpro/cron"
+	"github.com/phpgoc/zxqpro/my_runtime"
 
 	"github.com/phpgoc/zxqpro/routes/middleware"
 
@@ -32,10 +32,10 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	gin.DefaultWriter = my_runtime.GinLogWriter // 需要在utils.InitCobra() 之后
+	interfaces.InitCache()
+	service.InitDb()
 	router := routes.ApiRoutes()
 
-	interfaces.InitCache()
-	dao.InitDb()
 	go cron.MainTask() // 需要在 dao.InitDb() 之后
 
 	box := packr.New("static", "../../../static")

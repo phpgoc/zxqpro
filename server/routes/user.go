@@ -1,11 +1,7 @@
 package routes
 
 import (
-	"crypto/sha1"
-	"encoding/hex"
-	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/phpgoc/zxqpro/model/service"
 
@@ -14,9 +10,7 @@ import (
 	"github.com/phpgoc/zxqpro/model/dao"
 	"github.com/phpgoc/zxqpro/model/entity"
 
-	"github.com/patrickmn/go-cache"
 	"github.com/phpgoc/zxqpro/interfaces"
-	"github.com/phpgoc/zxqpro/pro_types"
 
 	"github.com/phpgoc/zxqpro/utils"
 
@@ -24,6 +18,16 @@ import (
 	"github.com/phpgoc/zxqpro/routes/request"
 	"github.com/phpgoc/zxqpro/routes/response"
 )
+
+type UserHandler struct {
+	userService *service.UserService
+}
+
+func NewUserHandler(userService *service.UserService) *UserHandler {
+	return &UserHandler{
+		userService: userService,
+	}
+}
 
 // @BasePath /api
 
@@ -37,44 +41,20 @@ import (
 // @Param user body request.UserLogin true "UserRegister"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /user/login [post]
-func UserLogin(c *gin.Context) {
+func (h *UserHandler) UserLogin(c *gin.Context) {
 	var req request.UserLogin
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	user := entity.User{Name: req.Name}
-	result := my_runtime.Db.Where(user).First(&user)
-
-	if result.Error != nil {
-		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "用户不存在 或密码错误"))
+	err := h.userService.Login(c, req.Name, req.Password, req.LongLogin)
+	if err != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
-	if user.Password != dao.Md5Password(req.Password, user.ID) {
-		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "用户不存在 或密码错误"))
-		return
-	}
-
-	cookie := generateCookie(user)
-	for {
-		have := interfaces.Cache.IsSet(cookie)
-		if !have {
-			break
-		}
-		cookie = generateCookie(user)
-	}
-	cookieStruct := pro_types.Cookie{ID: user.ID, UseMobile: req.UseMobile}
-
-	if req.UseMobile {
-		interfaces.Cache.Set(cookie, cookieStruct, cache.NoExpiration)
-	} else {
-		interfaces.Cache.Set(cookie, cookieStruct, 30*time.Minute)
-	}
-
-	c.SetCookie(my_runtime.CookieName, cookie, 0, "/", "", false, true)
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
 
-// UserLogout  godoc
+// Logout  godoc
 // @Summary user logout
 // @Schemes
 // @Description user logout
@@ -83,7 +63,7 @@ func UserLogin(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /user/logout [post]
-func UserLogout(c *gin.Context) {
+func (h *UserHandler) Logout(c *gin.Context) {
 	cookie, _ := c.Request.Cookie(my_runtime.CookieName)
 	userId := service.GetUserIDFromAuthMiddleware(c)
 	interfaces.Cache.Delete(cookie.Value)
@@ -92,7 +72,7 @@ func UserLogout(c *gin.Context) {
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
 
-// UserInfo  godoc
+// Info  godoc
 // @Summary user info
 // @Schemes
 // @Description user info
@@ -101,7 +81,7 @@ func UserLogout(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} response.CommonResponse{data=response.User} "成功响应"
 // @Router /user/info [get]
-func UserInfo(c *gin.Context) {
+func (h *UserHandler) Info(c *gin.Context) {
 	userID := service.GetUserIDFromAuthMiddleware(c)
 	user, err := dao.GetUserByID(userID)
 	if err != nil {
@@ -118,17 +98,17 @@ func UserInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", responseStruct))
 }
 
-// UserUpdate  godoc
+// Update  godoc
 // @Summary user update
 // @Schemes
 // @Description user update1
 // @Tags User
 // @Accept json
 // @Produce json
-// @Param user body request.UserUpdate true "UserUpdate"
+// @Param user body request.UserUpdate true "Update"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /user/update [post]
-func UserUpdate(c *gin.Context) {
+func (h *UserHandler) Update(c *gin.Context) {
 	var req request.UserUpdate
 	if success := utils.ValidateJson(c, &req); !success {
 		return
@@ -148,51 +128,41 @@ func UserUpdate(c *gin.Context) {
 	}
 }
 
-// UserUpdatePassword  godoc
+// UpdatePassword  godoc
 // @Summary user update_password
 // @Schemes
 // @Description user update_password
 // @Tags User
 // @Accept json
 // @Produce json
-// @Param user body request.UserUpdatePassword true "UserUpdatePassword"
+// @Param user body request.UserUpdatePassword true "UpdatePassword"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /user/update_password [post]
-func UserUpdatePassword(c *gin.Context) {
+func (h *UserHandler) UpdatePassword(c *gin.Context) {
 	var req request.UserUpdatePassword
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
 	userID := service.GetUserIDFromAuthMiddleware(c)
-	if req.OldPassword == req.NewPassword {
-		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "新旧密码不能相同"))
+	if err := h.userService.UpdatePassword(userID, req); err != nil {
+		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
-	if req.NewPassword != req.NewPassword2 {
-		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, "两次新密码不一致"))
-		return
-	}
-	user := entity.User{Password: dao.Md5Password(req.NewPassword, userID)}
 
-	result := my_runtime.Db.Model(entity.User{}).Where("id = ?", userID).Updates(&user)
-	if result.RowsAffected == 1 {
-		c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
-	} else {
-		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, result.Error.Error()))
-	}
+	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
 
-// UserList  godoc
+// List  godoc
 // @Summary user list
 // @Schemes
 // @Description user list
 // @Tags User
 // @Accept */*
 // @Produce json
-// @Param page query request.UserList true "UserList"
+// @Param page query request.UserList true "List"
 // @Success 200 {object} response.CommonResponse[data=response.UserList] "成功响应"
 // @Router /user/list [get]
-func UserList(g *gin.Context) {
+func (h *UserHandler) List(g *gin.Context) {
 	var req request.UserList
 	if success := utils.ValidateQuery(g, &req); !success {
 		return
@@ -209,11 +179,4 @@ func UserList(g *gin.Context) {
 		my_runtime.Db.Model(entity.Role{}).Joins("User").Where("project_id = ?", req.ProjectID).Select("User.id, name, user_name, email, avatar, role_type").Find(&res.List)
 	}
 	g.JSON(http.StatusOK, response.CreateResponse(0, "ok", res))
-}
-
-func generateCookie(user entity.User) string {
-	// 生成 cookie 使用id， 当前时间戳，和一个随机8位字符串生成
-	combined := fmt.Sprintf("%s%d%s", user.ID, time.Now().Unix(), utils.RandomString(8))
-	hash := sha1.Sum([]byte(combined))
-	return hex.EncodeToString(hash[:])
 }

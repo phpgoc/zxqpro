@@ -71,8 +71,7 @@ func (s *TaskService) CanBeAssignedTester(userID, projectID uint) bool {
 
 // GetChildrenTaskList 只包括儿子，不包括孙子
 func (s *TaskService) GetChildrenTaskList(taskID uint) ([]response.TaskOneForList, error) {
-	var tasks []entity.Task
-	err := my_runtime.Db.Preload("CreateUser").Preload("TestUser").Preload("TopTaskAssignUsers").Where("parent_id = ?", taskID).Find(&tasks).Error
+	tasks, err := s.taskDAO.GetChildrenTasksByParentID(taskID)
 	if err != nil {
 		return nil, err
 	}
@@ -182,9 +181,8 @@ func (s *TaskService) TaskUpdateTop(userID uint, req request.TaskUpdateTop) erro
 		expectCompleteTime = &time.Time{}
 		*expectCompleteTime = t
 	}
-	var task entity.Task
-	var err error
-	if err = my_runtime.Db.Preload("TopTaskAssignUsers").Where("id = ?", req.ID).First(&task).Error; err != nil {
+	task, err := s.taskDAO.GetTaskByID(req.ID)
+	if err != nil {
 		return err
 	}
 	if !IsAdmin(userID) && task.CreateUserID != userID {
@@ -208,7 +206,7 @@ func (s *TaskService) TaskUpdateTop(userID uint, req request.TaskUpdateTop) erro
 	}
 	if req.Status != nil {
 		if *req.Status == entity.TaskStatusCompleted || *req.Status == entity.TaskStatusArchived {
-			// 空的逻辑正常，可以完成或关闭吧
+			// 空的逻辑正常，可以完成或关闭
 			childTasks, _ := s.GetChildrenTaskList(task.ID)
 			allArchived := true
 			for _, childTask := range childTasks {
@@ -250,7 +248,7 @@ func (s *TaskService) TaskUpdateTop(userID uint, req request.TaskUpdateTop) erro
 func (s *TaskService) TaskInfo(id uint) (response.TaskInfo, error) {
 	// 没有权限问题，任何人都可以查看任务信息
 	var task entity.Task
-	err := my_runtime.Db.Preload("CreateUser").Preload("AssignUser").Preload("Tester").Preload("Steps").Preload("Steps.Developer").Preload("Project").Preload("TopTaskAssignUsers").Where("id = ?", id).First(&task).Error
+	err := my_runtime.Db.Preload("Create").Preload("AssignUser").Preload("Tester").Preload("Steps").Preload("Steps.Developer").Preload("Project").Preload("TopTaskAssignUsers").Where("id = ?", id).First(&task).Error
 	if err != nil {
 		return response.TaskInfo{}, err
 	}
