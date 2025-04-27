@@ -4,9 +4,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/phpgoc/zxqpro/docs"
-	"github.com/phpgoc/zxqpro/model/dao"
 	"github.com/phpgoc/zxqpro/model/service"
-	"github.com/phpgoc/zxqpro/my_runtime"
 	"github.com/phpgoc/zxqpro/routes/middleware"
 	"github.com/phpgoc/zxqpro/utils"
 )
@@ -35,13 +33,13 @@ func ApiRoutes() *gin.Engine {
 	docs.SwaggerInfo.BasePath = "/api"
 	admin := api.Group("/admin")
 	admin.Use(middleware.AuthAdmin())
-	adminHandler := NewAdminHandler(service.NewAdminService(dao.NewUserDAO(my_runtime.Db)))
+	adminHandler := NewAdminHandler(service.ContainerInstance.AdminService)
 	admin.POST("/register", adminHandler.AdminRegister)
 	admin.POST("update_password", adminHandler.AdminUpdatePassword)
 	admin.POST("create_project", adminHandler.AdminCreateProject)
 	admin.POST("/reset_rate_limit", AdminResetRateLimit)
 
-	userHandler := NewUserHandler(service.NewUserService(dao.NewUserDAO(my_runtime.Db)))
+	userHandler := NewUserHandler(service.ContainerInstance.UserService)
 	api.POST("/user/login", middleware.RateLimit(10), userHandler.UserLogin)
 
 	// 这个接口不是不需要验证登录，而是单独验证，在验证错误时不能返回json，这是不符合sse规范的
@@ -55,7 +53,7 @@ func ApiRoutes() *gin.Engine {
 	api.POST("/user/update_password", userHandler.UpdatePassword)
 	api.GET("/user/list", userHandler.List)
 
-	projectHandler := NewProjectHandler(service.NewProjectService(dao.NewProjectDAO(my_runtime.Db), dao.NewRoleDAO(my_runtime.Db)))
+	projectHandler := NewProjectHandler(service.ContainerInstance.ProjectService)
 
 	api.POST("/project/create_role", projectHandler.ProjectCreateRole)
 	api.POST("/project/delete_role", projectHandler.ProjectDeleteRole)
@@ -74,7 +72,7 @@ func ApiRoutes() *gin.Engine {
 	api.POST("/message/read", MessageRead)
 	api.POST("/message/manual", MessageManual)
 
-	taskHandler := NewTaskHandler(service.NewTaskService(dao.NewTaskDAO(my_runtime.Db), service.NewProjectService(dao.NewProjectDAO(my_runtime.Db), dao.NewRoleDAO(my_runtime.Db))))
+	taskHandler := NewTaskHandler(service.ContainerInstance.TaskService)
 	api.POST("/task/create_top", taskHandler.TaskCreateTop)
 	api.POST("/task/update_top", taskHandler.TaskUpdateTop)
 	api.POST("/task/assign_top", taskHandler.TaskAssignTop)

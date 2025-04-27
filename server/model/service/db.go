@@ -53,10 +53,12 @@ func InitDb() {
 	_ = my_runtime.Db.AutoMigrate(&entity.TaskTimeEstimate{}, &entity.Task{}, &entity.Step{})
 	_ = my_runtime.Db.AutoMigrate(&entity.Role{})
 	_ = my_runtime.Db.AutoMigrate(&entity.Message{}, &entity.MessageTo{})
+	dao.InitContainer()
+	InitContainer() // service
 	// 如果数据库没有数据就插入一条数据
 	var count int64
 	my_runtime.Db.Model(entity.User{}).Count(&count)
 	if count == 0 {
-		_ = NewAdminService(dao.NewUserDAO(my_runtime.Db)).Create(request.AdminRegister{Name: "admin", Password: "Aa123456"})
+		_ = ContainerInstance.AdminService.Create(request.AdminRegister{Name: "admin", Password: "Aa123456"})
 	}
 }
