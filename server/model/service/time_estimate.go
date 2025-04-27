@@ -23,7 +23,7 @@ func NewTaskTimeEstimateService(taskTimeEstimateDAO *dao.TaskTimeEstimateDAO, ta
 
 // CanEstimateTimeWithFree   任何人都可以评估，但是这个项目中的测试不能提供空闲时间
 func (s *TaskTimeEstimateService) CanEstimateTimeWithFree(userID, taskID uint) bool {
-	roleType, _ := s.projectService.GetRoleType(userID, taskID)
+	roleType := s.projectService.GetRoleType(userID, taskID)
 	return roleType == entity.RoleTypeTester
 }
 

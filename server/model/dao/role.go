@@ -24,6 +24,12 @@ func (d *RoleDAO) GetAllUserByProjectID(projectID uint) ([]entity.Role, error) {
 	return roles, nil
 }
 
+func (d *RoleDAO) GetRole(userID, projectID uint) (entity.Role, error) {
+	role := entity.Role{}
+	res := my_runtime.Db.Where("user_id = ? and project_id = ?", userID, projectID).First(&role).Error
+	return role, res
+}
+
 func CreateRole(userID, roleID uint, roleType entity.RoleType) error {
 	role := entity.Role{
 		UserID:    userID,

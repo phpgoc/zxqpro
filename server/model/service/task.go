@@ -32,10 +32,8 @@ func (s *TaskService) CanCreateTop(userID, projectID uint) bool {
 	if IsAdmin(userID) {
 		return true
 	}
-	roleTypeInProject, err := s.projectService.GetRoleType(userID, projectID)
-	if err != nil {
-		return false
-	}
+	roleTypeInProject := s.projectService.GetRoleType(userID, projectID)
+
 	return roleTypeInProject == entity.RoleTypeOwner || roleTypeInProject == entity.RoleTypeProducter
 }
 
@@ -43,10 +41,8 @@ func (s *TaskService) CanBeAssignedDeveloper(userID, projectID uint) bool {
 	if IsAdmin(userID) {
 		return false
 	}
-	role, err := s.projectService.GetRoleType(userID, projectID)
-	if err != nil {
-		return false
-	}
+	role := s.projectService.GetRoleType(userID, projectID)
+
 	if role == entity.RoleTypeOwner || role == entity.RoleTypeDeveloper || role == entity.RoleTypeProducter {
 		return true
 	} else {
@@ -58,10 +54,8 @@ func (s *TaskService) CanBeAssignedTester(userID, projectID uint) bool {
 	if IsAdmin(userID) {
 		return false
 	}
-	role, err := s.projectService.GetRoleType(userID, projectID)
-	if err != nil {
-		return false
-	}
+	role := s.projectService.GetRoleType(userID, projectID)
+
 	if role == entity.RoleTypeOwner || role == entity.RoleTypeTester || role == entity.RoleTypeProducter {
 		return true
 	} else {
@@ -320,10 +314,7 @@ func (s *TaskService) TaskAssignSelfToTop(userID, TaskID uint) error {
 		return errors.New("project self assign to top task is disabled")
 	}
 
-	roleTypeInProject, err := s.projectService.GetRoleType(userID, task.ProjectID)
-	if err != nil {
-		return err
-	}
+	roleTypeInProject := s.projectService.GetRoleType(userID, task.ProjectID)
 
 	// 所有者和 产品经理都可以将自己分配到顶级任务中。 create user 也可以
 	// create user 理论不该显示这个接口，但是为了兼容性，这里不做限制。
@@ -340,7 +331,7 @@ func (s *TaskService) TaskAssignSelfToTop(userID, TaskID uint) error {
 	var user entity.User
 	_ = my_runtime.Db.First(&user, userID).Error
 	task.TopTaskAssignUsers = append(task.TopTaskAssignUsers, user)
-	if err = my_runtime.Db.Save(&task).Error; err != nil {
+	if err := my_runtime.Db.Save(&task).Error; err != nil {
 		return err
 	}
 

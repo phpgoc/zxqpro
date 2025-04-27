@@ -243,8 +243,7 @@ func (h *ProjectHandler) ProjectRoleIn(c *gin.Context) {
 	userID := service.GetUserIDFromAuthMiddleware(c)
 	key := utils.JoinCacheKey(my_runtime.PrefixUseridProjectRole, userID, req.ID)
 	roleType := interfaces.GetOrSet(interfaces.Cache, key, func() entity.RoleType {
-		roleType, _ := h.projectService.GetRoleType(userID, req.ID)
-		return roleType
+		return h.projectService.GetRoleType(userID, req.ID)
 	}, time.Hour)
 
 	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", response.ProjectRole{

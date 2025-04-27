@@ -39,16 +39,15 @@ func (s *ProjectService) HasOwnPermission(userID, projectID uint) error {
 	return nil
 }
 
-func (s *ProjectService) GetRoleType(userID, projectID uint) (entity.RoleType, error) {
+func (s *ProjectService) GetRoleType(userID, projectID uint) entity.RoleType {
 	if IsAdmin(userID) {
-		return entity.RoleTypeAdmin, nil
+		return entity.RoleTypeAdmin
 	}
-	role := entity.Role{}
-	res := my_runtime.Db.Where("user_id = ? and project_id = ?", userID, projectID).First(&role)
-	if res.Error != nil {
-		return entity.RoleTypeNone, res.Error
+	role, res := s.roleDAO.GetRole(userID, projectID)
+	if res != nil {
+		return entity.RoleTypeNone
 	}
-	return role.RoleType, nil
+	return role.RoleType
 }
 
 func (s *ProjectService) GetProjectList(userID uint, status, roleType byte, page, pageSize int) (response.ProjectList, error) {
