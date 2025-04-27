@@ -21,7 +21,7 @@ func NewTaskHandler(taskService *service.TaskService) *TaskHandler {
 	}
 }
 
-// TaskCreateTop  godoc
+// CreateTop  godoc
 // @Summary task create top
 // @Schemes
 // @Description task create top
@@ -31,7 +31,7 @@ func NewTaskHandler(taskService *service.TaskService) *TaskHandler {
 // @Param TaskCreateTop body request.TaskCreateTop true "AdminRegister"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /task/create_top [post]
-func (h *TaskHandler) TaskCreateTop(c *gin.Context) {
+func (h *TaskHandler) CreateTop(c *gin.Context) {
 	var req request.TaskCreateTop
 	if success := utils.ValidateJson(c, &req); !success {
 		return
@@ -47,7 +47,7 @@ func (h *TaskHandler) TaskCreateTop(c *gin.Context) {
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
 
-// TaskUpdateTop  godoc
+// UpdateTop  godoc
 // @Summary task update top
 // @Schemes
 // @Description task update top
@@ -57,7 +57,7 @@ func (h *TaskHandler) TaskCreateTop(c *gin.Context) {
 // @Param TaskUpdateTop body request.TaskUpdateTop true "AdminRegister"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /task/update_top [post]
-func (h *TaskHandler) TaskUpdateTop(c *gin.Context) {
+func (h *TaskHandler) UpdateTop(c *gin.Context) {
 	var req request.TaskUpdateTop
 	if success := utils.ValidateJson(c, &req); !success {
 		return
@@ -71,7 +71,7 @@ func (h *TaskHandler) TaskUpdateTop(c *gin.Context) {
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
 
-// TaskAssignTop  godoc
+// AssignTop  godoc
 // @Summary task assign top
 // @Schemes
 // @Description task assign top
@@ -81,7 +81,7 @@ func (h *TaskHandler) TaskUpdateTop(c *gin.Context) {
 // @Param TaskAssignTop body request.CommonID true "AdminRegister"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /task/assign_top [post]
-func (h *TaskHandler) TaskAssignTop(c *gin.Context) {
+func (h *TaskHandler) AssignTop(c *gin.Context) {
 	var req request.CommonID
 	if success := utils.ValidateJson(c, &req); !success {
 		return

@@ -30,7 +30,7 @@ func NewAdminHandler(adminService *service.AdminService) *AdminHandler {
 
 // @BasePath /api
 
-// AdminRegister  godoc
+// Register  godoc
 // @Summary admin register
 // @Schemes
 // @Description admin register
@@ -40,7 +40,7 @@ func NewAdminHandler(adminService *service.AdminService) *AdminHandler {
 // @Param AdminRegister body request.AdminRegister true "AdminRegister"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /admin/register [post]
-func (h *AdminHandler) AdminRegister(c *gin.Context) {
+func (h *AdminHandler) Register(c *gin.Context) {
 	var req request.AdminRegister
 	if success := utils.ValidateJson(c, &req); !success {
 		return
@@ -54,7 +54,7 @@ func (h *AdminHandler) AdminRegister(c *gin.Context) {
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
 
-// AdminUpdatePassword  godoc
+// UpdatePassword  godoc
 // @Summary admin update_password
 // @Schemes
 // @Description admin update_password
@@ -64,7 +64,7 @@ func (h *AdminHandler) AdminRegister(c *gin.Context) {
 // @Param AdminUpdatePassword body request.AdminUpdatePassword true "AdminUpdatePassword"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /admin/update_password [post]
-func (h *AdminHandler) AdminUpdatePassword(c *gin.Context) {
+func (h *AdminHandler) UpdatePassword(c *gin.Context) {
 	var req request.AdminUpdatePassword
 	if success := utils.ValidateJson(c, &req); !success {
 		return
@@ -77,7 +77,7 @@ func (h *AdminHandler) AdminUpdatePassword(c *gin.Context) {
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
 
-// AdminCreateProject  godoc
+// CreateProject  godoc
 // @Summary admin create_project
 // @Schemes
 // @Description admin create_project
@@ -87,7 +87,7 @@ func (h *AdminHandler) AdminUpdatePassword(c *gin.Context) {
 // @Param AdminCreateProject body request.AdminCreateProject true "AdminCreateProject"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /admin/create_project [post]
-func (h *AdminHandler) AdminCreateProject(c *gin.Context) {
+func (h *AdminHandler) CreateProject(c *gin.Context) {
 	var req request.AdminCreateProject
 	if success := utils.ValidateJson(c, &req); !success {
 		return

@@ -9,7 +9,7 @@ import (
 	"github.com/phpgoc/zxqpro/utils"
 )
 
-// TaskPublicInfo  godoc
+// PublicInfo  godoc
 // @Summary task
 // @Schemes
 // @Description task info
@@ -19,7 +19,7 @@ import (
 // @Param CommonID query request.CommonID true "CommonID"
 // @Success 200 {object} response.CommonResponse[data=response.TaskInfo] "成功响应"
 // @Router /task/public_info [get]
-func (h *TaskHandler) TaskPublicInfo(c *gin.Context) {
+func (h *TaskHandler) PublicInfo(c *gin.Context) {
 	var req request.CommonID
 	if success := utils.ValidateQuery(c, &req); !success {
 		return

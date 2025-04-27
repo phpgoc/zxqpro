@@ -34,9 +34,9 @@ func ApiRoutes() *gin.Engine {
 	admin := api.Group("/admin")
 	admin.Use(middleware.AuthAdmin())
 	adminHandler := NewAdminHandler(service.ContainerInstance.AdminService)
-	admin.POST("/register", adminHandler.AdminRegister)
-	admin.POST("update_password", adminHandler.AdminUpdatePassword)
-	admin.POST("create_project", adminHandler.AdminCreateProject)
+	admin.POST("/register", adminHandler.Register)
+	admin.POST("update_password", adminHandler.UpdatePassword)
+	admin.POST("create_project", adminHandler.CreateProject)
 	admin.POST("/reset_rate_limit", AdminResetRateLimit)
 
 	userHandler := NewUserHandler(service.ContainerInstance.UserService)
@@ -55,15 +55,15 @@ func ApiRoutes() *gin.Engine {
 
 	projectHandler := NewProjectHandler(service.ContainerInstance.ProjectService)
 
-	api.POST("/project/create_role", projectHandler.ProjectCreateRole)
-	api.POST("/project/delete_role", projectHandler.ProjectDeleteRole)
-	api.POST("/project/update_role", projectHandler.ProjectUpdateRole)
-	api.GET("/project/list", projectHandler.ProjectList)
-	api.POST("/project/update", projectHandler.ProjectUpdate)
-	api.POST("/project/update_status", projectHandler.ProjectUpdateStatus)
-	api.GET("/project/info", projectHandler.ProjectInfo)
-	api.GET("/project/role_in", projectHandler.ProjectRoleIn)
-	api.POST("/project/task_list", projectHandler.ProjectTaskList)
+	api.POST("/project/create_role", projectHandler.CreateRole)
+	api.POST("/project/delete_role", projectHandler.DeleteRole)
+	api.POST("/project/update_role", projectHandler.UpdateRole)
+	api.GET("/project/list", projectHandler.List)
+	api.POST("/project/update", projectHandler.Update)
+	api.POST("/project/update_status", projectHandler.UpdateStatus)
+	api.GET("/project/info", projectHandler.Info)
+	api.GET("/project/role_in", projectHandler.RoleIn)
+	api.POST("/project/task_list", projectHandler.TaskList)
 	api.GET("/project/user_list", projectHandler.UserList)
 
 	api.POST("/message/share_link", MessageShareLink)
@@ -73,10 +73,10 @@ func ApiRoutes() *gin.Engine {
 	api.POST("/message/manual", MessageManual)
 
 	taskHandler := NewTaskHandler(service.ContainerInstance.TaskService)
-	api.POST("/task/create_top", taskHandler.TaskCreateTop)
-	api.POST("/task/update_top", taskHandler.TaskUpdateTop)
-	api.POST("/task/assign_top", taskHandler.TaskAssignTop)
-	api.GET("/task/public_info", taskHandler.TaskPublicInfo)
+	api.POST("/task/create_top", taskHandler.CreateTop)
+	api.POST("/task/update_top", taskHandler.UpdateTop)
+	api.POST("/task/assign_top", taskHandler.AssignTop)
+	api.GET("/task/public_info", taskHandler.PublicInfo)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	return router
