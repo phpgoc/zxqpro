@@ -2,7 +2,6 @@ package routes
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/phpgoc/zxqpro/model/service"
 
@@ -11,7 +10,6 @@ import (
 	"gorm.io/gorm/clause"
 
 	"github.com/gin-gonic/gin"
-	"github.com/phpgoc/zxqpro/model/dao"
 	"github.com/phpgoc/zxqpro/model/entity"
 	"github.com/phpgoc/zxqpro/routes/request"
 	"github.com/phpgoc/zxqpro/routes/response"
@@ -113,39 +111,10 @@ func (h *MessageHandler) SendList(c *gin.Context) {
 	if success := utils.ValidateQuery(c, &req); !success {
 		return
 	}
-	userID := service.GetUserIDFromAuthMiddleware(c)
-	var res response.MessageList
-	var messageList []entity.Message
-	model := my_runtime.Db.Model(entity.Message{}).Where("create_user_id = ?", userID).Preload("ToList").Preload("ToList.User")
-	result := model.Count(&res.Total)
-	if result.Error != nil {
-		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, result.Error.Error()))
+	res, err := h.messageService.SendList(c, &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.CreateResponse(1, "error", err.Error()))
 		return
-	}
-	result = model.Offset((req.Page - 1) * req.PageSize).Limit(req.PageSize).Order("id desc").Find(&messageList)
-
-	if result.Error != nil {
-		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, result.Error.Error()))
-		return
-	}
-	for _, message := range messageList {
-		var names []string
-		for _, messageToUser := range message.ToList {
-			names = append(names, messageToUser.User.UserName)
-		}
-		allRead := true
-		for _, messageToUser := range message.ToList {
-			allRead = allRead && messageToUser.Read
-		}
-		joinedNames := strings.Join(names, ",")
-		res.List = append(res.List, response.Message{
-			ID:       message.ID,
-			UserName: joinedNames,
-			Link:     message.Link,
-			Message:  service.JoinSendMessage(message.CreateUser.UserName, joinedNames, message.Action, message.MessageContent),
-			Time:     message.CreatedAt.Format("2006-01-02 15:04:05"),
-			Read:     allRead,
-		})
 	}
 	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", res))
 }
@@ -193,22 +162,11 @@ func (h *MessageHandler) Manual(c *gin.Context) {
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	userID := service.GetUserIDFromAuthMiddleware(c)
-
-	if err := dao.CreateMessage(userID, req.UserIDs, entity.ActionManual, req.Link, &req.Content); err != nil {
-		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
+	err := h.messageService.Manual(c, &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
 
-	sseManager := c.MustGet("sseManager").(*utils.SSEManager)
-	user, _ := dao.GetUserByID(userID)
-	for _, id := range req.UserIDs {
-		toUser, _ := dao.GetUserByID(id)
-		sseManager.SendMessageToUser(id,
-			utils.SSEMessage{
-				Code:    0,
-				Message: h.messageService.JoinReceiveMessage(user.UserName, toUser.UserName, entity.ActionManual, &req.Content),
-			})
-	}
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
