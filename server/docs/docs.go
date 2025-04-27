@@ -152,8 +152,8 @@ const docTemplate = `{
                 "summary": "message manual",
                 "parameters": [
                     {
-                        "description": "MessageRead",
-                        "name": "MessageRead",
+                        "description": "Read",
+                        "name": "Read",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -186,8 +186,8 @@ const docTemplate = `{
                 "summary": "message read",
                 "parameters": [
                     {
-                        "description": "MessageRead",
-                        "name": "MessageRead",
+                        "description": "Read",
+                        "name": "Read",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -303,8 +303,8 @@ const docTemplate = `{
                 "summary": "message share link",
                 "parameters": [
                     {
-                        "description": "MessageShareLink",
-                        "name": "MessageShareLink",
+                        "description": "ShareLink",
+                        "name": "ShareLink",
                         "in": "body",
                         "required": true,
                         "schema": {

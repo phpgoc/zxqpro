@@ -66,11 +66,12 @@ func ApiRoutes() *gin.Engine {
 	api.POST("/project/task_list", projectHandler.TaskList)
 	api.GET("/project/user_list", projectHandler.UserList)
 
-	api.POST("/message/share_link", MessageShareLink)
-	api.GET("/message/receive_list", MessageReceiveList)
-	api.GET("/message/send_list", MessageSendList)
-	api.POST("/message/read", MessageRead)
-	api.POST("/message/manual", MessageManual)
+	messageHandler := NewMessageHandler(service.ContainerInstance.MessageService)
+	api.POST("/message/share_link", messageHandler.ShareLink)
+	api.GET("/message/receive_list", messageHandler.ReceiveList)
+	api.GET("/message/send_list", messageHandler.SendList)
+	api.POST("/message/read", messageHandler.Read)
+	api.POST("/message/manual", messageHandler.Manual)
 
 	taskHandler := NewTaskHandler(service.ContainerInstance.TaskService)
 	api.POST("/task/create_top", taskHandler.CreateTop)

@@ -460,9 +460,9 @@ paths:
       - application/json
       description: message manual
       parameters:
-      - description: MessageRead
+      - description: Read
         in: body
-        name: MessageRead
+        name: Read
         required: true
         schema:
           $ref: '#/definitions/request.ManualMessage'
@@ -482,9 +482,9 @@ paths:
       - application/json
       description: message read
       parameters:
-      - description: MessageRead
+      - description: Read
         in: body
-        name: MessageRead
+        name: Read
         required: true
         schema:
           $ref: '#/definitions/request.MessageRead'
@@ -559,9 +559,9 @@ paths:
       - application/json
       description: message share link
       parameters:
-      - description: MessageShareLink
+      - description: ShareLink
         in: body
-        name: MessageShareLink
+        name: ShareLink
         required: true
         schema:
           $ref: '#/definitions/request.MessageShareLink'

@@ -18,50 +18,51 @@ import (
 	"github.com/phpgoc/zxqpro/utils"
 )
 
-// MessageShareLink  godoc
+type MessageHandler struct {
+	messageService *service.MessageService
+}
+
+func NewMessageHandler(messageService *service.MessageService) *MessageHandler {
+	return &MessageHandler{
+		messageService: messageService,
+	}
+}
+
+// ShareLink  godoc
 // @Summary message share link
 // @Schemes
 // @Description message share link
 // @Tags Message
 // @Accept json
 // @Produce json
-// @Param MessageShareLink body request.MessageShareLink true "MessageShareLink"
+// @Param ShareLink body request.MessageShareLink true "ShareLink"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /message/share_link [post]
-func MessageShareLink(c *gin.Context) {
+func (h *MessageHandler) ShareLink(c *gin.Context) {
 	var req request.MessageShareLink
 	if success := utils.ValidateJson(c, &req); !success {
 		return
 	}
-	userID := service.GetUserIDFromAuthMiddleware(c)
-
-	if err := dao.CreateMessage(userID, []uint{req.ToUserID}, entity.ActionShareLink, &req.Link, nil); err != nil {
-		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
+	err := h.messageService.ShareLink(c, &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.CreateResponseWithoutData(1, "error"))
 		return
 	}
-	sseManager := c.MustGet("sseManager").(*utils.SSEManager)
-	user, _ := dao.GetUserByID(userID)
-	toUser, _ := dao.GetUserByID(req.ToUserID)
-	sseManager.SendMessageToUser(req.ToUserID,
-		utils.SSEMessage{
-			Message: dao.JoinReceiveMessage(user.UserName, toUser.UserName, entity.ActionShareLink, nil),
-			Link:    &(req.Link),
-		})
 
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
 
-// MessageReceiveList  godoc
+// ReceiveList  godoc
 // @Summary message receive_list
 // @Schemes
 // @Description message receive_list
 // @Tags Message
 // @Accept */*
 // @Produce json
-// @Param MessageReceiveList query request.MessageList true "MessageReceiveList"
+// @Param ReceiveList query request.MessageList true "ReceiveList"
 // @Success 200 {object} response.CommonResponse[data=response.MessageList] "成功响应"
 // @Router /message/receive_list [get]
-func MessageReceiveList(c *gin.Context) {
+func (h *MessageHandler) ReceiveList(c *gin.Context) {
 	var req request.MessageList
 	if success := utils.ValidateQuery(c, &req); !success {
 		return
@@ -89,7 +90,7 @@ func MessageReceiveList(c *gin.Context) {
 			ID:       messageTo.ID,
 			Link:     messageTo.Message.Link,
 			UserName: messageTo.Message.CreateUser.UserName,
-			Message:  dao.JoinReceiveMessage(messageTo.Message.CreateUser.UserName, messageTo.User.UserName, messageTo.Message.Action, messageTo.Message.MessageContent),
+			Message:  h.messageService.JoinReceiveMessage(messageTo.Message.CreateUser.UserName, messageTo.User.UserName, messageTo.Message.Action, messageTo.Message.MessageContent),
 			Time:     messageTo.Message.CreatedAt.Format("2006-01-02 15:04:05"),
 			Read:     messageTo.Read,
 		})
@@ -97,17 +98,17 @@ func MessageReceiveList(c *gin.Context) {
 	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", res))
 }
 
-// MessageSendList  godoc
+// SendList  godoc
 // @Summary message send_list
 // @Schemes
 // @Description message send_list
 // @Tags Message
 // @Accept */*
 // @Produce json
-// @Param MessageSendList query request.Page true "MessageSendList"
+// @Param SendList query request.Page true "SendList"
 // @Success 200 {object} response.CommonResponse[data=response.MessageList] "成功响应"
 // @Router /message/send_list [get]
-func MessageSendList(c *gin.Context) {
+func (h *MessageHandler) SendList(c *gin.Context) {
 	var req request.Page
 	if success := utils.ValidateQuery(c, &req); !success {
 		return
@@ -141,7 +142,7 @@ func MessageSendList(c *gin.Context) {
 			ID:       message.ID,
 			UserName: joinedNames,
 			Link:     message.Link,
-			Message:  dao.JoinSendMessage(message.CreateUser.UserName, joinedNames, message.Action, message.MessageContent),
+			Message:  service.JoinSendMessage(message.CreateUser.UserName, joinedNames, message.Action, message.MessageContent),
 			Time:     message.CreatedAt.Format("2006-01-02 15:04:05"),
 			Read:     allRead,
 		})
@@ -149,17 +150,17 @@ func MessageSendList(c *gin.Context) {
 	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", res))
 }
 
-// MessageRead  godoc
+// Read  godoc
 // @Summary message read
 // @Schemes
 // @Description message read
 // @Tags Message
 // @Accept json
 // @Produce json
-// @Param MessageRead body request.MessageRead true "MessageRead"
+// @Param Read body request.MessageRead true "Read"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /message/read [post]
-func MessageRead(c *gin.Context) {
+func (h *MessageHandler) Read(c *gin.Context) {
 	var req request.MessageRead
 	if success := utils.ValidateJson(c, &req); !success {
 		return
@@ -177,17 +178,17 @@ func MessageRead(c *gin.Context) {
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))
 }
 
-// MessageManual  godoc
+// Manual  godoc
 // @Summary message manual
 // @Schemes
 // @Description message manual
 // @Tags Message
 // @Accept json
 // @Produce json
-// @Param MessageRead body request.ManualMessage true "MessageRead"
+// @Param Read body request.ManualMessage true "Read"
 // @Success 200 {object} response.CommonResponseWithoutData "成功响应"
 // @Router /message/manual [post]
-func MessageManual(c *gin.Context) {
+func (h *MessageHandler) Manual(c *gin.Context) {
 	var req request.ManualMessage
 	if success := utils.ValidateJson(c, &req); !success {
 		return
@@ -206,7 +207,7 @@ func MessageManual(c *gin.Context) {
 		sseManager.SendMessageToUser(id,
 			utils.SSEMessage{
 				Code:    0,
-				Message: dao.JoinReceiveMessage(user.UserName, toUser.UserName, entity.ActionManual, &req.Content),
+				Message: h.messageService.JoinReceiveMessage(user.UserName, toUser.UserName, entity.ActionManual, &req.Content),
 			})
 	}
 	c.JSON(http.StatusOK, response.CreateResponseWithoutData(0, "ok"))

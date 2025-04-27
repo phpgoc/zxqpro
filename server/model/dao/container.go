@@ -8,6 +8,7 @@ type Container struct {
 	UserDAO             *UserDAO
 	TaskDAO             *TaskDAO
 	TaskTimeEstimateDAO *TaskTimeEstimateDAO
+	MessageDAO          *MessageDAO
 }
 
 var ContainerInstance *Container
@@ -19,5 +20,6 @@ func InitContainer() {
 		UserDAO:             NewUserDAO(my_runtime.Db),
 		TaskDAO:             NewTaskDAO(my_runtime.Db),
 		TaskTimeEstimateDAO: NewTaskTimeEstimateDAO(my_runtime.Db),
+		MessageDAO:          NewMessageDAO(my_runtime.Db),
 	}
 }
