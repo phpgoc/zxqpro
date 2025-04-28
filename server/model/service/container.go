@@ -21,6 +21,6 @@ func InitContainer() {
 		MessageService: NewMessageService(dao.ContainerInstance.MessageDAO, dao.ContainerInstance.UserDAO),
 	}
 	// 下边是依赖其他service的service初始化，需要先初始化依赖的service
-	ContainerInstance.TaskService = NewTaskService(dao.ContainerInstance.TaskDAO, ContainerInstance.ProjectService)
+	ContainerInstance.TaskService = NewTaskService(dao.ContainerInstance.TaskDAO, dao.ContainerInstance.UserDAO, ContainerInstance.ProjectService)
 	ContainerInstance.TaskTimeEstimateService = NewTaskTimeEstimateService(dao.ContainerInstance.TaskTimeEstimateDAO, dao.ContainerInstance.TaskDAO, ContainerInstance.ProjectService)
 }

@@ -18,12 +18,14 @@ import (
 
 type TaskService struct {
 	taskDAO        *dao.TaskDAO
+	userDAO        *dao.UserDAO
 	projectService *ProjectService
 }
 
-func NewTaskService(taskDAO *dao.TaskDAO, projectService *ProjectService) *TaskService {
+func NewTaskService(taskDAO *dao.TaskDAO, userDao *dao.UserDAO, projectService *ProjectService) *TaskService {
 	return &TaskService{
 		taskDAO:        taskDAO,
+		userDAO:        userDao,
 		projectService: projectService,
 	}
 }
@@ -140,9 +142,8 @@ func (s *TaskService) TaskCreateTop(userID uint, req request.TaskCreateTop) erro
 	if !s.CanBeAssignedTester(req.TesterID, req.ProjectID) {
 		return errors.New(fmt.Sprintf("%d cannot be assigned to tester", req.TesterID))
 	}
-	var users []entity.User
-	// 根据 user_id 查询对应的 User 对象
-	if err := my_runtime.Db.Find(&users, req.AssignUsers).Error; err != nil {
+	users, err := s.userDAO.GetByIDs(req.AssignUsers)
+	if err != nil {
 		return err
 	}
 
@@ -156,13 +157,13 @@ func (s *TaskService) TaskCreateTop(userID uint, req request.TaskCreateTop) erro
 		ExpectCompleteTime: expectCompleteTime,
 		Status:             entity.TaskStatusStarted, // 顶级任务没有创建后的状态，直接就开始了，非顶级任务才有
 	}
-	err := my_runtime.Db.Create(&task).Error
+	err = s.taskDAO.Create(&task)
 	if err != nil {
 		return err
 	}
 	task.HierarchyPath = fmt.Sprintf("%d:", task.ID)
-	err = my_runtime.Db.Save(&task).Error
-	return err
+
+	return s.taskDAO.Update(&task)
 }
 
 func (s *TaskService) TaskUpdateTop(userID uint, req request.TaskUpdateTop) error {
@@ -175,7 +176,7 @@ func (s *TaskService) TaskUpdateTop(userID uint, req request.TaskUpdateTop) erro
 		expectCompleteTime = &time.Time{}
 		*expectCompleteTime = t
 	}
-	task, err := s.taskDAO.GetTaskByID(req.ID)
+	task, err := s.taskDAO.GetByID(req.ID)
 	if err != nil {
 		return err
 	}
@@ -225,18 +226,14 @@ func (s *TaskService) TaskUpdateTop(userID uint, req request.TaskUpdateTop) erro
 				return errors.New(fmt.Sprintf("%d cannot be assigned to develper", u))
 			}
 		}
-		var users []entity.User
-		// 根据 user_id 查询对应的 User 对象
-		if err := my_runtime.Db.Find(&users, req.AssignUsers).Error; err != nil {
+		users, err := s.userDAO.GetByIDs(req.AssignUsers)
+		if err != nil {
 			return err
 		}
 		updateTask["TopTaskAssignUsers"] = users
 	}
-	if err := my_runtime.Db.Model(&task).Updates(updateTask).Error; err != nil {
-		return err
-	}
 
-	return nil
+	return s.taskDAO.Updates(task, updateTask)
 }
 
 func (s *TaskService) TaskInfo(id uint) (response.TaskInfo, error) {
@@ -302,10 +299,11 @@ func (s *TaskService) TaskAssignSelfToTop(userID, TaskID uint) error {
 		return errors.New("admin can not assign self to top task")
 	}
 
-	var task entity.Task
-	if err := my_runtime.Db.Preload("Project").Preload("TopTaskAssignUsers").First(&task, TaskID).Error; err != nil {
+	task, err := s.taskDAO.GetByID(TaskID)
+	if err != nil {
 		return err
 	}
+
 	if task.ParentID != 0 {
 		return errors.New("task is not top task")
 	}

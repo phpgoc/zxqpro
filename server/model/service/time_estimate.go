@@ -30,7 +30,7 @@ func (s *TaskTimeEstimateService) CanEstimateTimeWithFree(userID, taskID uint) b
 // CanAddEstimateTime 估时不可修改，不可删除，最多添加3次,
 // 不能对状态为完成，归档，失败的任务进行估时
 func (s *TaskTimeEstimateService) CanAddEstimateTime(userID, taskID uint) error {
-	task, err := s.taskDAO.GetTaskWithoutPreloadByID(taskID)
+	task, err := s.taskDAO.GetWithoutPreloadByID(taskID)
 	if err != nil {
 		return err
 	}

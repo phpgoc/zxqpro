@@ -29,6 +29,15 @@ func (d *UserDAO) GetByID(id uint) (entity.User, error) {
 	return user, nil
 }
 
+func (d *UserDAO) GetByIDs(ids []uint) ([]entity.User, error) {
+	var users []entity.User
+	result := d.db.Find(&users, ids)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return users, nil
+}
+
 func (d *UserDAO) Create(user *entity.User) error {
 	result := d.db.Create(user)
 	if result.Error != nil {
