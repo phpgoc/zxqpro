@@ -38,3 +38,15 @@ func LogWarn(log string) {
 func LogError(log string) {
 	writeLogFile(fmt.Sprintf("%s%s", red, "ERROR"), log, 2)
 }
+
+func LogInfoWithUpLevel(log string, level int) {
+	writeLogFile(fmt.Sprintf("%s%s", green, "INFO"), log, level+2)
+}
+
+func LogWarnWithUpLevel(log string, level int) {
+	writeLogFile(fmt.Sprintf("%s%s", yellow, "WARN"), log, level+2)
+}
+
+func LogErrorWithUpLevel(log string, level int) {
+	writeLogFile(fmt.Sprintf("%s%s", red, "ERROR"), log, level+2)
+}
