@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"os/exec"
 
-	"github.com/phpgoc/zxqpro/model/entity"
+	"github.com/phpgoc/zxqpro/model/dao"
+
 	"github.com/phpgoc/zxqpro/my_runtime"
 	"github.com/phpgoc/zxqpro/utils"
 	"github.com/robfig/cron/v3"
@@ -12,17 +13,15 @@ import (
 
 func gitPullTask() chan struct{} {
 	// 查找project里是否有git地址，如果有就添加到定时任务里
-	var projects []entity.Project
-	_ = my_runtime.Db.Model(&entity.Project{}).Where("git_address != ''").Find(&projects)
-	var list string
-	for _, project := range projects {
-		if project.GitAddress != "" && utils.IsGitRepository(project.GitAddress) {
-			my_runtime.GitPathList.Add(project.GitAddress)
-			list += project.GitAddress + ", "
-		}
-	}
+
+	list := dao.ContainerInstance.ProjectDAO.GetAllGitPath()
 	if len(list) > 0 {
 		utils.LogWarn(fmt.Sprintf("git pull task list: %s", list))
+	}
+	for _, path := range list {
+		if utils.IsGitRepository(path) {
+			my_runtime.GitPathList.Add(path)
+		}
 	}
 
 	// 实现 git pull 逻辑

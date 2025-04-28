@@ -20,6 +20,25 @@ func NewProjectDAO(db *gorm.DB) *ProjectDAO {
 	}
 }
 
+func (d *ProjectDAO) Create(project *entity.Project) error {
+	res := my_runtime.Db.Create(project)
+	if res.Error != nil {
+		return res.Error
+	}
+	return nil
+}
+
+func (d *ProjectDAO) Update(project *entity.Project) error {
+	res := my_runtime.Db.Model(&entity.Project{}).Where("id = ?", project.ID).Updates(project)
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected != 1 {
+		return errors.New("not found")
+	}
+	return nil
+}
+
 func (d *ProjectDAO) UpdateProjectStatus(projectID uint, status entity.ProjectStatus) error {
 	// todo 如果要更新状态为已完成，检查是否所有的任务都已完成
 	res := my_runtime.Db.Model(&entity.Project{}).Where("id = ?", projectID).Update("status", status)
@@ -32,7 +51,7 @@ func (d *ProjectDAO) UpdateProjectStatus(projectID uint, status entity.ProjectSt
 	return nil
 }
 
-func (d *ProjectDAO) GetProjectByID(projectID uint) (entity.Project, error) {
+func (d *ProjectDAO) GetByID(projectID uint) (entity.Project, error) {
 	project := entity.Project{}
 	res := my_runtime.Db.Preload("Owner").Where("id = ?", projectID).First(&project)
 	if res.Error != nil {
@@ -72,4 +91,16 @@ func (d *ProjectDAO) GetProjectsForUser(userID uint, status, roleType byte, page
 	}
 	err = model.Offset((page - 1) * pageSize).Limit(pageSize).Find(&roles).Error
 	return roles, total, err
+}
+
+func (d *ProjectDAO) GetAllGitPath() []string {
+	var projects []entity.Project
+	var gitPathList []string
+	_ = my_runtime.Db.Model(&entity.Project{}).Where("git_address != ''").Find(&projects)
+	for _, project := range projects {
+		if project.GitAddress != "" {
+			gitPathList = append(gitPathList, project.GitAddress)
+		}
+	}
+	return gitPathList
 }

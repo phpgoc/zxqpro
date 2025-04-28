@@ -3,6 +3,9 @@ package dao
 import (
 	"errors"
 
+	"github.com/phpgoc/zxqpro/routes/request"
+	"gorm.io/gorm/clause"
+
 	"github.com/phpgoc/zxqpro/model/entity"
 	"gorm.io/gorm"
 )
@@ -68,4 +71,39 @@ func (d *TaskDAO) GetChildrenTasksByParentID(parentID uint) ([]entity.Task, erro
 	err := d.db.Preload("Create").Preload("Tester").Preload("AssignUser").Preload("TopTaskAssignUsers").
 		Where("parent_id = ?", parentID).Find(&tasks).Error
 	return tasks, err
+}
+
+func (d *TaskDAO) GetProjectTaskListAndCount(req request.ProjectTaskList) (int64, []entity.Task, error) {
+	var total int64
+	var taskList []entity.Task
+
+	model := d.db.Model(&entity.Task{}).Preload(clause.Associations).Where("project_id = ?", req.ID)
+	if req.CreateUserID != 0 {
+		model = model.Where("create_user_id = ?", req.CreateUserID)
+	}
+	if req.Status != 0 {
+		model = model.Where("status = ?", req.Status)
+	}
+	if req.TopStatus != 0 {
+		if req.TopStatus == 1 {
+			model = model.Where("parent_id = ?", 0)
+		} else {
+			model = model.Where("parent_id != ?", 0)
+		}
+	}
+	for _, order := range req.OrderList {
+		if order.Desc {
+			model = model.Order(order.Field + " desc")
+		} else {
+			model = model.Order(order.Field + " asc")
+		}
+	}
+
+	err := model.Count(&total).Error
+	if err != nil {
+		return 0, nil, err
+	}
+
+	err = model.Limit(req.PageSize).Offset((req.Page - 1) * req.PageSize).Find(&taskList).Error
+	return total, taskList, err
 }

@@ -63,7 +63,7 @@ func ApiRoutes() *gin.Engine {
 	api.POST("/project/update_status", projectHandler.UpdateStatus)
 	api.GET("/project/info", projectHandler.Info)
 	api.GET("/project/role_in", projectHandler.RoleIn)
-	api.POST("/project/task_list", projectHandler.TaskList)
+
 	api.GET("/project/user_list", projectHandler.UserList)
 
 	messageHandler := NewMessageHandler(service.ContainerInstance.MessageService)
@@ -78,6 +78,9 @@ func ApiRoutes() *gin.Engine {
 	api.POST("/task/update_top", taskHandler.UpdateTop)
 	api.POST("/task/assign_top", taskHandler.AssignTop)
 	api.GET("/task/public_info", taskHandler.PublicInfo)
+
+	// taskHandle，路由却在project里，这样做是为了这样的人物是共有的，没有所有人的权限，不在项目中的人也能通过分享的方式看到
+	api.POST("/project/task_list", taskHandler.ProjectTaskList)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	return router

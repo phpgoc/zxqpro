@@ -162,13 +162,8 @@ func (h *ProjectHandler) Update(c *gin.Context) {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
-	project := entity.Project{
-		Name:        req.Name,
-		Description: req.Description,
-		GitAddress:  req.GitAddress,
-		Config:      req.Config,
-	}
-	if err := h.projectService.UpdateProject(req.ID, project); err != nil {
+
+	if err := h.projectService.Update(req); err != nil {
 		c.JSON(http.StatusOK, response.CreateResponseWithoutData(1, err.Error()))
 		return
 	}
@@ -250,29 +245,6 @@ func (h *ProjectHandler) RoleIn(c *gin.Context) {
 	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", response.ProjectRole{
 		RoleType: roleType,
 	}))
-}
-
-// TaskList godoc
-// @Summary project task_list
-// @Description project task_list
-// @Tags Project
-// @Accept */*
-// @Produce json
-// @Param ProjectTaskList body request.ProjectTaskList true "ProjectTaskList"
-// @Success 200 {object} response.CommonResponse[data=response.TaskList] "成功响应"
-// @Router /project/task_list [post]
-func (h *ProjectHandler) TaskList(c *gin.Context) {
-	var req request.ProjectTaskList
-	if success := utils.ValidateJson(c, &req); !success {
-		return
-	}
-
-	taskList, err := h.projectService.GetTaskList(req)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, response.CreateResponse(1, err.Error(), nil))
-		return
-	}
-	c.JSON(http.StatusOK, response.CreateResponse(0, "ok", taskList))
 }
 
 // UserList

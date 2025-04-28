@@ -337,3 +337,62 @@ func (s *TaskService) TaskAssignSelfToTop(userID, TaskID uint) error {
 
 	return nil
 }
+
+func (s *TaskService) GetProjectTaskList(req request.ProjectTaskList) (res response.TaskList, err error) {
+	orderValidList := []string{"id", "expect_complete_time", "test_user_id", "completed_at"}
+	if err = request.IsAllValidOrder(req.OrderList, orderValidList); err != nil {
+		return res, err
+	}
+
+	var taskList []entity.Task
+	res.Total, taskList, err = s.taskDAO.GetProjectTaskListAndCount(req)
+	if err != nil {
+		return
+	}
+	var testUser *response.CommonIDAndName = nil
+	var subAssignUser *response.CommonIDAndName = nil
+	var topTaskAssignUsers []response.CommonIDAndName
+	for _, task := range taskList {
+		if task.TesterID != 0 {
+			testUser = &response.CommonIDAndName{
+				ID:   task.TesterID,
+				Name: task.Tester.UserName,
+			}
+		} else {
+			testUser = nil
+		}
+		if task.AssignUserID != 0 {
+			subAssignUser = &response.CommonIDAndName{
+				ID:   task.AssignUserID,
+				Name: task.AssignUser.UserName,
+			}
+		} else {
+			subAssignUser = nil
+		}
+		if task.TopTaskAssignUsers != nil {
+			topTaskAssignUsers = make([]response.CommonIDAndName, 0)
+			for _, user := range task.TopTaskAssignUsers {
+				topTaskAssignUsers = append(topTaskAssignUsers, response.CommonIDAndName{
+					ID:   user.ID,
+					Name: user.UserName,
+				})
+			}
+		}
+		res.List = append(res.List, response.TaskOneForList{
+			ID:   task.ID,
+			Name: task.Name,
+			CreateUser: response.CommonIDAndName{
+				ID:   task.CreateUserID,
+				Name: task.CreateUser.UserName,
+			},
+			ExpectCompleteTime: task.ExpectCompleteTime,
+			Status:             task.Status,
+			TestUser:           testUser,
+			SubAssignUser:      subAssignUser,
+			TopTaskAssignUsers: topTaskAssignUsers,
+			CompletedAt:        task.CompletedAt,
+		})
+	}
+
+	return
+}

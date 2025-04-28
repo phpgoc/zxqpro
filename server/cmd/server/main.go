@@ -27,14 +27,14 @@ import (
 // @version 0.1.0
 
 func main() {
-	my_runtime.InitCobra()
+	my_runtime.InitCobra() // 解析命令行参数，必须在最先执行
 	if !my_runtime.GinDebugModel {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	gin.DefaultWriter = my_runtime.GinLogWriter // 需要在utils.InitCobra() 之后
 	interfaces.InitCache()
 	service.InitDb()
-	router := routes.ApiRoutes()
+	router := routes.ApiRoutes() // 需要在 dao.InitDb() 之后
 
 	go cron.MainTask() // 需要在 dao.InitDb() 之后
 

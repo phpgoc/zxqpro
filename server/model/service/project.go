@@ -4,13 +4,12 @@ import (
 	"errors"
 
 	"github.com/phpgoc/zxqpro/routes/request"
-	"github.com/phpgoc/zxqpro/utils"
-	"gorm.io/gorm/clause"
 
 	"github.com/phpgoc/zxqpro/model/dao"
 	"github.com/phpgoc/zxqpro/model/entity"
 	"github.com/phpgoc/zxqpro/my_runtime"
 	"github.com/phpgoc/zxqpro/routes/response"
+	"github.com/phpgoc/zxqpro/utils"
 )
 
 type ProjectService struct {
@@ -26,7 +25,7 @@ func NewProjectService(projectDAO *dao.ProjectDAO, roleDAO *dao.RoleDAO) *Projec
 }
 
 func (s *ProjectService) HasOwnPermission(userID, projectID uint) error {
-	project, err := s.projectDAO.GetProjectByID(projectID)
+	project, err := s.projectDAO.GetByID(projectID)
 	if err != nil {
 		return err
 	}
@@ -101,92 +100,17 @@ func (s *ProjectService) GetProjectList(userID uint, status, roleType byte, page
 //	CompletedAt        *time.Time        `json:"completed_at"`
 //}
 
-func (s *ProjectService) GetTaskList(req request.ProjectTaskList) (res response.TaskList, err error) {
-	orderValidList := []string{"id", "expect_complete_time", "test_user_id", "completed_at"}
-	if err = request.IsAllValidOrder(req.OrderList, orderValidList); err != nil {
-		return res, err
+func (s *ProjectService) Update(req request.ProjectUpdate) error {
+	projectID := req.ID
+	project := entity.Project{
+		Name:        req.Name,
+		Description: req.Description,
+		GitAddress:  req.GitAddress,
+		Config:      req.Config,
 	}
-
-	var taskList []entity.Task
-	model := my_runtime.Db.Model(&entity.Task{}).Preload(clause.Associations).Where("project_id = ?", req.ID)
-	if req.CreateUserID != 0 {
-		model = model.Where("create_user_id = ?", req.CreateUserID)
-	}
-	if req.Status != 0 {
-		model = model.Where("status = ?", req.Status)
-	}
-	if req.TopStatus != 0 {
-		if req.TopStatus == 1 {
-			model = model.Where("parent_id = ?", 0)
-		} else {
-			model = model.Where("parent_id != ?", 0)
-		}
-	}
-	for _, order := range req.OrderList {
-		if order.Desc {
-			model = model.Order(order.Field + " desc")
-		} else {
-			model = model.Order(order.Field + " asc")
-		}
-	}
-	err = model.Count(&res.Total).Error
+	originalProject, err := s.projectDAO.GetByID(projectID)
 	if err != nil {
-		return res, err
-	}
-	err = model.Limit(req.PageSize).Offset((req.Page - 1) * req.PageSize).Find(&taskList).Error
-	var testUser *response.CommonIDAndName = nil
-	var subAssignUser *response.CommonIDAndName = nil
-	var topTaskAssignUsers []response.CommonIDAndName
-	for _, task := range taskList {
-		if task.TesterID != 0 {
-			testUser = &response.CommonIDAndName{
-				ID:   task.TesterID,
-				Name: task.Tester.UserName,
-			}
-		} else {
-			testUser = nil
-		}
-		if task.AssignUserID != 0 {
-			subAssignUser = &response.CommonIDAndName{
-				ID:   task.AssignUserID,
-				Name: task.AssignUser.UserName,
-			}
-		} else {
-			subAssignUser = nil
-		}
-		if task.TopTaskAssignUsers != nil {
-			topTaskAssignUsers = make([]response.CommonIDAndName, 0)
-			for _, user := range task.TopTaskAssignUsers {
-				topTaskAssignUsers = append(topTaskAssignUsers, response.CommonIDAndName{
-					ID:   user.ID,
-					Name: user.UserName,
-				})
-			}
-		}
-		res.List = append(res.List, response.TaskOneForList{
-			ID:   task.ID,
-			Name: task.Name,
-			CreateUser: response.CommonIDAndName{
-				ID:   task.CreateUserID,
-				Name: task.CreateUser.UserName,
-			},
-			ExpectCompleteTime: task.ExpectCompleteTime,
-			Status:             task.Status,
-			TestUser:           testUser,
-			SubAssignUser:      subAssignUser,
-			TopTaskAssignUsers: topTaskAssignUsers,
-			CompletedAt:        task.CompletedAt,
-		})
-	}
-
-	return res, err
-}
-
-func (s *ProjectService) UpdateProject(projectID uint, project entity.Project) error {
-	originalProject := entity.Project{}
-	res := my_runtime.Db.Model(&entity.Project{}).Where("id = ?", projectID).First(&originalProject)
-	if res.Error != nil {
-		return res.Error
+		return err
 	}
 
 	if originalProject.GitAddress == "" && project.GitAddress != "" {
@@ -207,18 +131,11 @@ func (s *ProjectService) UpdateProject(projectID uint, project entity.Project) e
 		}
 	}
 
-	res = my_runtime.Db.Model(&entity.Project{}).Where("id = ?", projectID).Updates(project)
-	if res.Error != nil {
-		return res.Error
-	}
-	if res.RowsAffected != 1 {
-		return errors.New("not found")
-	}
-	return nil
+	return s.projectDAO.Update(&project)
 }
 
 func (s *ProjectService) ProjectInfo(projectID uint) (*response.ProjectInfo, error) {
-	project, err := s.projectDAO.GetProjectByID(projectID)
+	project, err := s.projectDAO.GetByID(projectID)
 	if err != nil {
 		return nil, err
 	}
